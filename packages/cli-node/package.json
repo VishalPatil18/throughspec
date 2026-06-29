@@ -1,0 +1,28 @@
+{
+  "name": "spec-init",
+  "version": "0.0.0",
+  "description": "Throughspec - Spec-driven. Drift-proof. Token-lean. Scaffolds a Claude Code project around a deterministic SDLC.",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "spec-init": "./dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "claude",
+    "claude-code",
+    "scaffolding",
+    "spec-driven",
+    "sdlc",
+    "throughspec"
+  ],
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "clean": "rm -rf dist"
+  }
+}

@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *{ box-sizing:border-box; }
+  body{ margin:0; background:#f6f3f1; }
+  ::selection{ background:#cfdaf5; }
+</style>
+</helmet>
+
+<div ref="{{ setRoot }}" style="font-family:'Source Serif 4',serif; background:#f6f3f1; color:#000;">
+
+  <dc-import name="Nav" active="why" hint-size="100%,120px"></dc-import>
+
+  <!-- HERO -->
+  <section style="max-width:900px; margin:0 auto; padding:80px 32px 48px; text-align:center;">
+    <div data-reveal style="display:inline-flex; align-items:center; gap:9px; border:1px solid #000; border-radius:100px; padding:7px 16px; font-size:12px; margin-bottom:28px; opacity:0; transform:translateY(16px); transition:opacity .7s ease, transform .7s ease;">WHY THROUGHSPEC</div>
+    <h1 data-reveal style="font-family:'Source Serif 4',serif; font-weight:400; font-size:60px; line-height:1.06; letter-spacing:-0.02em; margin:0 0 22px; opacity:0; transform:translateY(20px); transition:opacity .75s ease .05s, transform .75s ease .05s;">Vibe-coding gets you started.<br>Structure gets you shipped.</h1>
+    <p data-reveal style="font-size:17px; line-height:1.55; color:#4e4d4d; letter-spacing:-0.02em; max-width:600px; margin:0 auto; opacity:0; transform:translateY(20px); transition:opacity .75s ease .12s, transform .75s ease .12s;">Open-ended prompting drifts. Context cost balloons. Decisions get lost. Throughspec replaces all three with a process that compounds.</p>
+  </section>
+
+  <!-- BEFORE / AFTER -->
+  <section style="max-width:1100px; margin:0 auto; padding:24px 32px 56px;">
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+      <div data-reveal style="border:1px solid rgba(0,0,0,0.25); border-radius:32px; padding:40px; background:#f6f3f1; opacity:0; transform:translateY(24px); transition:opacity .7s ease, transform .7s ease;">
+        <div style="font-size:12px; letter-spacing:0.06em; text-transform:uppercase; color:#797776; margin-bottom:22px;">Vibe-driven</div>
+        <div style="display:flex; flex-direction:column; gap:16px;">
+          <sc-for list="{{ before }}" as="b" hint-placeholder-count="4">
+            <div style="display:flex; gap:13px; align-items:flex-start;">
+              <span style="font-size:15px; color:#797776; line-height:1.4;">&times;</span>
+              <span style="font-size:14.5px; line-height:1.5; color:#4e4d4d; letter-spacing:-0.02em;">{{ b }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+      <div data-reveal style="border-radius:32px; padding:40px; background:#cfdaf5; opacity:0; transform:translateY(24px); transition:opacity .7s ease .08s, transform .7s ease .08s;">
+        <div style="font-size:12px; letter-spacing:0.06em; text-transform:uppercase; color:#4e4d4d; margin-bottom:22px;">Throughspec</div>
+        <div style="display:flex; flex-direction:column; gap:16px;">
+          <sc-for list="{{ after }}" as="a" hint-placeholder-count="4">
+            <div style="display:flex; gap:13px; align-items:flex-start;">
+              <span style="font-size:14px; color:#000; line-height:1.5;">&check;</span>
+              <span style="font-size:14.5px; line-height:1.5; color:#3d3d3d; letter-spacing:-0.02em;">{{ a }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- THREE BELIEFS NARRATIVE -->
+  <section style="max-width:900px; margin:0 auto; padding:24px 32px 24px;">
+    <sc-for list="{{ beliefs }}" as="b" hint-placeholder-count="3">
+      <div data-reveal style="display:grid; grid-template-columns:120px 1fr; gap:32px; padding:40px 0; border-top:1px solid rgba(0,0,0,0.14); opacity:0; transform:translateY(20px); transition:opacity .7s ease, transform .7s ease;">
+        <div style="font-family:'Source Serif 4',serif; font-size:13px; color:#797776; padding-top:6px;">{{ b.num }}</div>
+        <div>
+          <h2 style="font-family:'Source Serif 4',serif; font-weight:400; font-size:30px; letter-spacing:-0.02em; margin:0 0 14px; line-height:1.12;">{{ b.title }}</h2>
+          <p style="font-size:15.5px; line-height:1.65; color:#4e4d4d; letter-spacing:-0.02em; margin:0;">{{ b.body }}</p>
+        </div>
+      </div>
+    </sc-for>
+    <div style="border-top:1px solid rgba(0,0,0,0.14);"></div>
+  </section>
+
+  <!-- PERSONAS -->
+  <section style="max-width:1100px; margin:0 auto; padding:56px 32px;">
+    <div data-reveal style="text-align:center; margin-bottom:40px; opacity:0; transform:translateY(20px); transition:opacity .7s ease, transform .7s ease;">
+      <h2 style="font-family:'Source Serif 4',serif; font-weight:400; font-size:40px; letter-spacing:-0.02em; margin:0;">Built for four kinds of builder.</h2>
+    </div>
+    <div style="display:grid; grid-template-columns:repeat(2,1fr); gap:16px;">
+      <sc-for list="{{ personas }}" as="p" hint-placeholder-count="4">
+        <div data-reveal style="border:1px solid #000; border-radius:24px; padding:30px; background:#f6f3f1; opacity:0; transform:translateY(18px); transition:opacity .6s ease, transform .6s ease;">
+          <div style="font-family:'Source Serif 4',serif; font-size:24px; letter-spacing:-0.02em; margin-bottom:10px;">{{ p.name }}</div>
+          <p style="font-size:14px; line-height:1.55; color:#4e4d4d; letter-spacing:-0.02em; margin:0;">{{ p.body }}</p>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section style="max-width:1200px; margin:0 auto; padding:0 32px 80px;">
+    <div data-reveal style="background:#242424; border-radius:40px; padding:64px 48px; text-align:center; opacity:0; transform:translateY(20px); transition:opacity .7s ease, transform .7s ease;">
+      <h2 style="font-family:'Source Serif 4',serif; font-weight:400; font-size:44px; letter-spacing:-0.02em; color:#f6f3f1; margin:0 0 14px; line-height:1.1;">Stop re-deriving. Start shipping.</h2>
+      <p style="font-size:15px; color:#b9b6b4; letter-spacing:-0.02em; margin:0 0 26px;">Spec-driven. Drift-proof. Token-lean.</p>
+      <a href="Docs.dc.html" style="text-decoration:none; background:#f6f3f1; color:#000; border-radius:100px; padding:13px 26px; font-size:14px; font-weight:500;">Get started &rsaquo;</a>
+    </div>
+  </section>
+
+  <dc-import name="Footer" hint-size="100%,440px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  setRoot = (el) => { this.root = el; };
+  componentDidMount() {
+    const root = this.root || document;
+    const reveal = (el) => { el.style.opacity = '1'; el.style.transform = 'none'; };
+    const els = root.querySelectorAll('[data-reveal]');
+    if ('IntersectionObserver' in window) {
+      const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { reveal(e.target); io.unobserve(e.target); } }), { rootMargin: '0px 0px -7% 0px', threshold: 0.05 });
+      els.forEach((el) => io.observe(el));
+    } else els.forEach(reveal);
+    this._fb = setTimeout(() => els.forEach((el) => { el.style.transition = 'none'; reveal(el); }), 2600);
+  }
+  componentWillUnmount() { clearTimeout(this._fb); }
+  renderVals() {
+    return {
+      setRoot: this.setRoot,
+      before: [
+        'Open-ended prompts wander off intent with no spec to anchor them.',
+        'Every prompt re-scans the repo \u2014 context cost grows with the codebase.',
+        'Architectural decisions live only in chat history, then vanish.',
+        'No predictable layout, so skills and humans hunt for everything.',
+      ],
+      after: [
+        'A frozen SRS gates code \u2014 cross-questioning happens before generation.',
+        'A compressed context.md replaces N file scans per prompt.',
+        'Every decision is appended to design-decisions.md, with rejected alternatives.',
+        'One canonical tree \u2014 agents and people always know where to look.',
+      ],
+      beliefs: [
+        { num: '01 / SPEC', title: 'Spec beats vibe.', body: 'Cross-questioning before code generation produces better software than open-ended prompting. So the Kit makes a complete spec a precondition \u2014 it refuses to proceed without one, and won\u2019t let you skip the load-bearing questions about users, jobs, success metrics, constraints, and non-goals.' },
+        { num: '02 / MEMORY', title: 'Memory beats re-derivation.', body: 'Re-reading source code to reconstruct intent is a recurring token tax that compounds as a project grows. The Kit invests once in condensed, append-only memory files and amortizes that cost across every future prompt \u2014 reading a snapshot instead of re-scanning the repo.' },
+        { num: '03 / STRUCTURE', title: 'Structure compounds.', body: 'A predictable layout means skills, agents, and humans all know where to look. The Kit refuses to ship freeform \u2014 the structure is the product. Consistency early pays back as leverage on every later feature.' },
+      ],
+      personas: [
+        { name: 'The Vibe-Coder', body: 'Non-developers building real products through prompting. They get a safe, opinionated workflow that prevents drift \u2014 guardrails without ceremony.' },
+        { name: 'The Student', body: 'Learning engineering via real projects. They get an auditable trail of why every decision was made, plus a running learnings.md.' },
+        { name: 'The Solo Engineer', body: 'Using Claude Code for raw velocity. They get token-efficient context and a reproducible SDLC that holds up across long projects.' },
+        { name: 'The Team Lead', body: 'Adopting AI-first engineering. They get a shared structural contract every contributor and agent follows by default.' },
+      ],
+    };
+  }
+}
+</script>
+</body>
+</html>

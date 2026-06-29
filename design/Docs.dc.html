@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *{ box-sizing:border-box; }
+  body{ margin:0; background:#f6f3f1; }
+  ::selection{ background:#cfdaf5; }
+  .ts-sidebar::-webkit-scrollbar{ width:0; }
+</style>
+</helmet>
+
+<div style="font-family:'Source Serif 4',serif; background:#f6f3f1; color:#000; min-height:100vh;">
+
+  <div style="max-width:1320px; margin:0 auto; display:grid; grid-template-columns:262px minmax(0,1fr) 224px; gap:0;">
+
+    <!-- ===================== SIDEBAR ===================== -->
+    <aside class="ts-sidebar" style="border-right:1px solid rgba(0,0,0,0.12); padding:28px 24px 80px; position:sticky; top:0; align-self:start; max-height:100vh; overflow-y:auto;">
+      <a href="Landing.dc.html" style="display:flex; align-items:center; gap:11px; text-decoration:none; color:#000; margin-bottom:24px;">
+        <svg width="32" height="19" viewBox="0 0 32 19"><line x1="1" y1="9.5" x2="31" y2="9.5" stroke="#000" stroke-width="1.4"/><rect x="11.5" y="4" width="11" height="11" fill="#000"/></svg>
+        <span style="font-size:17px; font-weight:500; letter-spacing:-0.03em;">throughspec</span>
+      </a>
+      <div style="display:flex; align-items:center; gap:10px; border:1px solid #000; border-radius:10px; padding:9px 13px; margin-bottom:30px;">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="6" cy="6" r="5" stroke="#797776"/><line x1="9.5" y1="9.5" x2="13" y2="13" stroke="#797776" stroke-width="1.3"/></svg>
+        <span style="font-size:12.5px; color:#797776;">Search docs</span>
+        <span style="margin-left:auto; font-size:11px; color:#797776; border:1px solid rgba(0,0,0,0.2); border-radius:5px; padding:1px 6px;">⌘K</span>
+      </div>
+      <sc-for list="{{ groups }}" as="g" hint-placeholder-count="4">
+        <div style="margin-bottom:26px;">
+          <div style="font-size:11px; font-weight:500; letter-spacing:0.06em; text-transform:uppercase; color:#000; margin-bottom:12px;">{{ g.title }}</div>
+          <div style="display:flex; flex-direction:column; gap:2px;">
+            <sc-for list="{{ g.pages }}" as="p" hint-placeholder-count="4">
+              <div onClick="{{ p.go }}" style="{{ p.style }}">{{ p.label }}</div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-for>
+    </aside>
+
+    <!-- ===================== CONTENT ===================== -->
+    <main style="padding:48px 56px 96px; min-width:0;">
+      <div style="display:flex; align-items:center; gap:10px; font-size:12.5px; color:#797776; margin-bottom:22px;">
+        <span>Docs</span><span>/</span><span>{{ page.group }}</span><span>/</span><span style="color:#000;">{{ page.label }}</span>
+      </div>
+      <h1 style="font-family:'Source Serif 4',serif; font-weight:400; font-size:42px; letter-spacing:-0.02em; margin:0 0 14px; line-height:1.1;">{{ page.title }}</h1>
+      <p style="font-size:16px; line-height:1.55; color:#4e4d4d; letter-spacing:-0.02em; margin:0 0 40px; max-width:680px;">{{ page.intro }}</p>
+
+      <sc-for list="{{ blocks }}" as="b" hint-placeholder-count="6">
+        <sc-if value="{{ b.isH2 }}" hint-placeholder-val="{{ false }}">
+          <h2 id="{{ b.id }}" style="font-family:'Source Serif 4',serif; font-weight:400; font-size:27px; letter-spacing:-0.02em; margin:44px 0 16px; scroll-margin-top:90px;">{{ b.text }}</h2>
+        </sc-if>
+        <sc-if value="{{ b.isP }}" hint-placeholder-val="{{ false }}">
+          <p style="font-size:15px; line-height:1.65; color:#3d3d3d; letter-spacing:-0.02em; margin:0 0 18px; max-width:680px;">{{ b.text }}</p>
+        </sc-if>
+        <sc-if value="{{ b.isCode }}" hint-placeholder-val="{{ false }}">
+          <div style="position:relative; background:#fff; border:1px solid #000; border-radius:12px; padding:18px 20px; margin:0 0 22px; max-width:680px; overflow-x:auto;">
+            <div onClick="{{ b.copy }}" style="position:absolute; top:12px; right:14px; font-size:11px; color:#797776; cursor:pointer; border:1px solid rgba(0,0,0,0.2); border-radius:6px; padding:3px 9px; background:#f6f3f1;">copy</div>
+            <pre style="margin:0; font-family:'JetBrains Mono',monospace; font-size:13.5px; line-height:1.6; color:#000; white-space:pre;">{{ b.text }}</pre>
+          </div>
+        </sc-if>
+        <sc-if value="{{ b.isCallout }}" hint-placeholder-val="{{ false }}">
+          <div style="{{ b.calloutStyle }}">
+            <div style="font-size:11px; font-weight:500; letter-spacing:0.05em; text-transform:uppercase; margin-bottom:7px; color:#000;">{{ b.label }}</div>
+            <div style="font-size:14px; line-height:1.6; color:#3d3d3d; letter-spacing:-0.02em;">{{ b.text }}</div>
+          </div>
+        </sc-if>
+        <sc-if value="{{ b.isList }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex; flex-direction:column; gap:10px; margin:0 0 22px; max-width:680px;">
+            <sc-for list="{{ b.items }}" as="it" hint-placeholder-count="3">
+              <div style="display:flex; gap:12px; align-items:flex-start; font-size:15px; line-height:1.6; color:#3d3d3d; letter-spacing:-0.02em;">
+                <span style="width:5px; height:5px; border-radius:100px; background:#000; margin-top:9px; flex:none;"></span><span>{{ it }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+        <sc-if value="{{ b.isDefs }}" hint-placeholder-val="{{ false }}">
+          <div style="border:1px solid rgba(0,0,0,0.14); border-radius:14px; overflow:hidden; margin:0 0 24px; max-width:680px;">
+            <sc-for list="{{ b.items }}" as="d" hint-placeholder-count="4">
+              <div style="display:grid; grid-template-columns:200px 1fr; gap:16px; padding:14px 18px; border-bottom:1px solid rgba(0,0,0,0.09); align-items:start;">
+                <code style="font-family:'JetBrains Mono',monospace; font-size:13px; color:#000;">{{ d.term }}</code>
+                <span style="font-size:13.5px; line-height:1.5; color:#4e4d4d; letter-spacing:-0.02em;">{{ d.desc }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+        <sc-if value="{{ b.isSteps }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex; flex-direction:column; margin:0 0 24px; max-width:680px;">
+            <sc-for list="{{ b.items }}" as="s" hint-placeholder-count="4">
+              <div style="display:grid; grid-template-columns:34px 1fr; gap:16px; padding-bottom:22px; position:relative;">
+                <div style="width:28px; height:28px; border:1px solid #000; border-radius:100px; display:flex; align-items:center; justify-content:center; font-size:12px; background:#f6f3f1; z-index:1;">{{ s.n }}</div>
+                <div>
+                  <div style="font-size:15px; letter-spacing:-0.02em; margin-bottom:5px; color:#000;">{{ s.title }}</div>
+                  <div style="font-size:13.5px; line-height:1.55; color:#4e4d4d; letter-spacing:-0.02em;">{{ s.desc }}</div>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+      </sc-for>
+
+      <!-- prev / next -->
+      <div style="display:flex; justify-content:space-between; gap:16px; margin-top:48px; padding-top:32px; border-top:1px solid rgba(0,0,0,0.14);">
+        <sc-if value="{{ hasPrev }}" hint-placeholder-val="{{ true }}">
+          <div onClick="{{ goPrev }}" style="border:1px solid #000; border-radius:16px; padding:16px 22px; cursor:pointer; flex:1; max-width:300px;">
+            <div style="font-size:11px; color:#797776; margin-bottom:6px;">&lsaquo; Previous</div>
+            <div style="font-size:14.5px; color:#000; letter-spacing:-0.02em;">{{ prevLabel }}</div>
+          </div>
+        </sc-if>
+        <sc-if value="{{ hasNext }}" hint-placeholder-val="{{ true }}">
+          <div onClick="{{ goNext }}" style="border:1px solid #000; border-radius:16px; padding:16px 22px; cursor:pointer; flex:1; max-width:300px; text-align:right; margin-left:auto;">
+            <div style="font-size:11px; color:#797776; margin-bottom:6px;">Next &rsaquo;</div>
+            <div style="font-size:14.5px; color:#000; letter-spacing:-0.02em;">{{ nextLabel }}</div>
+          </div>
+        </sc-if>
+      </div>
+    </main>
+
+    <!-- ===================== TOC ===================== -->
+    <aside style="padding:48px 24px 80px; position:sticky; top:0; align-self:start; max-height:100vh; overflow-y:auto;">
+      <div style="font-size:11px; font-weight:500; letter-spacing:0.06em; text-transform:uppercase; color:#797776; margin-bottom:14px;">On this page</div>
+      <div style="display:flex; flex-direction:column; gap:10px;">
+        <sc-for list="{{ toc }}" as="t" hint-placeholder-count="3">
+          <div onClick="{{ t.go }}" style="font-size:13px; color:#4e4d4d; cursor:pointer; letter-spacing:-0.02em; line-height:1.4; border-left:1px solid rgba(0,0,0,0.15); padding-left:12px;">{{ t.text }}</div>
+        </sc-for>
+      </div>
+      <div style="margin-top:28px; padding-top:20px; border-top:1px solid rgba(0,0,0,0.12);">
+        <a href="WhyThroughspec.dc.html" style="font-size:12.5px; color:#797776; text-decoration:none; display:block; margin-bottom:9px;">Why Throughspec &rsaquo;</a>
+        <a href="Changelog.dc.html" style="font-size:12.5px; color:#797776; text-decoration:none; display:block;">Changelog &rsaquo;</a>
+      </div>
+    </aside>
+
+  </div>
+
+  <dc-import name="Footer" hint-size="100%,440px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:&quot;100%&quot;,&quot;height&quot;:820}}">
+class Component extends DCLogic {
+  state = { active: 'quickstart' };
+
+  PAGES = {
+    introduction: {
+      group: 'Get Started', label: 'Introduction',
+      title: 'Introduction',
+      intro: 'Throughspec is a publishable scaffolding tool - distributed on npm and PyPI - that bootstraps a Claude Code project around a deterministic, spec-first SDLC.',
+      blocks: [
+        { t: 'p', text: 'The value proposition is simple: collapse the gap between idea and shipped software. You provide decisions; Claude does the heavy lifting; the Kit enforces structure so the work compounds rather than drifts.' },
+        { t: 'callout', variant: 'note', label: 'Composes, never replaces', text: 'Throughspec sits on top of Claude Code\u2019s permission, hook, and settings model. It scaffolds process, not application source \u2014 and never hosts or runs Claude Code itself.' },
+        { t: 'h2', text: 'Core philosophy', id: 'philosophy' },
+        { t: 'p', text: 'The Kit is built on three load-bearing beliefs.' },
+        { t: 'list', items: [
+          'Spec-driven beats vibe-driven. Cross-questioning before code generation beats open-ended prompting \u2014 so specs are a precondition.',
+          'Memory beats re-derivation. Re-reading source to reconstruct intent is a token tax. The Kit writes condensed memory once and amortizes it.',
+          'Structure compounds. A predictable layout means skills, agents, and humans always know where to look. The Kit refuses to ship freeform.',
+        ]},
+        { t: 'h2', text: 'Who it\u2019s for', id: 'audience' },
+        { t: 'defs', items: [
+          { term: 'Vibe-Coder', desc: 'Non-developer building real products through prompting \u2014 needs a safe, opinionated workflow that prevents drift.' },
+          { term: 'Student', desc: 'Learning engineering via real projects \u2014 needs an auditable trail of why every decision was made.' },
+          { term: 'Solo Engineer', desc: 'Using Claude Code for velocity \u2014 needs token-efficient context and a reproducible SDLC.' },
+          { term: 'Team Lead', desc: 'Adopting AI-first engineering \u2014 needs a shared structural contract every contributor follows.' },
+        ]},
+      ],
+    },
+    quickstart: {
+      group: 'Get Started', label: 'Quickstart',
+      title: 'Quickstart',
+      intro: 'From an empty folder to your first shipped feature in under 90 minutes. Here is the whole initiation cycle.',
+      blocks: [
+        { t: 'h2', text: 'Scaffold a project', id: 'scaffold' },
+        { t: 'p', text: 'Run the initializer with your project name. It creates the canonical directory tree with safe, lint-clean defaults in under five seconds.' },
+        { t: 'code', text: 'npx spec-init my-app\ncd my-app' },
+        { t: 'callout', variant: 'tip', label: 'Python?', text: 'Prefer the Python channel? pipx install spec-init, then spec-init my-app. Both channels ship the same template payload.' },
+        { t: 'h2', text: 'Run the cycle', id: 'cycle' },
+        { t: 'p', text: 'Open Claude Code in the new directory and run these skills in order. Each gates the next \u2014 you cannot plan before the spec is frozen.' },
+        { t: 'steps', items: [
+          { n: '1', title: '/spec-requirements', desc: 'At least three rounds of cross-questioning, then freezes claude/srs.md.' },
+          { n: '2', title: '/spec-design', desc: 'Extracts a design system from your references, or proposes one from the SRS.' },
+          { n: '3', title: '/spec-plan', desc: 'Produces an 8\u201310 stage build plan, each ending in a testable deliverable.' },
+          { n: '4', title: '/spec-feature', desc: 'Enters the 6-phase feature cycle, one stage at a time.' },
+        ]},
+        { t: 'callout', variant: 'warn', label: 'No skipping', text: '/spec-requirements refuses to proceed until target users, jobs-to-be-done, the success metric, hard constraints, and non-goals are all filled in.' },
+        { t: 'h2', text: 'What you end up with', id: 'result' },
+        { t: 'p', text: 'A scaffolded project whose memory layer keeps Claude oriented across every future prompt \u2014 without re-scanning the repo.' },
+      ],
+    },
+    installation: {
+      group: 'Get Started', label: 'Installation',
+      title: 'Installation',
+      intro: 'Throughspec ships on two channels from a single source-of-truth template tree, so they never drift.',
+      blocks: [
+        { t: 'h2', text: 'npm', id: 'npm' },
+        { t: 'p', text: 'Requires Node.js \u2265 18. Ships as ESM.' },
+        { t: 'code', text: '# one-off\nnpx spec-init my-app\n\n# or install globally\nnpm i -g spec-init-cli' },
+        { t: 'h2', text: 'PyPI', id: 'pypi' },
+        { t: 'p', text: 'Requires Python \u2265 3.10.' },
+        { t: 'code', text: 'pipx install spec-init\n# or\npip install spec-init' },
+        { t: 'h2', text: 'Flags', id: 'flags' },
+        { t: 'defs', items: [
+          { term: '--persona', desc: 'vibe | student | engineer | team \u2014 pre-tunes CLAUDE.md verbosity and the learning map.' },
+          { term: '--integrations', desc: 'graphify,obsidian \u2014 activates the relevant integration sections.' },
+          { term: '--force', desc: 'Required to overwrite an existing project. init refuses otherwise.' },
+        ]},
+        { t: 'callout', variant: 'note', label: 'No native binaries', text: 'Nothing compiled is required at install time. Works on macOS, Linux, and Windows (PowerShell + WSL).' },
+      ],
+    },
+    'initiation-cycle': {
+      group: 'Workflows', label: 'Initiation Cycle',
+      title: 'Initiation Cycle',
+      intro: 'The authoritative path from installed package to your first feature.',
+      blocks: [
+        { t: 'code', text: 'install package\n   \u2193\nspec-init <name>          # scaffold + print next step\n   \u2193\n/spec-requirements        # cross-question \u2192 srs.md frozen\n   \u2193\n/spec-design             # extract or generate design system\n   \u2193\n/spec-plan               # 8\u201310 staged plan\n   \u2193\n/spec-feature            # enter the 6-phase cycle' },
+        { t: 'p', text: 'Each phase gate refuses to proceed on incomplete inputs \u2014 the plan will not generate while the SRS has unresolved open questions in load-bearing categories.' },
+      ],
+    },
+    'six-phase': {
+      group: 'Workflows', label: 'The 6-Phase Cycle',
+      title: 'The 6-Phase Feature Cycle',
+      intro: '/spec-feature executes six ordered phases. No phase is skipped unless you pass an explicit override flag, and the override is logged in design-decisions.md.',
+      blocks: [
+        { t: 'defs', items: [
+          { term: '1 \u00b7 Requirements', desc: 'Cross-questioning transcript appended to features.md under the feature heading.' },
+          { term: '2 \u00b7 Architecting', desc: 'At least two architecture options with tradeoffs; the final choice recorded in design-decisions.md.' },
+          { term: '3 \u00b7 Product Specs', desc: 'UI sketches, UX flow, frontend + backend entities, DB schema.' },
+          { term: '4 \u00b7 Tech Specs', desc: 'Framework, language, deployment target, DB choice \u2014 each with rejected alternatives.' },
+          { term: '5 \u00b7 Planning', desc: 'Multi-stage execution plan with per-stage acceptance criteria.' },
+          { term: '6 \u00b7 Writing Code', desc: 'Read memory \u2192 cross-question \u2192 implement \u2192 test \u2192 diff-scoped refactor \u2192 update memory.' },
+        ]},
+        { t: 'callout', variant: 'note', label: 'Writing Code, in order', text: 'After implementation Claude updates \u2014 in this exact order \u2014 context.md, features.md, design-decisions.md, learnings.md, then CHANGELOG.md.' },
+      ],
+    },
+    'bug-resolution': {
+      group: 'Workflows', label: 'Bug Resolution',
+      title: 'Bug Resolution',
+      intro: '/spec-bug is an isolated workflow. It fixes the bug and nothing else \u2014 no refactors, no scope creep.',
+      blocks: [
+        { t: 'steps', items: [
+          { n: '1', title: 'Reproduce', desc: 'Produce a reproduction recipe first. If it can\u2019t be reproduced, halt and ask for repro steps.' },
+          { n: '2', title: 'Failing test', desc: 'Add a regression test that fails before the fix and passes after.' },
+          { n: '3', title: 'Smallest fix', desc: 'Identify the smallest possible diff that resolves the bug.' },
+          { n: '4', title: 'Changelog', desc: 'Append an entry to CHANGELOG.md under ### Fixed.' },
+        ]},
+      ],
+    },
+    skills: {
+      group: 'Reference', label: 'Skills',
+      title: 'Skills Catalog',
+      intro: 'Nine user-invocable slash commands, installed into your project\u2019s skills directory.',
+      blocks: [
+        { t: 'defs', items: [
+          { term: '/spec-init', desc: 'Scaffold the project inside an existing Claude session.' },
+          { term: '/spec-requirements', desc: 'Build claude/srs.md via cross-questioning.' },
+          { term: '/spec-design', desc: 'Build design/design.md and download UI assets.' },
+          { term: '/spec-plan', desc: 'Build claude/plan.md with 8\u201310 staged deliverables.' },
+          { term: '/spec-feature', desc: 'Run the full 6-phase feature development cycle.' },
+          { term: '/spec-refactor', desc: 'Clean only the current cycle\u2019s diff (diff-scoped).' },
+          { term: '/spec-bug', desc: 'Run the isolated bug resolution workflow.' },
+          { term: '/spec-docs', desc: 'Run the isolated documentation rewrite workflow.' },
+          { term: '/spec-sync', desc: 'Reconcile context.md against actual repo state.' },
+        ]},
+      ],
+    },
+    'memory-files': {
+      group: 'Reference', label: 'Memory Files',
+      title: 'Memory Files',
+      intro: 'The memory layer is the Kit\u2019s primary novelty. Each file has a single, narrow role and exactly one writer.',
+      blocks: [
+        { t: 'defs', items: [
+          { term: 'CLAUDE.md', desc: 'Router and behavior contract. Read before every prompt.' },
+          { term: 'claude/srs.md', desc: 'Frozen project requirements.' },
+          { term: 'claude/plan.md', desc: '8\u201310 stage build plan with checkbox state.' },
+          { term: 'claude/context.md', desc: 'Compressed snapshot of current state \u2014 what exists, what works, what\u2019s next.' },
+          { term: 'claude/features.md', desc: 'Append-only log of completed features.' },
+          { term: 'claude/design-decisions.md', desc: 'Append-only log of architectural + product decisions.' },
+          { term: 'claude/learnings.md', desc: 'Append-only learning notes for the Student persona.' },
+        ]},
+        { t: 'callout', variant: 'tip', label: 'Token ceiling', text: 'Reading CLAUDE.md + context.md stays under 8,000 tokens on a mature project. /spec-sync compresses any memory file past 1,500 lines.' },
+      ],
+    },
+    'folder-structure': {
+      group: 'Reference', label: 'Folder Structure',
+      title: 'Folder Structure',
+      intro: 'The canonical tree that spec-init scaffolds.',
+      blocks: [
+        { t: 'code', text: '~project/\n\u251c\u2500 claude/\n\u2502  \u251c\u2500 context.md\n\u2502  \u251c\u2500 learnings.md\n\u2502  \u251c\u2500 plan.md\n\u2502  \u251c\u2500 srs.md\n\u2502  \u251c\u2500 features.md\n\u2502  \u2514\u2500 design-decisions.md\n\u251c\u2500 design/\n\u2502  \u251c\u2500 design.md\n\u2502  \u2514\u2500 preview/\n\u251c\u2500 CHANGELOG.md\n\u251c\u2500 CLAUDE.md\n\u251c\u2500 README.md\n\u251c\u2500 SECURITY.md\n\u2514\u2500 CONTRIBUTING.md' },
+      ],
+    },
+    graphify: {
+      group: 'Integrations', label: 'Graphify',
+      title: 'Graphify',
+      intro: 'Treat the codebase as a queryable knowledge graph.',
+      blocks: [
+        { t: 'p', text: 'When active, the Kit adds a .graphify/ config and a setup section to README.md, and instructs Claude to prefer Graphify queries over full-repo greps when available.' },
+        { t: 'code', text: 'spec-init init --integrations graphify\n# or later\nspec-init customize --add graphify' },
+      ],
+    },
+    obsidian: {
+      group: 'Integrations', label: 'Obsidian',
+      title: 'Obsidian',
+      intro: 'Visualize the claude/ and design/ markdown corpus as a navigable graph.',
+      blocks: [
+        { t: 'p', text: 'Ships an .obsidian/ workspace stub with the vault rooted at the project, plus front-matter conventions in every claude/*.md file so graph view renders meaningful links.' },
+        { t: 'code', text: 'spec-init init --integrations obsidian' },
+        { t: 'callout', variant: 'note', label: 'Removable', text: 'Integrations are optional and isolated to dedicated config files: spec-init customize --remove obsidian.' },
+      ],
+    },
+  };
+
+  ORDER = ['introduction','quickstart','installation','initiation-cycle','six-phase','bug-resolution','skills','memory-files','folder-structure','graphify','obsidian'];
+
+  GROUPS = [
+    { title: 'Get Started', ids: ['introduction','quickstart','installation'] },
+    { title: 'Workflows', ids: ['initiation-cycle','six-phase','bug-resolution'] },
+    { title: 'Reference', ids: ['skills','memory-files','folder-structure'] },
+    { title: 'Integrations', ids: ['graphify','obsidian'] },
+  ];
+
+  go(id) { this.setState({ active: id }); try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch(e) { window.scrollTo(0,0); } }
+  scrollTo(id) { const el = document.getElementById(id); if (el) { const y = el.getBoundingClientRect().top + window.scrollY - 84; window.scrollTo({ top: y, behavior: 'smooth' }); } }
+  copy(text) { try { navigator.clipboard.writeText(text); } catch(e) {} }
+
+  calloutStyle(variant) {
+    if (variant === 'warn') return 'background:#f6f3f1; border:1px solid #000; border-radius:14px; padding:18px 20px; margin:0 0 22px; max-width:680px;';
+    if (variant === 'tip') return 'background:#cfdaf5; border-radius:14px; padding:18px 20px; margin:0 0 22px; max-width:680px;';
+    return 'background:#cfdaf5; border-radius:14px; padding:18px 20px; margin:0 0 22px; max-width:680px;';
+  }
+
+  renderVals() {
+    const active = this.state.active;
+    const page = this.PAGES[active];
+    const groups = this.GROUPS.map(g => ({
+      title: g.title,
+      pages: g.ids.map(id => {
+        const cur = id === active;
+        return {
+          label: this.PAGES[id].label,
+          go: () => this.go(id),
+          style: {
+            fontSize: '13.5px', letterSpacing: '-0.02em', padding: '7px 12px', borderRadius: '8px', cursor: 'pointer',
+            color: cur ? '#000' : '#4e4d4d',
+            background: cur ? '#cfdaf5' : 'transparent',
+            fontWeight: cur ? 500 : 400,
+          },
+        };
+      }),
+    }));
+
+    const blocks = (page.blocks || []).map(b => ({
+      isH2: b.t === 'h2', isP: b.t === 'p', isCode: b.t === 'code', isCallout: b.t === 'callout',
+      isList: b.t === 'list', isDefs: b.t === 'defs', isSteps: b.t === 'steps',
+      text: b.text, id: b.id, items: b.items,
+      label: b.label, calloutStyle: this.calloutStyle(b.variant),
+      copy: () => this.copy(b.text),
+    }));
+
+    const toc = (page.blocks || []).filter(b => b.t === 'h2').map(b => ({ text: b.text, go: () => this.scrollTo(b.id) }));
+
+    const idx = this.ORDER.indexOf(active);
+    const prevId = idx > 0 ? this.ORDER[idx - 1] : null;
+    const nextId = idx < this.ORDER.length - 1 ? this.ORDER[idx + 1] : null;
+
+    return {
+      groups,
+      page: { title: page.title, intro: page.intro, group: page.group, label: page.label },
+      blocks, toc,
+      hasPrev: !!prevId, hasNext: !!nextId,
+      prevLabel: prevId ? this.PAGES[prevId].label : '',
+      nextLabel: nextId ? this.PAGES[nextId].label : '',
+      goPrev: () => prevId && this.go(prevId),
+      goNext: () => nextId && this.go(nextId),
+    };
+  }
+}
+</script>
+</body>
+</html>

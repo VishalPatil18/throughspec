@@ -1,0 +1,10 @@
+dist
+node_modules
+_payload
+templates
+website
+packages/cli-python
+design
+DESIGN.md
+srs.md
+CHANGELOG.md

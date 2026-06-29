@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *{ box-sizing:border-box; }
+  body{ margin:0; background:#f6f3f1; }
+  ::selection{ background:#cfdaf5; }
+</style>
+</helmet>
+
+<div style="font-family:'Source Serif 4',serif; background:#f6f3f1; color:#000;">
+
+  <dc-import name="Nav" hint-size="100%,120px"></dc-import>
+
+  <div style="max-width:1080px; margin:0 auto; display:grid; grid-template-columns:240px 1fr; gap:48px; padding:64px 32px 80px;">
+
+    <!-- TOC -->
+    <aside style="position:sticky; top:24px; align-self:start;">
+      <div style="font-size:11px; font-weight:500; letter-spacing:0.06em; text-transform:uppercase; color:#797776; margin-bottom:16px;">Contents</div>
+      <div style="display:flex; flex-direction:column; gap:11px;">
+        <sc-for list="{{ sections }}" as="s" hint-placeholder-count="6">
+          <div onClick="{{ s.go }}" style="font-size:13px; color:#4e4d4d; cursor:pointer; letter-spacing:-0.02em; line-height:1.4; border-left:1px solid rgba(0,0,0,0.15); padding-left:12px;">{{ s.title }}</div>
+        </sc-for>
+      </div>
+    </aside>
+
+    <!-- BODY -->
+    <main style="min-width:0;">
+      <div style="font-size:12px; letter-spacing:0.06em; text-transform:uppercase; color:#797776; margin-bottom:16px;">Legal</div>
+      <h1 style="font-family:'Source Serif 4',serif; font-weight:400; font-size:46px; letter-spacing:-0.02em; margin:0 0 12px; line-height:1.08;">Privacy Policy</h1>
+      <p style="font-size:13px; color:#797776; margin:0 0 14px;">Last updated 12 June 2026</p>
+      <div style="background:#cfdaf5; border-radius:16px; padding:20px 22px; margin:0 0 40px; max-width:640px;">
+        <p style="font-size:14px; line-height:1.6; color:#3d3d3d; letter-spacing:-0.02em; margin:0;">Throughspec is a command-line scaffolding tool that runs entirely on your machine. It is not a hosted service. We do not operate servers that receive your code, prompts, or project files.</p>
+      </div>
+
+      <sc-for list="{{ sections }}" as="s" hint-placeholder-count="6">
+        <section id="{{ s.id }}" style="margin-bottom:36px; scroll-margin-top:24px;">
+          <h2 style="font-family:'Source Serif 4',serif; font-weight:400; font-size:25px; letter-spacing:-0.02em; margin:0 0 14px;">{{ s.title }}</h2>
+          <sc-for list="{{ s.paras }}" as="p" hint-placeholder-count="2">
+            <p style="font-size:14.5px; line-height:1.7; color:#3d3d3d; letter-spacing:-0.02em; margin:0 0 14px; max-width:660px;">{{ p }}</p>
+          </sc-for>
+        </section>
+      </sc-for>
+
+      <div style="border-top:1px solid rgba(0,0,0,0.14); padding-top:24px; margin-top:8px;">
+        <p style="font-size:13.5px; line-height:1.6; color:#4e4d4d; letter-spacing:-0.02em; margin:0;">Questions about this policy? See the <a href="Terms.dc.html" style="color:#000;">Terms of Service</a> or reach the maintainers via the repository’s SECURITY.md.</p>
+      </div>
+    </main>
+  </div>
+
+  <dc-import name="Footer" hint-size="100%,440px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:&quot;100%&quot;,&quot;height&quot;:820}}">
+class Component extends DCLogic {
+  scrollTo(id) { const el = document.getElementById(id); if (el) { const y = el.getBoundingClientRect().top + window.scrollY - 24; window.scrollTo({ top: y, behavior: 'smooth' }); } }
+  renderVals() {
+    const data = [
+      { id: 'scope', title: 'Scope', paras: ['This policy covers the Throughspec command-line tool and this marketing website. The tool executes locally; the website is a static informational site.','Because the Kit is a local scaffolder, the vast majority of your activity \u2014 prompts, source code, specs, and memory files \u2014 never reaches us.'] },
+      { id: 'local', title: 'Data that stays on your machine', paras: ['All files the Kit generates \u2014 the claude/ memory layer, design/ assets, CHANGELOG.md, and your source \u2014 are written to your local filesystem and version control. We never receive them.','Your interactions with Claude Code are governed by Anthropic\u2019s own terms and privacy policy, not ours.'] },
+      { id: 'collected', title: 'Information we may collect', paras: ['Package registries (npm and PyPI) record standard, anonymized download counts when you install the Kit. We may view these aggregate totals; they do not identify you.','If you opt in to telemetry during init, the CLI may send anonymous, aggregate usage events (such as which command was run). Telemetry is off by default and can be disabled at any time.'] },
+      { id: 'website', title: 'Website analytics', paras: ['This site uses privacy-respecting, cookieless analytics to count page views in aggregate. We do not build advertising profiles and do not sell data.'] },
+      { id: 'thirdparty', title: 'Third parties', paras: ['Optional integrations such as Graphify and Obsidian run locally and are configured by you. Activating them does not transmit data to us.','We do not share information with advertisers or data brokers.'] },
+      { id: 'rights', title: 'Your choices', paras: ['You can disable CLI telemetry, run the tool fully offline after install, and remove any generated configuration at any time. Since we hold almost no personal data, there is little for us to delete \u2014 but requests can be directed to the maintainers.'] },
+    ];
+    return { sections: data.map((s) => ({ ...s, go: () => this.scrollTo(s.id) })) };
+  }
+}
+</script>
+</body>
+</html>

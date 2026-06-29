@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+</helmet>
+
+<div style="font-family:'Source Serif 4',serif; position:sticky; top:0; z-index:50;">
+
+  <sc-if value="{{ announceOpen }}" hint-placeholder-val="{{ true }}">
+    <div style="background:#000; color:#f6f3f1; display:flex; align-items:center; justify-content:center; gap:14px; padding:9px 24px; font-size:13px; letter-spacing:-0.02em;">
+      <span style="width:6px; height:6px; border-radius:100px; background:#a7fccd; display:inline-block;"></span>
+      <span style="opacity:0.92;">Throughspec v1.0 - spec-driven development for Claude Code, now on npm + PyPI</span>
+      <a href="Docs.dc.html" style="background:#f6f3f1; color:#000; text-decoration:none; border-radius:100px; padding:4px 13px; font-size:12px; font-weight:500; display:inline-flex; align-items:center; gap:5px;">Read the docs <span>&rsaquo;</span></a>
+      <span onClick="{{ dismiss }}" style="position:absolute; right:22px; cursor:pointer; opacity:0.6; font-size:15px;">&times;</span>
+    </div>
+  </sc-if>
+
+  <nav style="background:#f6f3f1; border-bottom:1px solid #000; display:flex; align-items:center; justify-content:space-between; padding:15px 32px;">
+    <a href="Landing.dc.html" style="display:flex; align-items:center; gap:11px; text-decoration:none; color:#000;">
+      <svg width="32" height="19" viewBox="0 0 32 19"><line x1="1" y1="9.5" x2="31" y2="9.5" stroke="#000" stroke-width="1.4"/><rect x="11.5" y="4" width="11" height="11" fill="#000"/></svg>
+      <span style="font-size:17px; font-weight:500; letter-spacing:-0.03em;">throughspec</span>
+    </a>
+
+    <div style="display:flex; align-items:center; gap:30px;">
+      <sc-for list="{{ links }}" as="link" hint-placeholder-count="4">
+        <a href="{{ link.href }}" style="{{ link.style }}">{{ link.label }}</a>
+      </sc-for>
+    </div>
+
+    <div style="display:flex; align-items:center; gap:12px;">
+      <a href="Docs.dc.html" style="text-decoration:none; color:#000; border:1px solid #000; border-radius:100px; padding:9px 21px; font-size:13px; font-weight:500;">Sign in</a>
+      <a href="Docs.dc.html" style="text-decoration:none; background:#242424; color:#f6f3f1; border-radius:100px; padding:10px 21px; font-size:13px; font-weight:500; display:inline-flex; align-items:center; gap:7px;">Get started <span style="font-size:14px;">&rsaquo;</span></a>
+    </div>
+  </nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:&quot;100%&quot;,&quot;height&quot;:120},&quot;active&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;landing&quot;,&quot;docs&quot;,&quot;features&quot;,&quot;why&quot;,&quot;changelog&quot;,&quot;about&quot;],&quot;default&quot;:&quot;landing&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+class Component extends DCLogic {
+  state = { announceOpen: true };
+  renderVals() {
+    const active = this.props.active || '';
+    const defs = [
+      { label: 'Docs', href: 'Docs.dc.html', id: 'docs' },
+      { label: 'Features', href: 'Features.dc.html', id: 'features' },
+      { label: 'Why Throughspec', href: 'WhyThroughspec.dc.html', id: 'why' },
+      { label: 'Changelog', href: 'Changelog.dc.html', id: 'changelog' },
+    ];
+    const links = defs.map(d => {
+      const cur = d.id === active;
+      return {
+        label: d.label,
+        href: d.href,
+        style: {
+          textDecoration: 'none',
+          fontSize: '14px',
+          fontWeight: 500,
+          letterSpacing: '-0.02em',
+          color: cur ? '#000' : '#4e4d4d',
+          borderBottom: cur ? '1px solid #000' : '1px solid transparent',
+          paddingBottom: '2px',
+        },
+      };
+    });
+    return {
+      links,
+      announceOpen: this.state.announceOpen,
+      dismiss: () => this.setState({ announceOpen: false }),
+    };
+  }
+}
+</script>
+</body>
+</html>

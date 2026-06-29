@@ -1,0 +1,45 @@
+[project]
+name = "spec-init"
+version = "0.0.0"
+description = "Throughspec - Spec-driven. Drift-proof. Token-lean. Scaffolds a Claude Code project around a deterministic SDLC."
+readme = "README.md"
+license = { text = "MIT" }
+authors = [
+  { name = "Vishal Patil", email = "vishal18@umd.edu" },
+]
+requires-python = ">=3.10"
+keywords = ["claude", "claude-code", "scaffolding", "spec-driven", "sdlc", "throughspec"]
+classifiers = [
+  "Development Status :: 2 - Pre-Alpha",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+]
+dependencies = []
+
+[project.scripts]
+spec-init = "spec_init.__main__:main"
+
+[project.urls]
+Homepage = "https://throughspec.dev"
+Repository = "https://github.com/vishal18/throughspec"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/spec_init"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"_payload" = "spec_init/_payload"
+
+[tool.hatch.build.targets.sdist]
+include = [
+  "src/spec_init",
+  "_payload",
+  "README.md",
+]

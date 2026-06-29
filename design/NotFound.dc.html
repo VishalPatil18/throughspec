@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *{ box-sizing:border-box; }
+  body{ margin:0; background:#f6f3f1; }
+  ::selection{ background:#cfdaf5; }
+  @keyframes flow404 { to { stroke-dashoffset:-120; } }
+  @keyframes pulse404 { 0%,100%{ opacity:.35; } 50%{ opacity:.8; } }
+  @keyframes rise { from{ opacity:0; transform:translateY(18px); } to{ opacity:1; transform:none; } }
+</style>
+</helmet>
+
+<div style="font-family:'Source Serif 4',serif; background:#f6f3f1; color:#000; min-height:100vh; display:flex; flex-direction:column;">
+
+  <dc-import name="Nav" hint-size="100%,120px"></dc-import>
+
+  <section style="flex:1; display:flex; align-items:center; justify-content:center; padding:60px 32px 80px;">
+    <div style="max-width:680px; width:100%; text-align:center;">
+
+      <!-- animated broken-throughline mark -->
+      <svg width="320" height="120" viewBox="0 0 320 120" style="display:block; margin:0 auto 28px; overflow:visible; animation:rise .7s ease both;">
+        <defs>
+          <radialGradient id="g404" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#a7fccd" stop-opacity="0.9"/>
+            <stop offset="60%" stop-color="#cfdaf5" stop-opacity="0.4"/>
+            <stop offset="100%" stop-color="#cfdaf5" stop-opacity="0"/>
+          </radialGradient>
+        </defs>
+        <circle cx="160" cy="60" r="78" fill="url(#g404)" style="animation:pulse404 4s ease-in-out infinite; transform-origin:160px 60px;"/>
+        <!-- line enters from left -->
+        <line x1="0" y1="60" x2="118" y2="60" stroke="#000" stroke-opacity="0.16" stroke-width="1.4"/>
+        <line x1="0" y1="60" x2="118" y2="60" stroke="#000" stroke-width="1.4" stroke-dasharray="2.5 9" style="animation:flow404 3s linear infinite;"/>
+        <!-- the gap: dangling node, detached -->
+        <rect x="124" y="44" width="32" height="32" fill="none" stroke="#000" stroke-width="1.4" stroke-dasharray="4 5"/>
+        <text x="140" y="98" text-anchor="middle" font-family="'Source Serif 4',serif" font-size="10" fill="#797776">missing</text>
+        <!-- line resumes on right, disconnected -->
+        <line x1="200" y1="60" x2="320" y2="60" stroke="#000" stroke-opacity="0.16" stroke-width="1.4"/>
+        <line x1="200" y1="60" x2="320" y2="60" stroke="#000" stroke-width="1.4" stroke-dasharray="2.5 9" style="animation:flow404 3.4s linear infinite;"/>
+      </svg>
+
+      <div style="font-family:'Source Serif 4',serif; font-size:13px; letter-spacing:0.1em; color:#797776; margin-bottom:18px; animation:rise .7s ease both .06s;">ERROR 404 - SPEC NOT FOUND</div>
+      <h1 style="font-family:'Source Serif 4',serif; font-weight:400; font-size:52px; line-height:1.08; letter-spacing:-0.02em; margin:0 auto 18px; max-width:520px; animation:rise .75s ease both .1s;">This page drifted off the throughline.</h1>
+      <p style="font-size:16px; line-height:1.55; color:#4e4d4d; letter-spacing:-0.02em; max-width:480px; margin:0 auto 32px; animation:rise .75s ease both .16s;">The route you requested isn’t in the spec. Let’s get you back to something that is.</p>
+
+      <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin-bottom:40px; animation:rise .75s ease both .22s;">
+        <a href="Landing.dc.html" style="text-decoration:none; background:#242424; color:#f6f3f1; border-radius:100px; padding:13px 26px; font-size:14px; font-weight:500; display:inline-flex; align-items:center; gap:8px;">Back home <span style="font-size:15px;">&rsaquo;</span></a>
+        <a href="Docs.dc.html" style="text-decoration:none; color:#000; border:1px solid #000; border-radius:100px; padding:13px 26px; font-size:14px; font-weight:500;">Read the docs</a>
+      </div>
+
+      <div style="border-top:1px solid rgba(0,0,0,0.14); padding-top:26px; max-width:520px; margin:0 auto; animation:rise .75s ease both .28s;">
+        <div style="font-size:11px; letter-spacing:0.06em; text-transform:uppercase; color:#797776; margin-bottom:16px;">Popular destinations</div>
+        <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+          <a href="Features.dc.html" style="text-decoration:none; color:#000; border:1px solid rgba(0,0,0,0.25); border-radius:100px; padding:9px 18px; font-size:13px;">Features</a>
+          <a href="WhyThroughspec.dc.html" style="text-decoration:none; color:#000; border:1px solid rgba(0,0,0,0.25); border-radius:100px; padding:9px 18px; font-size:13px;">Why Throughspec</a>
+          <a href="Changelog.dc.html" style="text-decoration:none; color:#000; border:1px solid rgba(0,0,0,0.25); border-radius:100px; padding:9px 18px; font-size:13px;">Changelog</a>
+          <a href="About.dc.html" style="text-decoration:none; color:#000; border:1px solid rgba(0,0,0,0.25); border-radius:100px; padding:9px 18px; font-size:13px;">About</a>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <dc-import name="Footer" hint-size="100%,440px"></dc-import>
+</div>
+</x-dc>
+</body>
+</html>
