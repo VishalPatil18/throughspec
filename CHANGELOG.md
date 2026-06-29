@@ -10,7 +10,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Added
 
-- Stage 1 — Monorepo and source-of-truth templates layout.
+- Stage 1 - Monorepo and source-of-truth templates layout.
   - npm workspaces root with `packages/cli-node` and `packages/cli-python`.
   - Single Node parity script (`tools/check-payload-parity.mjs`) that fails CI when the two channels' payloads diverge.
   - Lint and format baseline: ESLint 9 flat config + Prettier for Node, Ruff for Python.

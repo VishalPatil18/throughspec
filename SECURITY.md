@@ -40,7 +40,7 @@ In scope:
 
 Out of scope:
 
-- Vulnerabilities in third-party tools the kit recommends (Claude Code itself, Obsidian, Graphify) — report those upstream.
+- Vulnerabilities in third-party tools the kit recommends (Claude Code itself, Obsidian, Graphify) - report those upstream.
 - Issues in projects scaffolded by Throughspec that result from user customization.
 
 ---

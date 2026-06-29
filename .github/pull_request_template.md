@@ -1,4 +1,4 @@
-<!-- Throughspec PR template — keep it tight, follow the kit's own spec-driven contract. -->
+<!-- Throughspec PR template - keep it tight, follow the kit's own spec-driven contract. -->
 
 ## What
 
@@ -6,7 +6,7 @@
 
 ## Stage
 
-<!-- Reference the stage in claude/plan.md this PR advances, e.g., "Stage 3 — Node CLI". -->
+<!-- Reference the stage in claude/plan.md this PR advances, e.g., "Stage 3 - Node CLI". -->
 
 Stage:
 

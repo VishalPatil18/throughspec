@@ -1,4 +1,4 @@
-# Throughspec — Build Plan
+# Throughspec - Build Plan
 
 > Spec-driven. Drift-proof. Token-lean.
 
@@ -39,7 +39,7 @@
 
 ---
 
-## Stage 1 — Monorepo & Source-of-Truth Templates Layout
+## Stage 1 - Monorepo & Source-of-Truth Templates Layout
 
 - [x] **Goal:** Establish the single `templates/` tree that both the npm and PyPI packagers consume, so the two channels cannot drift (SRS §2.3, Risk row 6). _Completed 2026-06-29._
 
@@ -48,7 +48,7 @@
 - Top-level repo layout: `packages/cli-node/`, `packages/cli-python/`, `templates/`, `skills/`, `agents/`, `website/`, `tests/`.
 - A `tools/build-payload.{js,py}` script that copies `templates/` into each package's build output.
 - License (zero-cost compatible), `README.md`, `CONTRIBUTING.md`, `SECURITY.md` for the Throughspec repo itself.
-- Linting/formatting baseline (Prettier + ESLint for Node, Ruff for Python) — no paid services.
+- Linting/formatting baseline (Prettier + ESLint for Node, Ruff for Python) - no paid services.
 
 ### Scope-Out
 
@@ -73,7 +73,7 @@
 
 ---
 
-## Stage 2 — Canonical Project Payload
+## Stage 2 - Canonical Project Payload
 
 - [ ] **Goal:** Produce the versioned template files that a fresh `spec-init` run will copy (SRS §6 tree), each pre-seeded with the structure and front-matter the Kit's skills depend on.
 
@@ -87,7 +87,7 @@
 
 ### Scope-Out
 
-- Any runtime behavior — these are static files only.
+- Any runtime behavior - these are static files only.
 - Integration-specific files (Stage 8).
 
 ### Acceptance Criteria
@@ -107,22 +107,22 @@
 
 ---
 
-## Stage 3 — Node.js Scaffolding CLI (`spec-init`)
+## Stage 3 - Node.js Scaffolding CLI (`spec-init`)
 
 - [ ] **Goal:** Ship the Node-based CLI that produces the §6 tree, supports `init / customize / add-skill / upgrade / doctor`, and refuses to overwrite without `--force` (FR-INIT-01..06, NFR-PERF-01).
 
 ### Scope-In
 
-- `packages/cli-node` written in TypeScript, distributed as ESM, Node ≥18 — published to **npm** (confirmed 2026-06-29).
+- `packages/cli-node` written in TypeScript, distributed as ESM, Node ≥18 - published to **npm** (confirmed 2026-06-29).
 - Commands: `init`, `customize`, `add-skill`, `upgrade`, `doctor`.
 - Flags: `--persona`, `--integrations`, `--force`, `--dry-run`.
-- Three-way merge for `upgrade` (NFR-REL-02). Use a small, audited library (e.g., `diff3`) — no paid services.
+- Three-way merge for `upgrade` (NFR-REL-02). Use a small, audited library (e.g., `diff3`) - no paid services.
 - Post-init checklist printed with the next slash command to run (FR-INIT-04).
 - Telemetry strictly off by default (NFR-SEC-02).
 
 ### Scope-Out
 
-- The Python CLI (Stage 4) — but its CLI surface MUST mirror Node's, so the contract is finalized here and copied.
+- The Python CLI (Stage 4) - but its CLI surface MUST mirror Node's, so the contract is finalized here and copied.
 - Skills and agents (Stages 5–7).
 
 ### Acceptance Criteria
@@ -145,7 +145,7 @@
 
 ---
 
-## Stage 4 — Python Scaffolding CLI (`spec-init`)
+## Stage 4 - Python Scaffolding CLI (`spec-init`)
 
 - [ ] **Goal:** Mirror the Node CLI in Python so npm and PyPI users get an identical first experience (SRS §2.3).
 
@@ -153,12 +153,12 @@
 
 - `packages/cli-python` using `typer` (or `argparse` to stay dependency-light), Python ≥3.10.
 - Same command surface, flags, exit codes, and post-init checklist as Stage 3.
-- Distribution via `pipx install spec-init` and `pip install spec-init` — published to **PyPI** (confirmed 2026-06-29).
+- Distribution via `pipx install spec-init` and `pip install spec-init` - published to **PyPI** (confirmed 2026-06-29).
 - Shared parity test that runs _both_ CLIs against the same fixtures and compares output trees byte-for-byte.
 
 ### Scope-Out
 
-- New CLI features — Stage 4 must not invent capabilities Stage 3 lacks.
+- New CLI features - Stage 4 must not invent capabilities Stage 3 lacks.
 
 ### Acceptance Criteria
 
@@ -177,13 +177,13 @@
 
 ---
 
-## Stage 5 — Initiation Skills (`/spec-requirements`, `/spec-design`, `/spec-plan`)
+## Stage 5 - Initiation Skills (`/spec-requirements`, `/spec-design`, `/spec-plan`)
 
 - [ ] **Goal:** Ship the three skills that produce `claude/srs.md`, `design/design.md`, and `claude/plan.md` via cross-questioning, enforcing all FR-REQ, FR-DESIGN, and FR-PLAN gates.
 
 ### Scope-In
 
-- Skill source files under `skills/` (single source of truth, compiled into both payloads — NFR-MAINT-02).
+- Skill source files under `skills/` (single source of truth, compiled into both payloads - NFR-MAINT-02).
 - `/spec-requirements`: ≥3 rounds of cross-questioning, refusal-to-proceed if any of the five mandatory categories is empty (FR-REQ-01..05).
 - `/spec-design`: reference-driven if a reference is supplied, inferred otherwise; refuses to fabricate brand colors (FR-DESIGN-01..05).
 - `/spec-plan`: enforces 8–10 stages, refuses to proceed if SRS open questions remain in load-bearing categories (FR-PLAN-01..05).
@@ -211,7 +211,7 @@
 
 ---
 
-## Stage 6 — 6-Phase Feature Cycle (`/spec-feature` + Agents)
+## Stage 6 - 6-Phase Feature Cycle (`/spec-feature` + Agents)
 
 - [ ] **Goal:** Implement the full 6-phase cycle (SRS §3.5, §5.2) and the agents that support it, then prove it by shipping one real feature inside a sample project.
 
@@ -220,7 +220,7 @@
 - `/spec-feature` orchestrating phases 1–6 in order, refusing to skip unless `--skip` is passed and the override is logged in `design-decisions.md` (FR-FEATURE).
 - Agents: `spec-interrogator`, `spec-architect`, `spec-planner`, `spec-coder`, `spec-refactorer`, `spec-doc-writer` (SRS §2.2.4).
 - Phase-6 memory-update ordering: `context.md` → `features.md` → `design-decisions.md` → `learnings.md` → `CHANGELOG.md` (FR-CODE-05).
-- Diff-scoped `/spec-refactor` (FR-CODE-04) — preliminary version; isolation contract finalized in Stage 7.
+- Diff-scoped `/spec-refactor` (FR-CODE-04) - preliminary version; isolation contract finalized in Stage 7.
 
 ### Scope-Out
 
@@ -245,7 +245,7 @@
 
 ---
 
-## Stage 7 — Maintenance Skills (`/spec-refactor`, `/spec-bug`, `/spec-docs`, `/spec-sync`)
+## Stage 7 - Maintenance Skills (`/spec-refactor`, `/spec-bug`, `/spec-docs`, `/spec-sync`)
 
 - [ ] **Goal:** Ship the four maintenance skills that keep the project honest after the initial build (FR-BUG, FR-DOCS, FR-CODE-04, §5.3, §5.4, §5.5).
 
@@ -253,12 +253,12 @@
 
 - `/spec-bug`: reproduction-first, regression test, smallest diff, no refactors, CHANGELOG entry (FR-BUG-01..05).
 - `/spec-docs`: read repo state, present a diff, never touch source code, flag stale features (FR-DOCS-01..04).
-- `/spec-refactor`: diff-scoped only — must read the cycle's changed-files list, not the repo (FR-CODE-04).
+- `/spec-refactor`: diff-scoped only - must read the cycle's changed-files list, not the repo (FR-CODE-04).
 - `/spec-sync`: reconcile `context.md` against repo state and compress any memory file > 1,500 lines (NFR-PERF-03).
 
 ### Scope-Out
 
-- New workflow phases — keep these strictly maintenance.
+- New workflow phases - keep these strictly maintenance.
 
 ### Acceptance Criteria
 
@@ -278,7 +278,7 @@
 
 ---
 
-## Stage 8 — Integrations (Graphify, Obsidian)
+## Stage 8 - Integrations (Graphify, Obsidian)
 
 - [ ] **Goal:** Ship the two optional integrations as fully toggleable add-ons (FR-INTEGRATE-01..03).
 
@@ -308,16 +308,16 @@
 
 ---
 
-## Stage 9 — Companion Website
+## Stage 9 - Companion Website
 
 - [ ] **Goal:** Stand up the static documentation/distribution site with every section enumerated in SRS §7.3.
 
 ### Scope-In
 
-- Static site built with Astro or Next.js static export, deployed to **Vercel free tier** (confirmed 2026-06-29; CLAUDE.md §7 — zero-cost).
+- Static site built with Astro or Next.js static export, deployed to **Vercel free tier** (confirmed 2026-06-29; CLAUDE.md §7 - zero-cost).
 - Sections: Install, Quickstart, Workflows, Design Prompt Library, Learning Map, Customization Recipes, Changelog.
 - Visual system pulled from `./design/` HTML mocks (CLAUDE.md §8); Tailwind utilities only, no inline CSS.
-- Search across docs (client-side index — no paid search service).
+- Search across docs (client-side index - no paid search service).
 
 ### Scope-Out
 
@@ -342,7 +342,7 @@
 
 ---
 
-## Stage 10 — Cross-Platform Verification & v1.0.0 Release
+## Stage 10 - Cross-Platform Verification & v1.0.0 Release
 
 - [ ] **Goal:** Verify every SRS §9 acceptance criterion on macOS, Linux, and Windows, then publish v1.0.0 to npm and PyPI.
 
@@ -370,7 +370,7 @@
 
 - Full CI matrix green.
 - Manual user trial (1–2 testers) following the website's Quickstart.
-- Telemetry-off verification (no outbound network calls during install — NFR-SEC-02).
+- Telemetry-off verification (no outbound network calls during install - NFR-SEC-02).
 
 **Effort:** M
 **Exit signal:** `spec-init` is publicly installable and the SRS §9 board is fully checked.
@@ -413,12 +413,12 @@ Before Stage 1 begins, the user MUST confirm:
 
 Reply with `proceed`, `modify: <changes>`, or specific stage feedback to advance.
 
-**User confirmation — 2026-06-29:**
+**User confirmation - 2026-06-29:**
 
 1. 10-stage shape: **approved**.
-2. Stack: **approved** — Vercel for website hosting; npm for the Node CLI; PyPI for the Python CLI.
+2. Stack: **approved** - Vercel for website hosting; npm for the Node CLI; PyPI for the Python CLI.
 3. SRS §11 open questions: **carried as deferred work** (to be resolved before v1.0.0 in Stage 10).
 
 ---
 
-_End of plan.md v0.1.0 — generated 2026-06-29 from `srs.md` v1.0.0 and `CLAUDE.md`._
+_End of plan.md v0.1.0 - generated 2026-06-29 from `srs.md` v1.0.0 and `CLAUDE.md`._

@@ -32,7 +32,7 @@ def payload_src() -> Path:
 
 
 def payload_dst() -> Path:
-    # packages/cli-python/_payload — sibling of src/, referenced by force-include.
+    # packages/cli-python/_payload - sibling of src/, referenced by force-include.
     return Path(__file__).resolve().parents[2] / "_payload"
 
 
