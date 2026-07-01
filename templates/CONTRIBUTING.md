@@ -1,6 +1,6 @@
 # Contributing
 
-Thanks for your interest in contributing. This project follows a strict **Spec-Driven Development** workflow — please read this guide before opening a PR.
+Thanks for your interest in contributing. This project follows a strict **Spec-Driven Development** workflow - please read this guide before opening a PR.
 
 ---
 
@@ -41,7 +41,7 @@ Thanks for your interest in contributing. This project follows a strict **Spec-D
 
 - Files: small and focused (target 200–400 lines, 800 max).
 - Functions: small and focused (target under 50 lines).
-- Naming: descriptive — no single-letter variables outside trivial scopes.
+- Naming: descriptive - no single-letter variables outside trivial scopes.
 - Errors: handled explicitly. No silent swallows.
 - Immutability: prefer new objects over in-place mutation.
 

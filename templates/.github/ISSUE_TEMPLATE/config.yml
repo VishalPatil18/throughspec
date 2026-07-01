@@ -8,4 +8,4 @@ contact_links:
     about: For questions, ideas, and general discussion that aren't bugs or feature requests.
   - name: Security disclosure
     url: ./SECURITY.md
-    about: Do not file public issues for security vulnerabilities — follow SECURITY.md instead.
+    about: Do not file public issues for security vulnerabilities - follow SECURITY.md instead.

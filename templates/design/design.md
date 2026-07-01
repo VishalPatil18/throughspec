@@ -15,9 +15,9 @@
 
 ## Style Statement
 
-_<One paragraph describing the overall feel — what surface treatment, type pairing, color discipline, and rhythm the UI should embody.>_
+_<One paragraph describing the overall feel - what surface treatment, type pairing, color discipline, and rhythm the UI should embody.>_
 
-## Tokens — Colors
+## Tokens - Colors
 
 | Name | Value | Token | Role |
 |------|-------|-------|------|
@@ -25,7 +25,7 @@ _<One paragraph describing the overall feel — what surface treatment, type pai
 | _<Primary Text>_ | `#______` | `--color-primary-text` | _<role>_ |
 | _<Accent>_ | `#______` | `--color-accent` | _<role>_ |
 
-## Tokens — Typography
+## Tokens - Typography
 
 ### _<Font Family 1>_ · `--font-display`
 - **Substitute:** _<system fallback>_
@@ -56,7 +56,7 @@ _<One paragraph describing the overall feel — what surface treatment, type pai
 | heading-lg | 40px | 1.2 | -0.8px | `--text-heading-lg` |
 | display | 80px | 1.2 | -1.6px | `--text-display` |
 
-## Tokens — Spacing & Shape
+## Tokens - Spacing & Shape
 
 **Base unit:** 8px
 
@@ -119,9 +119,9 @@ _<One paragraph describing surface, type, spacing, and any non-obvious treatment
 
 ## Imagery & Motion
 
-_<Brief: how illustrations, photos, and motion are used — or deliberately avoided.>_
+_<Brief: how illustrations, photos, and motion are used - or deliberately avoided.>_
 
-## Quick Start — CSS Custom Properties
+## Quick Start - CSS Custom Properties
 
 ```css
 :root {

@@ -23,7 +23,7 @@ All notable changes to this project are documented here. Format follows [Keep a 
 
 ---
 
-## [0.1.0] — _<YYYY-MM-DD>_
+## [0.1.0] - _<YYYY-MM-DD>_
 
 ### Added
 - Initial project scaffold via Spec-Driven Development Starter Kit.

@@ -8,7 +8,7 @@
 
 <!-- Template for each learning. Copy below this line for new entries. -->
 
-## Learning — _<short title>_
+## Learning - _<short title>_
 
 | Field | Value |
 |-------|-------|

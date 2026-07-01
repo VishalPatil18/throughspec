@@ -1,6 +1,6 @@
 # _<Project Name>_
 
-> _<One-line pitch — what the product is and who it's for.>_
+> _<One-line pitch - what the product is and who it's for.>_
 
 Built with the [Spec-Driven Development Claude Project Starter Kit](https://example.com/spec-init).
 
@@ -40,7 +40,7 @@ This project follows the **Spec-Driven Development** layout:
 
 ```
 .
-├── CLAUDE.md              # behavior contract for Claude Code — read first
+├── CLAUDE.md              # behavior contract for Claude Code - read first
 ├── claude/                # durable memory layer
 │   ├── srs.md             # frozen requirements
 │   ├── plan.md            # staged build plan
@@ -82,15 +82,15 @@ Invoke any phase via Claude Code:
 
 ### Graphify
 
-This project is wired for [Graphify](https://graphify.net/) — a code knowledge graph over the codebase. Configuration lives in `.graphify/config.yml`.
+This project is wired for [Graphify](https://graphify.net/) - a code knowledge graph over the codebase. Configuration lives in `.graphify/config.yml`.
 
 ### Obsidian
 
 The `claude/` and `design/` directories form an [Obsidian](https://obsidian.md/) vault. Recommended community plugins:
 
-- **Dataview** — query the features log
-- **Graph Analysis** — visualize how decisions link together
-- **Excalidraw** — sketch architecture diagrams alongside specs
+- **Dataview** - query the features log
+- **Graph Analysis** - visualize how decisions link together
+- **Excalidraw** - sketch architecture diagrams alongside specs
 
 Open the project folder in Obsidian to navigate the markdown graph visually.
 

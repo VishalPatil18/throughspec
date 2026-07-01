@@ -1,49 +1,49 @@
-# Monad — Style Reference
-> Monospaced technical journal on cream paper — quiet, precise, editorial.
+# Monad - Style Reference
+> Monospaced technical journal on cream paper - quiet, precise, editorial.
 
 **Theme:** light
 
-Monad renders as a quiet editorial document on warm parchment: cream canvas, charcoal ink, and a single near-gray lavender card surface carry the entire UI. The signature move is type — a humanist serif at 400 weight for headlines paired with a monospaced font for nearly all UI text creates a technical-journal feel that is rare in B2B SaaS. Color is almost completely absent from the interface; the peach, lavender, and mint tones that exist are confined to the data-flow diagram in the hero, where they behave as soft atmospheric washes rather than brand accents. Components are flat and confident: 100px pill buttons, 40px-radius cards, hairline borders in near-black, and a single soft ambient shadow — nothing is heavy, nothing is glossy. The overall rhythm is generous breathing room, centered text stacks, and horizontal flow lines that suggest movement without animation.
+Monad renders as a quiet editorial document on warm parchment: cream canvas, charcoal ink, and a single near-gray lavender card surface carry the entire UI. The signature move is type - a humanist serif at 400 weight for headlines paired with a monospaced font for nearly all UI text creates a technical-journal feel that is rare in B2B SaaS. Color is almost completely absent from the interface; the peach, lavender, and mint tones that exist are confined to the data-flow diagram in the hero, where they behave as soft atmospheric washes rather than brand accents. Components are flat and confident: 100px pill buttons, 40px-radius cards, hairline borders in near-black, and a single soft ambient shadow - nothing is heavy, nothing is glossy. The overall rhythm is generous breathing room, centered text stacks, and horizontal flow lines that suggest movement without animation.
 
-## Tokens — Colors
+## Tokens - Colors
 
 | Name | Value | Token | Role |
 |------|-------|-------|------|
-| Parchment Cream | `#f6f3f1` | `--color-parchment-cream` | Page canvas, nav background, badge surfaces — the warm off-white base that makes the entire interface feel like paper rather than screen |
+| Parchment Cream | `#f6f3f1` | `--color-parchment-cream` | Page canvas, nav background, badge surfaces - the warm off-white base that makes the entire interface feel like paper rather than screen |
 | Ink Black | `#000000` | `--color-ink-black` | Primary text, icon strokes, hairline borders, and the dominant outline color across nav, cards, and dividers |
-| Charcoal | `#242424` | `--color-charcoal` | Primary action button fill, badge borders, elevated surface — filled CTAs sit slightly off pure black for visual softness |
+| Charcoal | `#242424` | `--color-charcoal` | Primary action button fill, badge borders, elevated surface - filled CTAs sit slightly off pure black for visual softness |
 | Graphite | `#4e4d4d` | `--color-graphite` | Body and heading text at lower contrast, secondary card borders, muted UI elements |
 | Slate Shadow | `#3d3d3d` | `--color-slate-shadow` | Tertiary borders and decorative strokes where pure black would feel too heavy |
 | Warm Stone | `#797776` | `--color-warm-stone` | Muted helper text, link underlines, and low-emphasis labels |
-| Lavender Mist | `#cfdaf5` | `--color-lavender-mist` | Card surface tint — the only non-grayscale surface color, used as a gentle wash to separate elevated content from the cream canvas |
-| Peach to Periwinkle Wash | `linear-gradient(rgba(255, 148, 115, 0.8) 7%, rgba(160, 181, 235, 0.8) 83.82%)` | `--color-peach-to-periwinkle-wash` | Decorative gradient endstop in the data-flow diagram — soft atmospheric color, never used as a UI accent |
-| Mint to Periwinkle Wash | `linear-gradient(rgb(160, 181, 235), rgb(167, 252, 205))` | `--color-mint-to-periwinkle-wash` | Decorative gradient in the data-flow diagram aura — appears as a soft green glow around the central processing node |
+| Lavender Mist | `#cfdaf5` | `--color-lavender-mist` | Card surface tint - the only non-grayscale surface color, used as a gentle wash to separate elevated content from the cream canvas |
+| Peach to Periwinkle Wash | `linear-gradient(rgba(255, 148, 115, 0.8) 7%, rgba(160, 181, 235, 0.8) 83.82%)` | `--color-peach-to-periwinkle-wash` | Decorative gradient endstop in the data-flow diagram - soft atmospheric color, never used as a UI accent |
+| Mint to Periwinkle Wash | `linear-gradient(rgb(160, 181, 235), rgb(167, 252, 205))` | `--color-mint-to-periwinkle-wash` | Decorative gradient in the data-flow diagram aura - appears as a soft green glow around the central processing node |
 
-## Tokens — Typography
+## Tokens - Typography
 
-### Untitled Serif — All headlines and display text. Anti-convention: weight 400 (not 600-700) lets the serif shapes whisper — authority comes from the typeface's humanist proportions and generous negative tracking, not from boldness. · `--font-untitled-serif`
+### Untitled Serif - All headlines and display text. Anti-convention: weight 400 (not 600-700) lets the serif shapes whisper - authority comes from the typeface's humanist proportions and generous negative tracking, not from boldness. · `--font-untitled-serif`
 - **Substitute:** Source Serif 4, Lora, or PT Serif
 - **Weights:** 400
 - **Sizes:** 24px, 28px, 32px, 40px, 80px
 - **Line height:** 1.20
 - **Letter spacing:** -0.0200em
-- **Role:** All headlines and display text. Anti-convention: weight 400 (not 600-700) lets the serif shapes whisper — authority comes from the typeface's humanist proportions and generous negative tracking, not from boldness.
+- **Role:** All headlines and display text. Anti-convention: weight 400 (not 600-700) lets the serif shapes whisper - authority comes from the typeface's humanist proportions and generous negative tracking, not from boldness.
 
-### ABC Diatype Mono — Body text, navigation, buttons, badges, tags, and all functional UI copy. The monospaced treatment for non-code text is the system's most distinctive choice — it gives every label the visual weight of a typeset annotation, reinforcing the technical-journal metaphor. · `--font-abc-diatype-mono`
+### ABC Diatype Mono - Body text, navigation, buttons, badges, tags, and all functional UI copy. The monospaced treatment for non-code text is the system's most distinctive choice - it gives every label the visual weight of a typeset annotation, reinforcing the technical-journal metaphor. · `--font-abc-diatype-mono`
 - **Substitute:** JetBrains Mono, IBM Plex Mono, or Berkeley Mono
 - **Weights:** 400, 500
 - **Sizes:** 12px, 14px, 16px, 18px, 20px, 28px
 - **Line height:** 1.30-1.35
 - **Letter spacing:** -0.0200em
-- **Role:** Body text, navigation, buttons, badges, tags, and all functional UI copy. The monospaced treatment for non-code text is the system's most distinctive choice — it gives every label the visual weight of a typeset annotation, reinforcing the technical-journal metaphor.
+- **Role:** Body text, navigation, buttons, badges, tags, and all functional UI copy. The monospaced treatment for non-code text is the system's most distinctive choice - it gives every label the visual weight of a typeset annotation, reinforcing the technical-journal metaphor.
 
-### Untitled Sans — Secondary body text fallback — appears minimally, likely for paragraphs where monospaced character widths would be distracting at length · `--font-untitled-sans`
+### Untitled Sans - Secondary body text fallback - appears minimally, likely for paragraphs where monospaced character widths would be distracting at length · `--font-untitled-sans`
 - **Substitute:** Inter, Söhne, or system-ui
 - **Weights:** 400
 - **Sizes:** 16px
 - **Line height:** 1.35
 - **Letter spacing:** -0.0200em
-- **Role:** Secondary body text fallback — appears minimally, likely for paragraphs where monospaced character widths would be distracting at length
+- **Role:** Secondary body text fallback - appears minimally, likely for paragraphs where monospaced character widths would be distracting at length
 
 ### Type Scale
 
@@ -58,7 +58,7 @@ Monad renders as a quiet editorial document on warm parchment: cream canvas, cha
 | heading-lg | 40px | 1.2 | -0.8px | `--text-heading-lg` |
 | display | 80px | 1.2 | -1.6px | `--text-display` |
 
-## Tokens — Spacing & Shapes
+## Tokens - Spacing & Shapes
 
 **Base unit:** 8px
 
@@ -160,30 +160,30 @@ Section headings in ABC Diatype Mono 12px weight 500 with positive tracking (0.0
 ## Do's and Don'ts
 
 ### Do
-- Use Untitled Serif weight 400 for all headlines — never bold, never black-weight.
+- Use Untitled Serif weight 400 for all headlines - never bold, never black-weight.
 - Use ABC Diatype Mono for every functional UI label: buttons, nav, tags, badges, and short body text.
 - Apply 100px border-radius to all buttons, tags, and pill-shaped elements.
 - Apply 40px border-radius to all card and panel surfaces.
-- Keep the canvas Parchment Cream (#f6f3f1) — never switch to pure white, which would break the editorial warmth.
-- Use the soft ambient shadow (rgba(0,0,0,0.1) 0 0 10px) sparingly — only on elevated cards, never on buttons or nav.
+- Keep the canvas Parchment Cream (#f6f3f1) - never switch to pure white, which would break the editorial warmth.
+- Use the soft ambient shadow (rgba(0,0,0,0.1) 0 0 10px) sparingly - only on elevated cards, never on buttons or nav.
 - Confine all chromatic color to decorative gradient illustrations; the UI itself stays near-grayscale.
 
 ### Don't
-- Don't use bold or semibold weights for serif headlines — the 400 weight is the signature.
-- Don't use a proportional sans-serif for body text or nav — mono is the system's identity.
-- Don't add saturated brand colors as accents, underlines, or active states — the palette is intentionally restrained.
-- Don't use square or 4-8px corner radii on interactive elements — pills (100px) and generous rounding (40px) are required.
-- Don't place colored gradients behind text or use them as section backgrounds — they belong only in decorative illustration panels.
-- Don't use heavy drop shadows or layered elevation — the system relies on one subtle 10px ambient shadow.
-- Don't break the cream canvas with white or near-white surfaces — the warmth must persist across all page levels.
+- Don't use bold or semibold weights for serif headlines - the 400 weight is the signature.
+- Don't use a proportional sans-serif for body text or nav - mono is the system's identity.
+- Don't add saturated brand colors as accents, underlines, or active states - the palette is intentionally restrained.
+- Don't use square or 4-8px corner radii on interactive elements - pills (100px) and generous rounding (40px) are required.
+- Don't place colored gradients behind text or use them as section backgrounds - they belong only in decorative illustration panels.
+- Don't use heavy drop shadows or layered elevation - the system relies on one subtle 10px ambient shadow.
+- Don't break the cream canvas with white or near-white surfaces - the warmth must persist across all page levels.
 
 ## Surfaces
 
 | Level | Name | Value | Purpose |
 |-------|------|-------|---------|
-| 0 | Parchment Canvas | `#f6f3f1` | Page background — warm cream off-white that defines the editorial paper feel |
-| 1 | Lavender Card | `#cfdaf5` | Elevated card surface — subtle near-gray lavender tint separates content blocks from the canvas |
-| 2 | Charcoal Surface | `#242424` | Dark elevated surface for CTAs and badges — the only non-warm surface in the system |
+| 0 | Parchment Canvas | `#f6f3f1` | Page background - warm cream off-white that defines the editorial paper feel |
+| 1 | Lavender Card | `#cfdaf5` | Elevated card surface - subtle near-gray lavender tint separates content blocks from the canvas |
+| 2 | Charcoal Surface | `#242424` | Dark elevated surface for CTAs and badges - the only non-warm surface in the system |
 
 ## Elevation
 
@@ -191,7 +191,7 @@ Section headings in ABC Diatype Mono 12px weight 500 with positive tracking (0.0
 
 ## Imagery
 
-Monad's visual language is almost entirely diagrammatic and typographic — no photography, no product screenshots, no lifestyle imagery. The hero centers on a data-flow diagram: pill-shaped source tags on the left, a glowing processing node in the center (surrounded by a soft mint-green radial wash), and destination tags on the right, all connected by thin horizontal flow lines. Feature cards pair a text block with a decorative gradient panel on the right — these panels use translucent peach, lavender, mint, and amber gradients with abstract geometric shapes (circles, rounded squares, constellation-like dots). Icons throughout are minimal line-art glyphs in Ink Black at consistent stroke weight. The overall density is text-dominant; imagery serves as atmospheric accent rather than content.
+Monad's visual language is almost entirely diagrammatic and typographic - no photography, no product screenshots, no lifestyle imagery. The hero centers on a data-flow diagram: pill-shaped source tags on the left, a glowing processing node in the center (surrounded by a soft mint-green radial wash), and destination tags on the right, all connected by thin horizontal flow lines. Feature cards pair a text block with a decorative gradient panel on the right - these panels use translucent peach, lavender, mint, and amber gradients with abstract geometric shapes (circles, rounded squares, constellation-like dots). Icons throughout are minimal line-art glyphs in Ink Black at consistent stroke weight. The overall density is text-dominant; imagery serves as atmospheric accent rather than content.
 
 ## Agent Prompt Guide
 
@@ -217,11 +217,11 @@ No distinct primary action color was observed; use the extracted neutral button 
 
 ## Similar Brands
 
-- **Linear** — Same restrained, near-monochromatic palette with a single dark filled CTA pill and ghost outline secondary — but Monad pushes further with warm cream and a serif/mono type pairing.
-- **Stripe** — Similar confidence in using generous whitespace, centered text stacks, and 100px pill buttons for CTAs; both systems rely on layout precision rather than color to create hierarchy.
-- **Vercel** — Shares the minimal-chrome, hairline-border, single-shadow approach with a monochromatic UI — Monad differs by using warm cream and serif headlines instead of Vercel's pure grayscale and geometric sans.
-- **Resend** — Both use monospaced fonts for functional UI text, warm off-white canvases, and restrained color palettes — a shared technical-editorial sensibility.
-- **Cursor** — Similar pill-shaped CTAs, clean centered hero layouts, and confident use of near-zero colorfulness in the core interface while letting illustrations carry chromatic accents.
+- **Linear** - Same restrained, near-monochromatic palette with a single dark filled CTA pill and ghost outline secondary - but Monad pushes further with warm cream and a serif/mono type pairing.
+- **Stripe** - Similar confidence in using generous whitespace, centered text stacks, and 100px pill buttons for CTAs; both systems rely on layout precision rather than color to create hierarchy.
+- **Vercel** - Shares the minimal-chrome, hairline-border, single-shadow approach with a monochromatic UI - Monad differs by using warm cream and serif headlines instead of Vercel's pure grayscale and geometric sans.
+- **Resend** - Both use monospaced fonts for functional UI text, warm off-white canvases, and restrained color palettes - a shared technical-editorial sensibility.
+- **Cursor** - Similar pill-shaped CTAs, clean centered hero layouts, and confident use of near-zero colorfulness in the core interface while letting illustrations carry chromatic accents.
 
 ## Quick Start
 
@@ -242,12 +242,12 @@ No distinct primary action color was observed; use the extracted neutral button 
   --color-mint-to-periwinkle-wash: #a7fccd;
   --gradient-mint-to-periwinkle-wash: linear-gradient(rgb(160, 181, 235), rgb(167, 252, 205));
 
-  /* Typography — Font Families */
+  /* Typography - Font Families */
   --font-untitled-serif: 'Untitled Serif', ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
   --font-abc-diatype-mono: 'ABC Diatype Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   --font-untitled-sans: 'Untitled Sans', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 
-  /* Typography — Scale */
+  /* Typography - Scale */
   --text-caption: 12px;
   --leading-caption: 1.3;
   --tracking-caption: -0.24px;
@@ -273,7 +273,7 @@ No distinct primary action color was observed; use the extracted neutral button 
   --leading-display: 1.2;
   --tracking-display: -1.6px;
 
-  /* Typography — Weights */
+  /* Typography - Weights */
   --font-weight-regular: 400;
   --font-weight-medium: 500;
 
@@ -336,7 +336,7 @@ No distinct primary action color was observed; use the extracted neutral button 
   --font-abc-diatype-mono: 'ABC Diatype Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   --font-untitled-sans: 'Untitled Sans', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 
-  /* Typography — Scale */
+  /* Typography - Scale */
   --text-caption: 12px;
   --leading-caption: 1.3;
   --tracking-caption: -0.24px;

@@ -1,4 +1,4 @@
-# Project Context — Compressed Snapshot
+# Project Context - Compressed Snapshot
 
 > Single source of truth for "what exists right now." Updated at the end of every feature cycle by `/spec-feature` and reconciled by `/spec-sync`.
 >
@@ -16,7 +16,7 @@
 
 _<Bullet list of shipped capabilities. One line each. Link to feature entries in `features.md`.>_
 
-- _<capability 1>_ — [features.md#anchor](./features.md)
+- _<capability 1>_ - [features.md#anchor](./features.md)
 - _<capability 2>_
 
 ## 2. What works (verified)
@@ -44,7 +44,7 @@ _<Bullet list of shipped capabilities. One line each. Link to feature entries in
 
 > Most recent first. For full history, see [`design-decisions.md`](./design-decisions.md).
 
-- _<YYYY-MM-DD>_ — _<decision summary>_
+- _<YYYY-MM-DD>_ - _<decision summary>_
 
 ## 7. File map
 

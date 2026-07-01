@@ -41,4 +41,4 @@ assignees: []
 
 ## Workflow Note
 
-This bug will be resolved via `/spec-bug` — that workflow requires a reproducible recipe. If you cannot reproduce reliably, please note that here so we can ask for more info.
+This bug will be resolved via `/spec-bug` - that workflow requires a reproducible recipe. If you cannot reproduce reliably, please note that here so we can ask for more info.

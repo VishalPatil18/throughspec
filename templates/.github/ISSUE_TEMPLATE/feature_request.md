@@ -12,7 +12,7 @@ assignees: []
 
 ## Proposed Solution
 
-<!-- One paragraph. Keep it directional — the 6-phase cycle will fill in the detail. -->
+<!-- One paragraph. Keep it directional - the 6-phase cycle will fill in the detail. -->
 
 ## Out of Scope
 

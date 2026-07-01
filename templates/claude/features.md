@@ -17,19 +17,19 @@
 | Stage of plan.md | _<stage number>_ |
 | Owner | _<user or claude>_ |
 
-### Phase 1 — Requirements
+### Phase 1 - Requirements
 
 _<Cross-questioning transcript summary. The questions asked and the answers received.>_
 
-### Phase 2 — Architecting
+### Phase 2 - Architecting
 
 **Options considered:**
-1. _<option A>_ — pros / cons
-2. _<option B>_ — pros / cons
+1. _<option A>_ - pros / cons
+2. _<option B>_ - pros / cons
 
-**Chosen:** _<A or B>_ — _<one-line rationale>_
+**Chosen:** _<A or B>_ - _<one-line rationale>_
 
-### Phase 3 — Product Specs
+### Phase 3 - Product Specs
 
 - **UI:** _<screens, components>_
 - **UX flow:** _<steps>_
@@ -37,21 +37,21 @@ _<Cross-questioning transcript summary. The questions asked and the answers rece
 - **Backend entities:** _<list>_
 - **DB schema:** _<tables / collections>_
 
-### Phase 4 — Tech Specs
+### Phase 4 - Tech Specs
 
 - **Frameworks:** _<chosen + rejected>_
 - **Languages:** _<chosen>_
 - **Deployment:** _<target>_
 - **Data store:** _<chosen + rejected>_
 
-### Phase 5 — Planning
+### Phase 5 - Planning
 
 | Sub-stage | Goal | Acceptance |
 |-----------|------|------------|
 | 1 | _<goal>_ | _<criteria>_ |
 | 2 | _<goal>_ | _<criteria>_ |
 
-### Phase 6 — Writing Code
+### Phase 6 - Writing Code
 
 - **Files touched:** _<list>_
 - **Tests added:** _<list>_

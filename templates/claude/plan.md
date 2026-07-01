@@ -10,7 +10,7 @@
 
 ---
 
-## Stage 1 — _<name>_
+## Stage 1 - _<name>_
 
 - **Goal:** _<one sentence>_
 - **Scope in:** _<what's included>_
@@ -24,7 +24,7 @@
 
 ---
 
-## Stage 2 — _<name>_
+## Stage 2 - _<name>_
 
 - **Goal:**
 - **Scope in:**
@@ -37,7 +37,7 @@
 
 ---
 
-## Stage 3 — _<name>_
+## Stage 3 - _<name>_
 
 _(repeat the structure above for stages 3–10)_
 
