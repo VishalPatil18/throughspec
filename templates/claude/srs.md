@@ -2,11 +2,11 @@
 
 > Built by `/spec-requirements`. Treat as frozen once approved. Re-run the skill to amend.
 
-| Field | Value |
-|-------|-------|
-| Project | _<name>_ |
-| Version | 0.1.0 |
-| Status | Draft |
+| Field        | Value          |
+| ------------ | -------------- |
+| Project      | _<name>_       |
+| Version      | 0.1.0          |
+| Status       | Draft          |
 | Last Updated | _<YYYY-MM-DD>_ |
 
 ---
@@ -17,8 +17,8 @@ _<One paragraph: what problem this product solves and for whom.>_
 
 ## 2. Personas
 
-| Persona | Profile | Primary Need |
-|---------|---------|--------------|
+| Persona  | Profile          | Primary Need       |
+| -------- | ---------------- | ------------------ |
 | _<name>_ | _<who they are>_ | _<what they need>_ |
 
 ## 3. Jobs To Be Done
@@ -28,18 +28,18 @@ _<One paragraph: what problem this product solves and for whom.>_
 
 ## 4. Functional Requirements
 
-| ID | Requirement |
-|----|-------------|
+| ID    | Requirement            |
+| ----- | ---------------------- |
 | FR-01 | _<must-have behavior>_ |
 | FR-02 | _<must-have behavior>_ |
 
 ## 5. Non-Functional Requirements
 
-| ID | Requirement |
-|----|-------------|
-| NFR-PERF-01 | _<performance budget>_ |
-| NFR-SEC-01 | _<security constraint>_ |
-| NFR-USE-01 | _<usability bar>_ |
+| ID          | Requirement             |
+| ----------- | ----------------------- |
+| NFR-PERF-01 | _<performance budget>_  |
+| NFR-SEC-01  | _<security constraint>_ |
+| NFR-USE-01  | _<usability bar>_       |
 
 ## 6. Hard Constraints
 

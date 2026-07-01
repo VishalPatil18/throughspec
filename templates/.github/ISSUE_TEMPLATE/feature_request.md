@@ -1,8 +1,8 @@
 ---
 name: Feature request
 about: Propose a new capability for the `/spec-feature` cycle
-title: "feat: <short description>"
-labels: ["enhancement"]
+title: 'feat: <short description>'
+labels: ['enhancement']
 assignees: []
 ---
 

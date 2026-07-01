@@ -103,3 +103,53 @@ When invoked via `/spec-docs`:
 - [SRS](./claude/srs.md) · [Plan](./claude/plan.md) · [Context](./claude/context.md)
 - [Features log](./claude/features.md) · [Design decisions](./claude/design-decisions.md) · [Learnings](./claude/learnings.md)
 - [Design system](./design/design.md) · [Changelog](./CHANGELOG.md)
+
+---
+
+## 10. Persona Guidance
+
+<!-- Blocks below are gated by HTML-comment markers of the form `<!-- persona:NAME -->` ... `<!-- /persona:NAME -->`. The scaffolding CLI keeps only the block(s) whose NAME matches the chosen `--persona` and strips the rest verbatim. Multi-persona blocks list names as CSV (e.g. `persona:student,engineer`). -->
+
+<!-- persona:vibe -->
+
+### For the Vibe-Coder
+
+You are here to ship a working idea, not to debate architecture.
+
+- If a step feels heavy, ask Claude to explain it in one sentence before doing it.
+- Skip prose you do not understand - but do not skip a required cross-question.
+- Trust the workflow: it protects you from having to redo work later.
+
+<!-- /persona:vibe -->
+
+<!-- persona:student -->
+
+### For the Student
+
+After every phase, ask Claude: **"Why this step?"** and append the answer to [`claude/learnings.md`](./claude/learnings.md).
+
+- Follow the Teach-and-Explain contract on every prompt.
+- Use `/spec-docs` to re-read what you built when it stops making sense.
+- Do not delete past learnings; the log is append-only.
+
+<!-- /persona:student -->
+
+<!-- persona:engineer -->
+
+### For the Solo Engineer
+
+- Prefer diff-scoped `/spec-refactor` over full-repo cleanups.
+- Read `claude/context.md` before Grep - it is cheaper.
+- Log every non-trivial architecture decision to `claude/design-decisions.md`, even in solo work.
+
+<!-- /persona:engineer -->
+
+<!-- persona:team -->
+
+### For the Team Lead
+
+- Every PR must run through the checklist in [`.github/pull_request_template.md`](./.github/pull_request_template.md).
+- Memory files are shared context - treat unresolved conflicts in them as blocking.
+- Rotate `/spec-sync` ownership so the log does not drift under one person.
+
+<!-- /persona:team -->

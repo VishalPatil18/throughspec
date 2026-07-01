@@ -75,7 +75,7 @@
 
 ## Stage 2 - Canonical Project Payload
 
-- [ ] **Goal:** Produce the versioned template files that a fresh `spec-init` run will copy (SRS §6 tree), each pre-seeded with the structure and front-matter the Kit's skills depend on.
+- [x] **Goal:** Produce the versioned template files that a fresh `spec-init` run will copy (SRS §6 tree), each pre-seeded with the structure and front-matter the Kit's skills depend on. _Completed 2026-06-30._
 
 ### Scope-In
 

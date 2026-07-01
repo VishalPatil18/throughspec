@@ -59,7 +59,7 @@ Thanks for your interest in contributing. This project follows a strict **Spec-D
 
 Conventional Commits format:
 
-```
+```text
 <type>: <description>
 
 <optional body>

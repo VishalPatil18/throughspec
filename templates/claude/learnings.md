@@ -1,6 +1,6 @@
 # Learnings Log
 
-> Student-facing trail of concepts encountered while building. Each entry teaches *why* a decision was made, not just *what* was done.
+> Student-facing trail of concepts encountered while building. Each entry teaches _why_ a decision was made, not just _what_ was done.
 >
 > Written by `/spec-feature` (phase 6). Optional for engineer persona; recommended for student persona.
 
@@ -10,10 +10,10 @@
 
 ## Learning - _<short title>_
 
-| Field | Value |
-|-------|-------|
-| Date | _<YYYY-MM-DD>_ |
-| From feature | _<feature name>_ |
+| Field        | Value                                                  |
+| ------------ | ------------------------------------------------------ |
+| Date         | _<YYYY-MM-DD>_                                         |
+| From feature | _<feature name>_                                       |
 | Concept area | _<frontend / backend / db / devops / security / etc.>_ |
 
 ### What I encountered

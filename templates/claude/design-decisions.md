@@ -10,12 +10,12 @@
 
 ## Decision - _<short title>_
 
-| Field | Value |
-|-------|-------|
-| Date | _<YYYY-MM-DD>_ |
-| Cycle / Feature | _<feature name>_ |
-| Status | proposed · accepted · superseded |
-| Supersedes | _<link to prior decision, if any>_ |
+| Field           | Value                              |
+| --------------- | ---------------------------------- |
+| Date            | _<YYYY-MM-DD>_                     |
+| Cycle / Feature | _<feature name>_                   |
+| Status          | proposed · accepted · superseded   |
+| Supersedes      | _<link to prior decision, if any>_ |
 
 ### Context
 

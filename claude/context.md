@@ -31,7 +31,7 @@
 
 ## Current State
 
-**Stage:** Stage 1 complete - Monorepo & Source-of-Truth Templates Layout. Stage 2 (Canonical Project Payload) is next.
+**Stage:** Stage 2 complete - Canonical Project Payload. Stage 3 (Node.js Scaffolding CLI) is next.
 
 **Tech stack**
 
@@ -49,7 +49,11 @@
 - `packages/cli-python/` - Python CLI skeleton (`src/spec_init/`, `_build.py`).
 - `templates/` - single source-of-truth payload consumed by both CLIs.
 - `tools/check-payload-parity.mjs` - SHA-256 manifest parity check across both build outputs.
+- `tools/strip-personas.mjs` - Stage 2 persona-gate stripping utility (Node stdlib).
+- `tools/count-tokens.mjs` - Stage 2 tiktoken (cl100k_base) token counter.
 - `tests/parity/` - Vitest parity test.
+- `tests/stage2/` - persona-snapshot, token-budget, and lint tests for the canonical payload.
+- `.markdownlint.jsonc` - lenient markdownlint config accepting HTML markers and template placeholders.
 - `skills/`, `agents/`, `website/` - placeholders (READMEs only) for later stages.
 - `srs.md`, `CLAUDE.md`, `claude/plan.md` - spec, behavior contract, build plan.
 
@@ -58,6 +62,9 @@
 - Node CLI build: `npm run build -w packages/cli-node` (runs `scripts/build.mjs`, copies `templates/` → `packages/cli-node/dist/_payload/`).
 - Python CLI build: `uv build packages/cli-python` (invokes `_build.py` to copy `templates/` → `packages/cli-python/_payload/`).
 - Parity check: `node tools/check-payload-parity.mjs` - exits 0 when both payloads match SHA-256.
+- Markdown lint: `npm run lint:md` (markdownlint-cli2 over `templates/**/*.md`).
+- Persona strip: `node tools/strip-personas.mjs --persona <vibe|student|engineer|team> --in templates/CLAUDE.md`.
+- Token count: `npm run stage2:tokens` (asserts CLAUDE.md + context.md under NFR-PERF-02 budget).
 - Tests: `npx vitest run` from repo root.
 
 ## Session History
@@ -117,15 +124,65 @@
 
 ---
 
+## 2026-06-30 - Stage 2: Canonical Project Payload
+
+**Prompt / trigger:** `/feature-dev` for Stage 2 (plan.md).
+
+**What was done:**
+
+- Added persona-gated sections (`vibe | student | engineer | team`) to `templates/CLAUDE.md` fenced by HTML comments (`<!-- persona:NAME -->` ... `<!-- /persona:NAME -->`), including CSV multi-persona support.
+- Wrote `tools/strip-personas.mjs` (Node stdlib) to keep only the block matching `--persona` and strip the rest verbatim. Exported `stripPersonas()` for direct test import.
+- Wrote `tools/count-tokens.mjs` on `js-tiktoken` with the `cl100k_base` encoding as an Anthropic token-count proxy for the NFR-PERF-02 budget check.
+- Added `.markdownlint.jsonc` with lenient rules (allow inline HTML for markers, compact tables, underscore emphasis) so template placeholder syntax passes.
+- Reformatted the entire `templates/**/*.md` tree with `prettier --write` (blank lines around headings/lists) to satisfy the acceptance criterion "copied tree passes `prettier --check`."
+- Added `text` language tags to two fenced code blocks in `templates/README.md` and `templates/CONTRIBUTING.md` (MD040).
+- Added `tests/stage2/{personas,tokens,lint}.test.ts` covering: per-persona snapshot, NFR-PERF-02 budget (< 8,000 tokens), and lint pass on a temp copy of `templates/`.
+- Added dev deps `js-tiktoken@^1.0.15`, `markdownlint-cli2@^0.15.0` and scripts `lint:md`, `stage2:strip`, `stage2:tokens`.
+- Rebuilt both payloads (`packages/cli-node/dist/templates/`, `packages/cli-python/_payload/`) so `tools/check-payload-parity.mjs` passes with the new templates content.
+
+**Files touched:**
+
+- `templates/CLAUDE.md` - update - added `## 10. Persona Guidance` with four marker-gated blocks.
+- `templates/README.md` - update - added `text` language tag to Quick Start tree block.
+- `templates/CONTRIBUTING.md` - update - added `text` language tag to commit-message block.
+- `templates/**/*.md` (12 files) - update - `prettier --write` reformatted whitespace only.
+- `tools/strip-personas.mjs` - create - persona-strip utility.
+- `tools/count-tokens.mjs` - create - `js-tiktoken` wrapper.
+- `.markdownlint.jsonc` - create - lenient lint config.
+- `tests/stage2/{README.md,personas.test.ts,tokens.test.ts,lint.test.ts}` - create - Stage 2 acceptance tests.
+- `tests/stage2/__snapshots__/personas.test.ts.snap` - create - four persona snapshots.
+- `package.json` - update - added devDeps and scripts.
+- `packages/cli-node/dist/templates/**` and `packages/cli-python/_payload/**` - update - copied fresh from `templates/` because sandbox blocked `rm` on pre-existing outputs (rebuild-in-place kept parity green).
+
+**Decisions made:**
+
+- **Persona marker convention: HTML-comment fences with CSV names.** Chosen over front-matter, Handlebars, or Nunjucks because it is zero-dependency, grep-friendly, and renders as nothing in every markdown viewer. CSV multi-persona (`persona:student,engineer`) lets a single block target overlapping personas without duplication.
+- **`cl100k_base` (js-tiktoken) as the token proxy.** Anthropic does not publish an open tokenizer; cl100k_base is close enough at the 8,000-token precision the budget requires and needs no network call, no key, no cost. Zero-cost policy holds (CLAUDE.md §7).
+- **Lint test operates on a temp copy of `templates/`.** Matches the acceptance-criterion phrasing literally ("copying `templates/` into an empty directory ... passes ...") and keeps repo-level `.prettierignore` untouched.
+- **Reformatted templates instead of loosening lint rules.** Stage 1 shipped without a lint gate; Stage 2 introduces one. Bringing templates into compliance is preferable to weakening the standard downstream users inherit.
+
+**Open questions / follow-ups:**
+
+- Sandbox blocked `rm -rf packages/cli-{node,python}/dist,_payload` because the previous outputs were created outside the container. `cp -R` overwrote the files in place and parity holds, but a fresh clone should run `npm run clean && npm run build && npm run build:python` before releasing.
+- Persona-strip is ready to be consumed by the Stage 3 Node CLI and Stage 4 Python CLI - both must call it during `init` when `--persona` is passed.
+- Consider adding CSV multi-persona coverage to the snapshot suite once a real multi-persona block exists.
+
+---
+
 ## Key Decisions
 
 - **2026-06-29** - Single `templates/` tree consumed by both packagers; parity enforced by SHA-256 manifest. Prevents npm/PyPI drift (SRS Risk row 6).
 - **2026-06-29** - npm workspaces + uv as the two package managers.
 - **2026-06-29** - MIT license.
 - **2026-06-30** - Project's own `claude/context.md` and `claude/learnings.md` follow CLAUDE.md §9/§10 schema, not the `templates/claude/` shape. Needs reconciliation before Stage 2.
+- **2026-06-30** - Persona gating in `templates/CLAUDE.md` uses HTML-comment fences with CSV names. Zero-dep, grep-friendly, renders invisibly.
+- **2026-06-30** - `js-tiktoken` cl100k_base encoding is the token-count proxy for Anthropic budgeting until a first-party tokenizer ships.
+- **2026-06-30** - Stage 2 reformatted all `templates/**/*.md` with prettier (whitespace only) rather than weakening lint rules, so downstream users inherit a lint-clean tree.
 
 ## Open Questions / TODOs
 
 - [ ] Reconcile the schema mismatch between `claude/context.md` (Session-History style) and `templates/claude/context.md` (compressed-snapshot style) - pick one and align both.
 - [ ] Should Windows CI be wired in Stage 1 or deferred to Stage 10?
+- [ ] Wire Stage 3 (`spec-init` Node CLI) to invoke `tools/strip-personas.mjs` during `init`.
+- [ ] Wire Stage 4 (`spec-init` Python CLI) to invoke an equivalent Python strip function (mirror `strip-personas.mjs` behavior byte-for-byte).
 - [ ] SRS §11 open questions carried as deferred work to Stage 10.

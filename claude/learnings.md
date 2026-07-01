@@ -57,3 +57,44 @@ The Stage 1 script explicitly:
 - Prints the offending paths so the operator can see what drifted, not just "parity failed."
 
 This is a small application of the "no silent failures" principle - every branch that could indicate divergence terminates in a non-zero exit and a human-readable message.
+
+### Persona gating with HTML-comment fences
+
+> How do you ship one template file that specializes into four different personas without a templating engine?
+
+The obvious approach is a templating language - Handlebars, Nunjucks, Jinja - and a mustache-like syntax such as `{{#if persona == "student"}}...{{/if}}`. That pulls in a dependency, breaks markdown rendering in every editor between edits, and complicates the round-trip for a user who wants to tweak the template by hand.
+
+Stage 2 takes a simpler route. Persona-gated regions in `templates/CLAUDE.md` are fenced by HTML comments:
+
+```markdown
+<!-- persona:student -->
+### For the Student
+...
+<!-- /persona:student -->
+```
+
+Markdown renderers ignore HTML comments entirely, so the raw template renders as a valid document in any viewer. The CLI's job at scaffold time is to `.replace(/^<!--\s*persona:([a-z,\s]+)\s*-->[\s\S]*?<!--\s*\/persona:\1\s*-->\n?/gm, ...)` and drop every block whose CSV name list does not contain the chosen persona. The `\1` backreference guarantees the closing fence matches the opening one, so mismatched pairs are left intact and become visible during review rather than silently swallowed.
+
+CSV multi-persona (`persona:student,engineer`) is supported by parsing the captured name group as a comma-separated list and keeping the block when the target persona appears in the list. This lets one block target overlapping personas without duplicating prose.
+
+The tradeoff is expressiveness. HTML-comment fences cannot handle nested conditions, "else" branches, or variable substitution - if any of that is needed later, a real templating layer will have to replace this one. For pre-baked persona guidance, though, "keep or drop a whole block" covers every case Stage 2 needs.
+
+### Counting Anthropic tokens with `js-tiktoken` (cl100k_base)
+
+> The NFR-PERF-02 budget is expressed in tokens. How do you assert it without calling an Anthropic endpoint?
+
+Anthropic does not publish an open tokenizer library the way OpenAI does with `tiktoken`. Calling their API to count tokens would require a network round-trip, an API key, and a paid account - a direct violation of CLAUDE.md §7 (zero-cost) - and would make the test suite flaky.
+
+The workaround is `js-tiktoken`, a pure-JavaScript port of OpenAI's `tiktoken`. Its `cl100k_base` encoding is what GPT-4 and GPT-3.5-turbo use. Anthropic's tokenizer is different in detail (a different byte-pair-encoding vocabulary, slightly different merge rules), but at the granularity a budget check needs - "is this under 8,000 tokens?" - the two agree to within a few percent. That's enough headroom to catch a template that has blown past the budget without producing false alarms on well-scoped content.
+
+Concretely, the check in `tools/count-tokens.mjs` looks like:
+
+```javascript
+import { getEncoding } from 'js-tiktoken';
+const enc = getEncoding('cl100k_base');
+const tokens = enc.encode(text).length;
+```
+
+Runs in-process, no network, no key, no cost. When Anthropic ships an open tokenizer, swap the import and re-run the tests. Until then, cl100k_base is the pragmatic proxy.
+
+The lesson generalizes: when the perfect measurement requires a paid dependency, ask whether an approximate measurement that stays within a known error band would still catch the failure mode you care about. For budget assertions with plenty of headroom, the answer is usually yes.

@@ -22,6 +22,9 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "check-parity": "node tools/check-payload-parity.mjs",
+    "lint:md": "markdownlint-cli2 \"templates/**/*.md\"",
+    "stage2:strip": "node tools/strip-personas.mjs",
+    "stage2:tokens": "node tools/count-tokens.mjs templates/CLAUDE.md templates/claude/context.md",
     "clean": "rm -rf packages/cli-node/dist packages/cli-python/dist packages/cli-python/_payload"
   },
   "devDependencies": {
@@ -29,6 +32,8 @@
     "eslint": "^9.16.0",
     "@eslint/js": "^9.16.0",
     "typescript-eslint": "^8.18.0",
+    "js-tiktoken": "^1.0.15",
+    "markdownlint-cli2": "^0.15.0",
     "prettier": "^3.4.2",
     "typescript": "^5.7.2",
     "vitest": "^3.0.0"

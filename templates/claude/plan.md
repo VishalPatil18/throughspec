@@ -2,11 +2,11 @@
 
 > Built by `/spec-plan`. 8–10 stages. Each stage MUST end in a standalone, testable, runnable deliverable.
 
-| Field | Value |
-|-------|-------|
-| Plan version | 0.1.0 |
-| Source | `claude/srs.md` |
-| Last Updated | _<YYYY-MM-DD>_ |
+| Field        | Value           |
+| ------------ | --------------- |
+| Plan version | 0.1.0           |
+| Source       | `claude/srs.md` |
+| Last Updated | _<YYYY-MM-DD>_  |
 
 ---
 

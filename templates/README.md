@@ -8,11 +8,11 @@ Built with the [Spec-Driven Development Claude Project Starter Kit](https://exam
 
 ## Status
 
-| | |
-|--|--|
-| Stage | _<from `claude/plan.md`>_ |
-| Last shipped | _<feature name>_ |
-| Template version | 1.0.0 |
+|                  |                           |
+| ---------------- | ------------------------- |
+| Stage            | _<from `claude/plan.md`>_ |
+| Last shipped     | _<feature name>_          |
+| Template version | 1.0.0                     |
 
 ---
 
@@ -38,7 +38,7 @@ cp .env.example .env
 
 This project follows the **Spec-Driven Development** layout:
 
-```
+```text
 .
 ├── CLAUDE.md              # behavior contract for Claude Code - read first
 ├── claude/                # durable memory layer
@@ -64,15 +64,15 @@ This project uses a strict Spec-Driven SDLC. Every feature flows through six pha
 
 Invoke any phase via Claude Code:
 
-| Skill | Purpose |
-|-------|---------|
-| `/spec-requirements` | Build or amend `claude/srs.md` |
-| `/spec-design` | Build or amend `design/design.md` |
-| `/spec-plan` | Build or amend `claude/plan.md` |
-| `/spec-feature` | Run the 6-phase feature cycle |
-| `/spec-bug` | Isolated bug resolution |
-| `/spec-docs` | Isolated documentation rewrite |
-| `/spec-sync` | Reconcile memory files against repo state |
+| Skill                | Purpose                                   |
+| -------------------- | ----------------------------------------- |
+| `/spec-requirements` | Build or amend `claude/srs.md`            |
+| `/spec-design`       | Build or amend `design/design.md`         |
+| `/spec-plan`         | Build or amend `claude/plan.md`           |
+| `/spec-feature`      | Run the 6-phase feature cycle             |
+| `/spec-bug`          | Isolated bug resolution                   |
+| `/spec-docs`         | Isolated documentation rewrite            |
+| `/spec-sync`         | Reconcile memory files against repo state |
 
 ---
 

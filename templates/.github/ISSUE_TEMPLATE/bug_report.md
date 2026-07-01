@@ -1,8 +1,8 @@
 ---
 name: Bug report
 about: Report a defect so we can run `/spec-bug` against it
-title: "bug: <short description>"
-labels: ["bug"]
+title: 'bug: <short description>'
+labels: ['bug']
 assignees: []
 ---
 

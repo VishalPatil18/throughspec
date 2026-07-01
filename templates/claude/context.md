@@ -4,10 +4,10 @@
 >
 > Read this file before answering questions about project state. Do not re-derive from source.
 
-| Field | Value |
-|-------|-------|
-| Snapshot date | _<YYYY-MM-DD>_ |
-| Current stage | _<from plan.md>_ |
+| Field                | Value            |
+| -------------------- | ---------------- |
+| Snapshot date        | _<YYYY-MM-DD>_   |
+| Current stage        | _<from plan.md>_ |
 | Last feature shipped | _<feature name>_ |
 
 ---
@@ -48,9 +48,9 @@ _<Bullet list of shipped capabilities. One line each. Link to feature entries in
 
 ## 7. File map
 
-| Area | Path | Owner skill |
-|------|------|-------------|
-| Frontend entry | _<path>_ | _<skill or human>_ |
-| Backend entry | _<path>_ | |
-| Database schema | _<path>_ | |
-| Test suite | _<path>_ | |
+| Area            | Path     | Owner skill        |
+| --------------- | -------- | ------------------ |
+| Frontend entry  | _<path>_ | _<skill or human>_ |
+| Backend entry   | _<path>_ |                    |
+| Database schema | _<path>_ |                    |
+| Test suite      | _<path>_ |                    |
