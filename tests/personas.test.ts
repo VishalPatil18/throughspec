@@ -10,9 +10,9 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 // @ts-expect-error - .mjs sibling without types
-import { stripPersonas } from '../../tools/strip-personas.mjs';
+import { stripPersonas } from '../tools/strip-personas.mjs';
 
-const REPO_ROOT = resolve(__dirname, '..', '..');
+const REPO_ROOT = resolve(__dirname, '..');
 const CLAUDE_MD = resolve(REPO_ROOT, 'templates/CLAUDE.md');
 const PERSONAS = ['vibe', 'student', 'engineer', 'team'] as const;
 

@@ -1,6 +1,6 @@
 {
   "name": "spec-init",
-  "version": "0.0.0",
+  "version": "0.1.0-alpha.0",
   "description": "Throughspec - Spec-driven. Drift-proof. Token-lean. Scaffolds a Claude Code project around a deterministic SDLC.",
   "license": "MIT",
   "type": "module",
@@ -21,8 +21,12 @@
     "sdlc",
     "throughspec"
   ],
+  "dependencies": {
+    "node-diff3": "^3.1.2"
+  },
   "scripts": {
     "build": "node scripts/build.mjs",
+    "test": "vitest run",
     "clean": "rm -rf dist"
   }
 }

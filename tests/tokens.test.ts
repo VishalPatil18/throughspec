@@ -8,11 +8,11 @@ import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 // @ts-expect-error - .mjs sibling without types
-import { stripPersonas } from '../../tools/strip-personas.mjs';
+import { stripPersonas } from '../tools/strip-personas.mjs';
 // @ts-expect-error - .mjs sibling without types
-import { countTokens } from '../../tools/count-tokens.mjs';
+import { countTokens } from '../tools/count-tokens.mjs';
 
-const REPO_ROOT = resolve(__dirname, '..', '..');
+const REPO_ROOT = resolve(__dirname, '..');
 const CLAUDE_MD = resolve(REPO_ROOT, 'templates/CLAUDE.md');
 const CONTEXT_MD = resolve(REPO_ROOT, 'templates/claude/context.md');
 const BUDGET = 8_000;

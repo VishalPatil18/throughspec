@@ -68,7 +68,9 @@ Stage 2 takes a simpler route. Persona-gated regions in `templates/CLAUDE.md` ar
 
 ```markdown
 <!-- persona:student -->
+
 ### For the Student
+
 ...
 <!-- /persona:student -->
 ```
@@ -98,3 +100,34 @@ const tokens = enc.encode(text).length;
 Runs in-process, no network, no key, no cost. When Anthropic ships an open tokenizer, swap the import and re-run the tests. Until then, cl100k_base is the pragmatic proxy.
 
 The lesson generalizes: when the perfect measurement requires a paid dependency, ask whether an approximate measurement that stays within a known error band would still catch the failure mode you care about. For budget assertions with plenty of headroom, the answer is usually yes.
+
+### Hand-rolled argv parsing vs a CLI framework
+
+> When is it worth reaching for commander, yargs, oclif, or clipanion instead of writing your own argv loop?
+
+A CLI framework earns its keep when three things hold at once: many commands (dozens), nested subcommands, and a strong desire for auto-generated help/completions. For a five-command CLI with a flat surface and hand-tuned help text, the framework's own type surface is often larger than the parser it replaces.
+
+`spec-init`'s parser lives in `packages/cli-node/src/args.ts` in about 140 lines. It walks the argv slice with a single `for` loop, matches token-by-token against a fixed set of long-form flags, and pushes anything left over onto a positional list. Unknown flags throw a `UsageError` that the top-level dispatcher catches and prints. The parser has one non-obvious property: it's _typed_ end-to-end. `Persona` and `Integration` are string-literal unions declared once and validated at the parse boundary, so downstream command modules never have to re-check "is this a valid persona?" - the type system already told them yes.
+
+The cost of the DIY approach is real: no completion generation, no automatic manpages, no rich validation like "this flag requires that other flag." For a project the size of `spec-init`, none of those are missed. If the CLI grows to twenty commands or sprouts a plugin API, a framework will pay off and the parser can be swapped out behind the same `CliOptions` interface without touching the command modules.
+
+The general rule: measure the "framework" against the specific work it saves. A tool that saves 300 lines is a win. A tool that costs 30 lines of framework glue to save 40 lines of parsing is a wash - and a wash isn't worth a dependency.
+
+### Three-way text merge for template upgrades
+
+> How do you upgrade a user's project to a newer template version without clobbering their edits?
+
+The naive approach is to overwrite everything on `upgrade`. The user loses their edits and stops trusting the tool. The other naive approach is to never overwrite. Then bug fixes and new content never reach existing projects and every user's tree eventually diverges from the shipped baseline.
+
+Three-way merge threads the needle by comparing three inputs for every file: **BASE** (the payload version the project was originally scaffolded from), **OURS** (what's on disk now, possibly with user edits), and **THEIRS** (the payload version the CLI is trying to install). Four cases fall out:
+
+1. `BASE == THEIRS`: template unchanged in this release; skip the file entirely.
+2. `BASE == OURS`: user hasn't touched it; safe to overwrite with THEIRS.
+3. `OURS != BASE` and `THEIRS != BASE`, but the edits don't touch the same lines: merge the two independent edit sets, keeping both.
+4. Same-line conflicts: emit `<<<<<<< ours` / `======= ` / `>>>>>>> theirs` markers so the user resolves them by hand, exit non-zero.
+
+`spec-init init` snapshots the raw payload into `<project>/.spec-init/base/`. `spec-init upgrade` reads BASE from that snapshot, OURS from the project root, and THEIRS from the CLI's shipped payload. The merge itself is `node-diff3.diff3Merge()` - a well-audited implementation of the classic three-way merge algorithm - with a small wrapper that formats conflicts into git-style markers so the muscle memory transfers.
+
+A subtle but load-bearing detail: after a successful upgrade, the CLI **refreshes** `.spec-init/base/` with THEIRS. That becomes the new common ancestor for the next upgrade. Without the refresh, the next upgrade would keep comparing against the ancient original baseline and misclassify every subsequent template change as a "user edit."
+
+The upside of three-way merge over a diff-and-patch approach: it's symmetric. The template can gain content, lose content, or edit content, and the algorithm handles all three the same way. The downside: it needs the base snapshot to exist. If the user deletes `.spec-init/` - or scaffolded before Stage 3 shipped - the tool has to refuse upgrade rather than guess a baseline. `spec-init doctor` catches this proactively.

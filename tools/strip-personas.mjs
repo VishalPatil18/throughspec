@@ -64,7 +64,7 @@ export function stripPersonas(source, persona) {
     throw new Error(`unknown persona: ${persona}`);
   }
   const blockRe = /<!--\s*persona:([a-z,\s]+)\s*-->([\s\S]*?)<!--\s*\/persona:\1\s*-->\n?/g;
-  return source.replace(blockRe, (match, namesRaw, body) => {
+  const stripped = source.replace(blockRe, (match, namesRaw, body) => {
     const names = namesRaw
       .split(',')
       .map((n) => n.trim())
@@ -74,6 +74,10 @@ export function stripPersonas(source, persona) {
     }
     return names.includes(persona) ? body : '';
   });
+  // Removing a block leaves the source's surrounding blank lines behind.
+  // Collapse any resulting run of 3+ newlines to the canonical paragraph break,
+  // and ensure the file ends with a single trailing newline.
+  return stripped.replace(/\n{3,}/g, '\n\n').replace(/\n+$/, '\n');
 }
 
 function main() {

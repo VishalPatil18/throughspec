@@ -109,7 +109,7 @@
 
 ## Stage 3 - Node.js Scaffolding CLI (`spec-init`)
 
-- [ ] **Goal:** Ship the Node-based CLI that produces the §6 tree, supports `init / customize / add-skill / upgrade / doctor`, and refuses to overwrite without `--force` (FR-INIT-01..06, NFR-PERF-01).
+- [x] **Goal:** Ship the Node-based CLI that produces the §6 tree, supports `init / customize / add-skill / upgrade / doctor`, and refuses to overwrite without `--force` (FR-INIT-01..06, NFR-PERF-01). _Completed 2026-06-30._
 
 ### Scope-In
 

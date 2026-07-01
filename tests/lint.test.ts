@@ -12,7 +12,7 @@ import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
-const REPO_ROOT = resolve(__dirname, '..', '..');
+const REPO_ROOT = resolve(__dirname, '..');
 const TEMPLATES = resolve(REPO_ROOT, 'templates');
 const MARKDOWNLINT_CONFIG = resolve(REPO_ROOT, '.markdownlint.jsonc');
 const PRETTIER_CONFIG = resolve(REPO_ROOT, '.prettierrc.json');
