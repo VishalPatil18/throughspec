@@ -1,0 +1,187 @@
+// Structural + content validator for the initiation skills.
+//
+// Each SKILL.md is a Claude Code prompt - not code we can execute
+// deterministically. What we CAN verify is that every prompt encodes the
+// FR-* requirements the SRS mandates: correct frontmatter, required section
+// headings, refusal clauses, and category coverage. If a future edit removes
+// a load-bearing directive, these tests fire red.
+
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+import { describe, expect, it } from 'vitest';
+
+const SKILLS_ROOT = resolve(__dirname, '..', 'templates/.claude/skills');
+
+interface Skill {
+  name: string;
+  content: string;
+  frontmatter: Record<string, string>;
+  body: string;
+}
+
+function loadSkill(name: string): Skill {
+  const path = resolve(SKILLS_ROOT, name, 'SKILL.md');
+  const content = readFileSync(path, 'utf8');
+  const match = content.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
+  if (!match) throw new Error(`no YAML frontmatter in ${path}`);
+  const frontmatter: Record<string, string> = {};
+  for (const line of (match[1] as string).split('\n')) {
+    const kv = line.match(/^(\w+):\s*(.*)$/);
+    if (kv) frontmatter[kv[1] as string] = (kv[2] as string).trim();
+  }
+  return { name, content, frontmatter, body: match[2] as string };
+}
+
+describe('spec-requirements SKILL', () => {
+  const s = loadSkill('spec-requirements');
+
+  it('has valid frontmatter with name and description', () => {
+    expect(s.frontmatter.name).toBe('spec-requirements');
+    expect(s.frontmatter.description).toBeDefined();
+    expect((s.frontmatter.description as string).length).toBeGreaterThan(40);
+  });
+
+  it('mandates at least three cross-questioning rounds (FR-REQ-01)', () => {
+    expect(s.body).toMatch(/at least three rounds|three rounds of cross-questioning/i);
+  });
+
+  it('covers the five mandatory categories (FR-REQ-02)', () => {
+    const required = [
+      /target users/i,
+      /jobs[- ]to[- ]be[- ]done/i,
+      /primary success metric/i,
+      /hard constraints/i,
+      /explicit non-goals/i,
+    ];
+    for (const re of required) expect(s.body).toMatch(re);
+  });
+
+  it('refuses to proceed on missing categories (FR-REQ-03)', () => {
+    expect(s.body).toMatch(/refuse to proceed|Cannot write srs\.md yet/i);
+  });
+
+  it('specifies the canonical srs.md section list (FR-REQ-04)', () => {
+    for (const section of [
+      /Overview/,
+      /Personas/,
+      /Functional Requirements/,
+      /Non-Functional Requirements/,
+      /Hard Constraints/,
+      /Explicit Non-Goals/,
+      /Success Metric/,
+      /Open Questions/,
+    ]) {
+      expect(s.body).toMatch(section);
+    }
+  });
+
+  it('tracks open questions as a checklist (FR-REQ-05)', () => {
+    expect(s.body).toMatch(/checklist/i);
+    expect(s.body).toMatch(/- \[ \]/);
+  });
+
+  it('has completion summary and next-step hint (NFR-USE-01)', () => {
+    expect(s.body).toMatch(/completion summary|next step/i);
+    expect(s.body).toMatch(/\/spec-design/);
+  });
+
+  it('has student-persona annotation (NFR-USE-03)', () => {
+    expect(s.body).toMatch(/student persona/i);
+    expect(s.body).toMatch(/Why this step\?/);
+  });
+});
+
+describe('spec-design SKILL', () => {
+  const s = loadSkill('spec-design');
+
+  it('has valid frontmatter with name and description', () => {
+    expect(s.frontmatter.name).toBe('spec-design');
+    expect((s.frontmatter.description as string).length).toBeGreaterThan(40);
+  });
+
+  it('is reference-driven first (FR-DESIGN-01)', () => {
+    expect(s.body).toMatch(/reference|Do you have a design reference/i);
+  });
+
+  it('infers from srs.md when no reference is supplied (FR-DESIGN-02)', () => {
+    expect(s.body).toMatch(/infer(red)? path|no reference/i);
+    expect(s.body).toMatch(/srs\.md/);
+  });
+
+  it('produces tokens, components, do\'s and don\'ts, and surfaces (FR-DESIGN-03)', () => {
+    expect(s.body).toMatch(/Tokens - Colors/);
+    expect(s.body).toMatch(/Tokens - Typography/);
+    expect(s.body).toMatch(/Components/);
+    expect(s.body).toMatch(/Do's and Don'ts/);
+    expect(s.body).toMatch(/Surfaces/);
+  });
+
+  it('places preview assets in design/preview/ (FR-DESIGN-04)', () => {
+    expect(s.body).toMatch(/design\/preview\//);
+  });
+
+  it('refuses to fabricate brand colors (FR-DESIGN-05)', () => {
+    expect(s.body).toMatch(/refuse to invent|do not (invent|fabricate)/i);
+    expect(s.body).toMatch(/color/i);
+  });
+
+  it('has completion summary and next-step hint (NFR-USE-01)', () => {
+    expect(s.body).toMatch(/completion summary|Wrote design\/design\.md/i);
+    expect(s.body).toMatch(/\/spec-plan/);
+  });
+
+  it('has student-persona annotation (NFR-USE-03)', () => {
+    expect(s.body).toMatch(/student persona/i);
+    expect(s.body).toMatch(/Why this step\?/);
+  });
+});
+
+describe('spec-plan SKILL', () => {
+  const s = loadSkill('spec-plan');
+
+  it('has valid frontmatter with name and description', () => {
+    expect(s.frontmatter.name).toBe('spec-plan');
+    expect((s.frontmatter.description as string).length).toBeGreaterThan(40);
+  });
+
+  it('mandates 8-10 stages (FR-PLAN-01)', () => {
+    expect(s.body).toMatch(/8-10 stages|8 to 10 stages/i);
+  });
+
+  it('requires standalone testable runnable deliverables (FR-PLAN-02)', () => {
+    expect(s.body).toMatch(/standalone,?\s*testable,?\s*runnable deliverable/i);
+  });
+
+  it('specifies per-stage fields (FR-PLAN-03)', () => {
+    for (const field of [
+      /Goal/i,
+      /Scope-in/i,
+      /Scope-out/i,
+      /Acceptance criteria/i,
+      /Test plan/i,
+      /Effort/i,
+    ]) {
+      expect(s.body).toMatch(field);
+    }
+  });
+
+  it('uses a checklist Claude flips during execution (FR-PLAN-04)', () => {
+    expect(s.body).toMatch(/- \[ \]/);
+    expect(s.body).toMatch(/flip|checkbox/i);
+  });
+
+  it('refuses on unresolved load-bearing open questions (FR-PLAN-05)', () => {
+    expect(s.body).toMatch(/refuse to proceed|Cannot generate plan yet/i);
+    expect(s.body).toMatch(/load-bearing/i);
+  });
+
+  it('has completion summary and next-step hint (NFR-USE-01)', () => {
+    expect(s.body).toMatch(/completion summary|Wrote claude\/plan\.md/i);
+    expect(s.body).toMatch(/\/spec-feature/);
+  });
+
+  it('has student-persona annotation (NFR-USE-03)', () => {
+    expect(s.body).toMatch(/student persona/i);
+    expect(s.body).toMatch(/Why this step\?/);
+  });
+});

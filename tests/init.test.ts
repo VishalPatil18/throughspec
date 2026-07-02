@@ -29,6 +29,9 @@ const REQUIRED = [
   '.github/pull_request_template.md',
   '.github/ISSUE_TEMPLATE/bug_report.md',
   '.github/ISSUE_TEMPLATE/feature_request.md',
+  '.claude/skills/spec-requirements/SKILL.md',
+  '.claude/skills/spec-design/SKILL.md',
+  '.claude/skills/spec-plan/SKILL.md',
 ];
 
 function initInto(dir: string, name: string, extra: string[] = []): { status: number; ms: number } {

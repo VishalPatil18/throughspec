@@ -165,3 +165,42 @@ The user-facing contract is what needs to match: whether you install via npm or 
 Both CLIs' `three-way-merge` modules do exactly this. The library dependency handles the hard part (the diff); the formatter handles the presentation. When we later swap either library for something else, only the formatter has to keep the fences the same - the merge output remains valid to the user.
 
 The general lesson: when depending on cross-runtime libraries with equivalent algorithms but different APIs, keep the depended-on surface narrow. Consume the raw structured output, not the library's pre-formatted string, and produce the user-facing format yourself.
+
+### How Claude Code discovers skills
+
+> Where does Claude Code look for skills, and why does that matter for how Throughspec ships them?
+
+Claude Code auto-discovers skills from two locations at session start: `~/.claude/skills/` (global, all projects) and `<project-root>/.claude/skills/` (project-local). Each skill is a directory whose name is the invocable command (`spec-requirements` → `/spec-requirements`) and whose entry point is a single `SKILL.md` file with YAML frontmatter and a prose body.
+
+The frontmatter carries two required keys:
+
+```yaml
+---
+name: spec-requirements
+description: Build claude/srs.md via structured cross-questioning...
+---
+```
+
+The `description` field is what Claude Code shows the LLM when deciding whether to invoke the skill. A short, action-triggering description ("Use when the user says X or invokes /Y") gets the skill picked up on the right prompts.
+
+The body of `SKILL.md` is the actual prompt Claude reads when the skill is invoked. Because it is prose, not code, its "behavior" is whatever the LLM does with those instructions. That has one important consequence for shipping skills: **whatever ends up in `.claude/skills/<name>/SKILL.md` inside the user's project IS the skill.** There is no compile step, no manifest to sync, no runtime that could disagree with the file on disk.
+
+For Throughspec that shaped a placement decision. Rather than keeping skills in a separate directory and merging them into the payload at build time, we put them directly under `templates/.claude/skills/`. The existing `spec-init init` copies the templates payload verbatim into the new project, which means the scaffolded project's `.claude/skills/` is populated the moment `init` finishes. Claude Code discovers them on the next session open. No extra wiring, no risk of "the skill file on disk drifted from the packaged version" - the file on disk IS the packaged version.
+
+### Structural testing of LLM prompts
+
+> Skills are prose prompts, not code. How do you test them without running the LLM?
+
+Testing a Claude Code skill by actually invoking Claude with it hits three walls: non-determinism (same prompt, different outputs), cost (each test is a real API call), and slowness (seconds per test, not milliseconds). For a CI suite that runs on every commit, none of that is acceptable.
+
+The workable substitute is **structural testing**: treat the SKILL.md file as a document with a known contract, and grep it for the required elements. If the source SRS says the skill MUST refuse when a category is missing, then the SKILL.md must contain a refusal clause. If the SRS says it must cover five mandatory categories, then the SKILL.md must name all five. The test does not care what Claude will actually say when invoked - it verifies the _instructions Claude will read_ still contain the load-bearing directives.
+
+Throughspec's `tests/skills.test.ts` does exactly this. For each of the three initiation skills, it:
+
+- Parses the YAML frontmatter and asserts the required keys are present and non-trivial.
+- Regex-matches the body for each mandatory category name, refusal clause, section heading, and persona annotation.
+- Asserts the completion-summary line handing off to the next skill.
+
+If a future editor accidentally deletes the "refuses to proceed" language from `spec-requirements/SKILL.md`, `vitest run` fails immediately. The LLM at runtime would silently accept the change; the structural test catches it before the change ships.
+
+The rule of thumb: **prompts are documents; document contracts are testable statically.** The tests do not prove Claude will behave correctly - nothing short of a running LLM does - but they prove Claude will _see_ the instructions that make correct behavior possible. That is the biggest failure mode a static test can prevent, and it is enough to catch the vast majority of accidental regressions.

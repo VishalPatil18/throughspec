@@ -31,7 +31,7 @@
 
 ## Current State
 
-**Stage:** Stage 4 complete - Python Scaffolding CLI. Stage 5 (Initiation Skills) is next.
+**Stage:** Stage 5 complete - Initiation Skills. Stage 6 (6-Phase Feature Cycle + agents) is next.
 
 **Tech stack**
 
@@ -51,7 +51,9 @@
 - `tools/check-payload-parity.mjs` - SHA-256 manifest parity check across both build outputs.
 - `tools/strip-personas.mjs` - Stage 2 persona-gate stripping utility (Node stdlib).
 - `tools/count-tokens.mjs` - Stage 2 tiktoken (cl100k_base) token counter.
-- `tests/` - flat repo-level Vitest suite (payload parity, persona snapshots, token budget, lint, CLI end-to-end, doctor, upgrade merge). See `tests/README.md` for the file map.
+- `tests/` - flat repo-level Vitest suite (payload parity, persona snapshots, token budget, lint, CLI end-to-end, doctor, upgrade merge, cross-language init parity, skill structural validators). See `tests/README.md` for the file map.
+- `templates/.claude/skills/` - canonical location for shipped skills. Stage 5 shipped `spec-requirements/`, `spec-design/`, `spec-plan/`. Each is a single-file `SKILL.md` with YAML frontmatter (`name`, `description`) and prose body.
+- `skills/` (repo root) - intentionally empty redirect; readers point here first, README sends them to `templates/.claude/skills/`.
 - `.markdownlint.jsonc` - lenient markdownlint config accepting HTML markers and template placeholders.
 - `skills/`, `agents/`, `website/` - placeholders (READMEs only) for later stages.
 - `srs.md`, `CLAUDE.md`, `claude/plan.md` - spec, behavior contract, build plan.
@@ -281,6 +283,49 @@
 
 ---
 
+## 2026-07-01 - Stage 5: Initiation Skills
+
+**Prompt / trigger:** `/feature-dev` for Stage 5 (plan.md).
+
+**What was done:**
+
+- Wrote three Claude Code skills as `SKILL.md` prompts under `templates/.claude/skills/`: `spec-requirements/`, `spec-design/`, `spec-plan/`. Each has YAML frontmatter (`name`, `description`) and a prose body encoding the FR-* directives from the SRS.
+- `spec-requirements/SKILL.md` encodes FR-REQ-01..05: mandates ≥3 cross-questioning rounds, lists the five mandatory categories (target users, jobs-to-be-done, primary success metric, hard constraints, explicit non-goals), specifies a refusal clause when any category is empty, prescribes the canonical `srs.md` section list, and requires open questions be tracked as a checklist.
+- `spec-design/SKILL.md` encodes FR-DESIGN-01..05: reference-driven first, inferred fallback, canonical output sections (Tokens - Colors / Typography / Spacing & Shape, Components, Do's and Don'ts, Surfaces), preview assets under `design/preview/`, and a hard refusal against fabricating brand colors when a reference is supplied.
+- `spec-plan/SKILL.md` encodes FR-PLAN-01..05: 8-10 stages, each with standalone-testable-runnable deliverable, per-stage fields (goal / scope-in / scope-out / acceptance / test plan / effort band), checklist Claude flips during execution, and refusal to run while `srs.md` has unresolved load-bearing open questions.
+- All three carry a one-line completion summary + next-step hint (NFR-USE-01) and a Student-persona "Why this step?" annotation (NFR-USE-03).
+- Wrote `tests/skills.test.ts` (24 assertions): validates YAML frontmatter, mandatory section headings, refusal clauses, category coverage, persona annotations, and next-step handoff. Treats SKILL.md files as prompts to be verified structurally, not executed.
+- Extended `tests/init.test.ts` REQUIRED list to assert the three scaffolded `.claude/skills/<name>/SKILL.md` paths exist after `init`.
+- Rewrote `skills/README.md` (repo root) as a redirect to `templates/.claude/skills/` with the placement rationale.
+- Refreshed all three payload copies (`packages/cli-node/dist/templates/`, `packages/cli-python/_payload/`, `packages/cli-python/src/spec_init/_payload/`) via `cp -R` so `tools/check-payload-parity.mjs` exits 0 with 19 files matching SHA-256.
+- Reordered `resolve_payload_dir()` candidates in `packages/cli-python/src/spec_init/payload.py` so `packages/cli-python/_payload/` (the dev-time build target) wins over `spec_init/_payload/` (site-packages copy). This makes `_build.py` rebuilds land immediately in editable-mode without touching site-packages.
+
+**Files touched:**
+
+- `templates/.claude/skills/spec-requirements/SKILL.md` - create - encodes FR-REQ-01..05.
+- `templates/.claude/skills/spec-design/SKILL.md` - create - encodes FR-DESIGN-01..05.
+- `templates/.claude/skills/spec-plan/SKILL.md` - create - encodes FR-PLAN-01..05.
+- `tests/skills.test.ts` - create - 24 structural/content assertions across the three skills.
+- `tests/init.test.ts` - update - REQUIRED list now includes the three scaffolded SKILL.md paths.
+- `skills/README.md` - update - rewritten as a redirect to `templates/.claude/skills/`.
+- `packages/cli-python/src/spec_init/payload.py` - update - candidate order reversed so dev-time source wins.
+- `packages/cli-node/dist/templates/**`, `packages/cli-python/_payload/**`, `packages/cli-python/src/spec_init/_payload/**` - update - copy-in-place refresh; parity script exits 0 (19 files).
+- `claude/plan.md` - update - Stage 5 checkbox to [x].
+
+**Decisions made:**
+
+- **Skills placed at `templates/.claude/skills/`, not `skills/` at repo root.** NFR-MAINT-02 requires a single source-of-truth directory for skills. Reading the intent as "no duplication" (not "must be at repo root literally") lets skills flow through the existing `templates/` → payload → scaffold pipeline with zero build wiring, zero parity-check changes, and zero test rework. The repo-root `skills/` is left as a signposted redirect so readers do not get confused.
+- **Structural testing of SKILL.md prompts.** Skills are not deterministic code; they are LLM prompts. Live LLM tests are expensive and non-deterministic. Instead, `tests/skills.test.ts` grep each SKILL.md for the specific FR-* directives (round count, category names, refusal clauses, section headings, persona annotations). If a future edit accidentally removes a load-bearing directive, the test fires red before the change ships.
+- **`resolve_payload_dir()` candidate order.** The wheel-installed location (`site-packages/spec_init/_payload/`) was winning over the editable-mode source (`packages/cli-python/_payload/`), so dev-time rebuilds silently landed nowhere the CLI would look. Reordering the candidates so the dev-time source wins fixes this without breaking the installed-wheel path (which does not have the outer `_payload/`).
+
+**Open questions / follow-ups:**
+
+- Publishing flow needs to keep `packages/cli-python/src/spec_init/_payload/` in sync during editable installs; look at pinning it via `hatch.build.hooks` in Stage 10 rather than relying on manual `cp -R`.
+- Stage 6 skills (`/spec-feature` and the six agents) belong at `templates/.claude/skills/` and `templates/.claude/agents/` respectively. Reuse the placement pattern established here.
+- Consider a lint rule that fails if a SKILL.md drops below N lines - a Claude Code prompt that gets accidentally truncated during merge would still parse but no longer encode the FR-* rules.
+
+---
+
 ## Key Decisions
 
 - **2026-06-29** - Single `templates/` tree consumed by both packagers; parity enforced by SHA-256 manifest. Prevents npm/PyPI drift (SRS Risk row 6).
@@ -297,6 +342,8 @@
 - **2026-07-01** - Python CLI uses stdlib argparse; `merge3` is the sole runtime dep, mirroring Node's `node-diff3` choice.
 - **2026-07-01** - Persona regex lives in three files (mjs source of truth, TS port, Python port). Two byte-equivalence parity tests guard against drift instead of extracting a shared spec.
 - **2026-07-01** - Cross-language `init` parity enforced by `tests/cli-parity.test.ts`: SHA-256 of every scaffolded file must match between Node and Python CLIs for every persona.
+- **2026-07-01** - Skill source of truth lives at `templates/.claude/skills/`, not `skills/` at repo root. Reinterpretation of NFR-MAINT-02 "single directory" as "no duplication," so skills flow through the templates payload pipeline with zero build magic.
+- **2026-07-01** - SKILL.md prompts are tested structurally (grep for FR-* directives) rather than by LLM invocation. Deterministic, cheap, and catches directive removal at PR time.
 
 ## Open Questions / TODOs
 
@@ -308,4 +355,6 @@
 - [x] `--version` as a top-level short-circuit. _Resolved 2026-07-01: Python CLI accepts `--version` before any command. Node CLI still requires a subcommand; consider aligning in Stage 10._
 - [ ] Cross-language parity coverage for `customize` and `upgrade` outputs (currently only `init`).
 - [ ] Verify `pipx install ./dist/spec-init-0.1.0a0-py3-none-any.whl` succeeds locally before Stage 10 publish.
+- [ ] Wire a hatch build hook so editable installs auto-refresh `packages/cli-python/src/spec_init/_payload/` from the outer `_payload/` (Stage 10).
+- [ ] Consider a minimum-length lint rule on SKILL.md files to catch accidental truncation.
 - [ ] SRS §11 open questions carried as deferred work to Stage 10.

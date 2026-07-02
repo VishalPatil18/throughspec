@@ -7,12 +7,16 @@ from pathlib import Path
 
 def resolve_payload_dir() -> Path:
     """Absolute path to the templates directory inside the installed wheel."""
-    # After install: <site-packages>/spec_init/_payload
-    # In editable dev mode: packages/cli-python/_payload (sibling of src/)
     here = Path(__file__).resolve().parent
+    # In editable dev mode the source _payload/ at packages/cli-python/_payload/
+    # is the live tree that `python -m spec_init._build` refreshes. Prefer it so
+    # rebuilds land immediately without touching site-packages.
+    #
+    # After a wheel install the sibling _payload/ next to __init__.py is the only
+    # available copy and the dev-mode candidate does not exist.
     candidates = [
-        here / "_payload",
         here.parent.parent / "_payload",  # editable/dev checkout
+        here / "_payload",  # installed wheel
     ]
     for candidate in candidates:
         if candidate.is_dir():

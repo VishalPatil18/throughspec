@@ -179,7 +179,7 @@
 
 ## Stage 5 - Initiation Skills (`/spec-requirements`, `/spec-design`, `/spec-plan`)
 
-- [ ] **Goal:** Ship the three skills that produce `claude/srs.md`, `design/design.md`, and `claude/plan.md` via cross-questioning, enforcing all FR-REQ, FR-DESIGN, and FR-PLAN gates.
+- [x] **Goal:** Ship the three skills that produce `claude/srs.md`, `design/design.md`, and `claude/plan.md` via cross-questioning, enforcing all FR-REQ, FR-DESIGN, and FR-PLAN gates. _Completed 2026-07-01._
 
 ### Scope-In
 
