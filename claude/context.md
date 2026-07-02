@@ -31,7 +31,7 @@
 
 ## Current State
 
-**Stage:** Stage 3 complete - Node.js Scaffolding CLI. Stage 4 (Python Scaffolding CLI) is next.
+**Stage:** Stage 4 complete - Python Scaffolding CLI. Stage 5 (Initiation Skills) is next.
 
 **Tech stack**
 
@@ -46,7 +46,7 @@
 **Repo layout**
 
 - `packages/cli-node/` - Node CLI (Stage 3): `src/{index,args,payload,persona,checklist,three-way-merge}.ts` + `src/commands/{init,customize,add-skill,upgrade,doctor}.ts`. Ships `dist/templates/` alongside `dist/index.js`.
-- `packages/cli-python/` - Python CLI skeleton (`src/spec_init/`, `_build.py`).
+- `packages/cli-python/` - Python CLI (Stage 4): `src/spec_init/{cli,args,payload,persona,checklist,three_way_merge}.py` + `commands/{init,customize,add_skill,upgrade,doctor}.py`. Wheel packages `_payload/` via hatchling `force-include`. Runtime dep: `merge3`.
 - `templates/` - single source-of-truth payload consumed by both CLIs.
 - `tools/check-payload-parity.mjs` - SHA-256 manifest parity check across both build outputs.
 - `tools/strip-personas.mjs` - Stage 2 persona-gate stripping utility (Node stdlib).
@@ -60,6 +60,8 @@
 
 - Node CLI build: `npm run build -w packages/cli-node` (runs `scripts/build.mjs`, copies `templates/` → `packages/cli-node/dist/templates/`).
 - Node CLI usage: `node packages/cli-node/dist/index.js <init|customize|add-skill|upgrade|doctor> [flags]` or, after publish, `npx spec-init <command>`.
+- Python CLI usage: `cd packages/cli-python && uv run python -m spec_init <command>` in dev, or `pipx install spec-init` after publish.
+- Python tests: `cd packages/cli-python && uv run pytest tests/`.
 - Python CLI build: `uv build packages/cli-python` (invokes `_build.py` to copy `templates/` → `packages/cli-python/_payload/`).
 - Parity check: `node tools/check-payload-parity.mjs` - exits 0 when both payloads match SHA-256.
 - Markdown lint: `npm run lint:md` (markdownlint-cli2 over `templates/**/*.md`).
@@ -221,6 +223,64 @@
 
 ---
 
+## 2026-07-01 - Stage 4: Python Scaffolding CLI
+
+**Prompt / trigger:** `/feature-dev` for Stage 4 (plan.md).
+
+**What was done:**
+
+- Ported the Stage 3 Node CLI to Python, module-for-module: `packages/cli-python/src/spec_init/{cli,args,payload,persona,checklist,three_way_merge}.py` plus one file per verb under `commands/`.
+- Chose stdlib `argparse` over typer/click. Same UsageError contract as Node so error text matches.
+- `merge3` (PyPI, pure-Python, MIT) is the Python analog of `node-diff3`. Wrapped in `three_way_merge.py` to emit identical `<<<<<<< ours` / `>>>>>>> theirs` fences so users see the same conflict markers regardless of which CLI they installed.
+- Persona strip ported to Python `re`; identical regex, identical whitespace normalizer (`\n{3,}→\n\n`, trailing `\n+→\n`). `test_persona.py` runs both the Python function and `tools/strip-personas.mjs` on the same input and asserts byte-equivalence (skipped when node isn't installed).
+- Wrote 32 pytest cases (`packages/cli-python/tests/`) mirroring the Node Vitest suite: args, persona parity, init (tree shape, personas, integrations, `--force`, `--dry-run`, perf), doctor, customize, add-skill, upgrade.
+- Added cross-language parity test `tests/cli-parity.test.ts`: scaffolds via both CLIs into two tmp dirs and diffs file-by-file with SHA-256 for every persona plus one integration-flip case. Enforces SRS §2.3 byte-identical requirement.
+- Bumped `pyproject.toml` version to `0.1.0a0`; added `merge3>=0.0.8` runtime dep and `[dependency-groups] dev = ["pytest>=8"]`; updated `packages/cli-python/src/spec_init/__init__.py` version constant.
+- Replaced `packages/cli-python/src/spec_init/__main__.py` and Stage-1 stub with the real dispatcher.
+- Refreshed `packages/cli-python/_payload/` and `packages/cli-node/dist/templates/` in place; `tools/check-payload-parity.mjs` exits 0 (16 files matching SHA-256).
+- Rewrote `packages/cli-python/README.md` to document the shipped command surface with a link to the Node CLI as the canonical reference.
+
+**Files touched:**
+
+- `packages/cli-python/src/spec_init/args.py` - create - argparse config + typed CliOptions + HELP_TEXT.
+- `packages/cli-python/src/spec_init/payload.py` - create - resolve_payload_dir().
+- `packages/cli-python/src/spec_init/persona.py` - create - Python strip port with parity guarantee.
+- `packages/cli-python/src/spec_init/checklist.py` - create - post_init_checklist().
+- `packages/cli-python/src/spec_init/three_way_merge.py` - create - merge3 wrapper with git-style markers.
+- `packages/cli-python/src/spec_init/cli.py` - create - dispatcher + main().
+- `packages/cli-python/src/spec_init/commands/__init__.py` - create - package marker.
+- `packages/cli-python/src/spec_init/commands/init.py` - create - scaffold + snapshot.
+- `packages/cli-python/src/spec_init/commands/customize.py` - create - integration flip + persona swap.
+- `packages/cli-python/src/spec_init/commands/add_skill.py` - create - copy from catalog.
+- `packages/cli-python/src/spec_init/commands/upgrade.py` - create - three-way merge command.
+- `packages/cli-python/src/spec_init/commands/doctor.py` - create - project health check.
+- `packages/cli-python/src/spec_init/__init__.py` - update - version bumped to 0.1.0a0.
+- `packages/cli-python/src/spec_init/__main__.py` - update - delegates to cli.main().
+- `packages/cli-python/pyproject.toml` - update - version, runtime dep, dev group.
+- `packages/cli-python/README.md` - update - shipped command surface.
+- `packages/cli-python/tests/{__init__,conftest,test_args,test_persona,test_init,test_doctor,test_customize,test_add_skill,test_upgrade}.py` - create - 32 pytest cases.
+- `tests/cli-parity.test.ts` - create - cross-language SHA-256 diff of scaffolded trees.
+- `claude/plan.md` - update - Stage 4 checkbox to [x].
+- `packages/cli-node/dist/templates/**` and `packages/cli-python/_payload/**` - update - copy-in-place refresh; parity script exits 0.
+
+**Decisions made:**
+
+- **argparse (stdlib) over typer/click.** Same reasoning as Stage 3 chose a hand-rolled Node parser: the surface is small enough that a framework costs more than it saves. Also keeps the Python CLI dep-count symmetrical with Node (one runtime dep each).
+- **`merge3` as the three-way engine.** Pure-Python, MIT, ~2 KB, actively used by breezy/bzr. Zero-cost. Its native output uses different markers than git; we wrap it to emit identical `<<<<<<< ours` / `>>>>>>> theirs` fences so user-facing conflict output matches the Node CLI.
+- **Persona parity via three implementations, not a shared spec.** The strip regex lives in three files (`tools/strip-personas.mjs`, `packages/cli-node/src/persona.ts`, `packages/cli-python/src/spec_init/persona.py`). Two parity tests (`tests/persona-parity.test.ts` for TS↔mjs, `packages/cli-python/tests/test_persona.py` for Python↔mjs) guarantee no drift. Considered extracting to a JSON spec but the regex is short enough that duplication + tests is simpler than a spec loader in three languages.
+- **`dirs_exist_ok=True` on the snapshot copy.** Python's `shutil.copytree` refuses to overwrite by default; the flag makes `--force` re-init work. Node's `cpSync` has this behavior implicitly.
+- **Binary file I/O consideration deferred.** Currently using `write_text(..., encoding="utf-8", newline="")` which preserves `\n` verbatim across OSes. Cross-language parity confirmed on Linux; Windows CI (Stage 10) will double-check.
+- **Snapshot refresh in upgrade uses `rmtree + copytree`.** Node uses `cpSync` with recursive overwrite; Python's simpler approach avoids `copytree(dirs_exist_ok=True)`'s edge cases when deep structure changes.
+
+**Open questions / follow-ups:**
+
+- The `merge3` package's exact output format (line splitting, trailing newlines) may differ from `node-diff3` on edge cases; Stage 10 should add a cross-language conflict-marker equivalence test if we care about byte-identical `upgrade` output.
+- Publishing flow: `python -m spec_init._build && uv build` produces the wheel; verify `pipx install ./dist/spec-init-0.1.0a0-py3-none-any.whl` succeeds before publishing to PyPI.
+- `packages/cli-python/src/spec_init/_payload/` may need to exist for editable installs to find the payload - resolved for now via the two-candidate lookup in `payload.py`.
+- Cross-language parity test currently only covers `init`. Add coverage for `customize` and `upgrade` outputs in Stage 10.
+
+---
+
 ## Key Decisions
 
 - **2026-06-29** - Single `templates/` tree consumed by both packagers; parity enforced by SHA-256 manifest. Prevents npm/PyPI drift (SRS Risk row 6).
@@ -234,13 +294,18 @@
 - **2026-06-30** - `node-diff3` is the single production dep of `packages/cli-node/` (three-way merge for `spec-init upgrade`); every other command uses Node stdlib only.
 - **2026-06-30** - Init snapshots the raw payload into `<project>/.spec-init/base/` so `upgrade` has a common ancestor for three-way merge.
 - **2026-06-30** - Persona strip normalizes whitespace (`\n{3,}→\n\n`, trailing `\n+→\n`) so scaffolded outputs pass MD012 after block removal.
+- **2026-07-01** - Python CLI uses stdlib argparse; `merge3` is the sole runtime dep, mirroring Node's `node-diff3` choice.
+- **2026-07-01** - Persona regex lives in three files (mjs source of truth, TS port, Python port). Two byte-equivalence parity tests guard against drift instead of extracting a shared spec.
+- **2026-07-01** - Cross-language `init` parity enforced by `tests/cli-parity.test.ts`: SHA-256 of every scaffolded file must match between Node and Python CLIs for every persona.
 
 ## Open Questions / TODOs
 
 - [ ] Reconcile the schema mismatch between `claude/context.md` (Session-History style) and `templates/claude/context.md` (compressed-snapshot style) - pick one and align both.
 - [ ] Should Windows CI be wired in Stage 1 or deferred to Stage 10?
 - [x] Wire Stage 3 (`spec-init` Node CLI) to invoke `tools/strip-personas.mjs` during `init`. _Resolved 2026-06-30 via `packages/cli-node/src/persona.ts` (TS port with parity test)._
-- [ ] Wire Stage 4 (`spec-init` Python CLI) to invoke an equivalent Python strip function (mirror `strip-personas.mjs` behavior byte-for-byte).
-- [ ] Consider extracting the persona-marker convention into a shared JSON/YAML spec once Stage 4 ships, so the three implementations (`tools/strip-personas.mjs`, TS, Python) don't drift.
-- [ ] `--version` as a top-level short-circuit (currently ignored without a command).
+- [x] Wire Stage 4 (`spec-init` Python CLI) to invoke an equivalent Python strip function (mirror `strip-personas.mjs` behavior byte-for-byte). _Resolved 2026-07-01 via `packages/cli-python/src/spec_init/persona.py` with the Python↔mjs parity test in `packages/cli-python/tests/test_persona.py`._
+- [ ] Extract the persona-marker convention into a shared JSON/YAML spec if a fourth implementation ever appears; three files are the current break-even.
+- [x] `--version` as a top-level short-circuit. _Resolved 2026-07-01: Python CLI accepts `--version` before any command. Node CLI still requires a subcommand; consider aligning in Stage 10._
+- [ ] Cross-language parity coverage for `customize` and `upgrade` outputs (currently only `init`).
+- [ ] Verify `pipx install ./dist/spec-init-0.1.0a0-py3-none-any.whl` succeeds locally before Stage 10 publish.
 - [ ] SRS §11 open questions carried as deferred work to Stage 10.

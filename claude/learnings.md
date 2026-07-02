@@ -131,3 +131,37 @@ Three-way merge threads the needle by comparing three inputs for every file: **B
 A subtle but load-bearing detail: after a successful upgrade, the CLI **refreshes** `.spec-init/base/` with THEIRS. That becomes the new common ancestor for the next upgrade. Without the refresh, the next upgrade would keep comparing against the ancient original baseline and misclassify every subsequent template change as a "user edit."
 
 The upside of three-way merge over a diff-and-patch approach: it's symmetric. The template can gain content, lose content, or edit content, and the algorithm handles all three the same way. The downside: it needs the base snapshot to exist. If the user deletes `.spec-init/` - or scaffolded before Stage 3 shipped - the tool has to refuse upgrade rather than guess a baseline. `spec-init doctor` catches this proactively.
+
+### Mirroring a CLI across two runtimes without a shared spec
+
+> When you ship the same tool in two languages, how do you keep them from drifting?
+
+The obvious answer is a shared spec: write the behavior once in some neutral format (JSON schema, protobuf, YAML DSL) and have each language read it. That works when the surface is large - dozens of commands, complex validation rules, cross-cutting concerns - because the cost of maintaining the spec is less than the cost of manually keeping N implementations in sync.
+
+For `spec-init`, the surface is small: five commands, eight flags, one regex, one merge algorithm. Extracting a spec would mean writing a spec-loader in JavaScript and Python that parses the neutral format and configures each CLI. The loaders themselves are code that has to stay in sync. You've moved the drift problem, not solved it.
+
+The alternative - and what Stage 4 took - is **canonical implementation plus parity tests**. Pick one implementation as source of truth (in this case, `tools/strip-personas.mjs` for the persona regex; the JavaScript CLI for the command surface) and write tests that run the other implementation against the same inputs, asserting byte-equivalent output. When a change to one is needed, the test immediately fails until the other is updated.
+
+Two parity tests cover the persona regex: `tests/persona-parity.test.ts` compares the TypeScript port against the `.mjs` source, and `packages/cli-python/tests/test_persona.py` compares the Python port against the same `.mjs`. A third - `tests/cli-parity.test.ts` - scaffolds via both CLIs into two temp dirs and SHA-256s every file. If any of the three fires red, the divergence is caught at test time, not at user report time.
+
+The rule of thumb: **duplicate + test until the duplication cost exceeds the spec-maintenance cost.** Three implementations of a 30-line regex is fine. Ten implementations of a 500-line workflow engine is not.
+
+### `merge3` vs `node-diff3`: normalizing conflict markers across languages
+
+> Two different three-way-merge libraries in two languages - how do you keep the user-facing output identical?
+
+`node-diff3` (Node) and `merge3` (Python) both implement the classic three-way merge algorithm. Their algorithms are equivalent; their **output formats** are not. `node-diff3` returns a sequence of `{ ok: [...lines] }` and `{ conflict: { a: [...ours], b: [...theirs] } }` regions. `merge3` yields tuples like `("unchanged", [...lines])` and `("conflict", base, a, b)`. Neither uses git-style `<<<<<<<` markers natively.
+
+The user-facing contract is what needs to match: whether you install via npm or pip, when you hit a conflict during `spec-init upgrade`, the conflicted file on disk should have the same fence style. Since both libraries expose the merged-region structure, the fix is a small formatter in each language that walks the regions and emits identical fences:
+
+```text
+<<<<<<< ours
+{our lines}
+=======
+{their lines}
+>>>>>>> theirs
+```
+
+Both CLIs' `three-way-merge` modules do exactly this. The library dependency handles the hard part (the diff); the formatter handles the presentation. When we later swap either library for something else, only the formatter has to keep the fences the same - the merge output remains valid to the user.
+
+The general lesson: when depending on cross-runtime libraries with equivalent algorithms but different APIs, keep the depended-on surface narrow. Consume the raw structured output, not the library's pre-formatted string, and produce the user-facing format yourself.

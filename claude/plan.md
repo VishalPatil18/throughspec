@@ -147,7 +147,7 @@
 
 ## Stage 4 - Python Scaffolding CLI (`spec-init`)
 
-- [ ] **Goal:** Mirror the Node CLI in Python so npm and PyPI users get an identical first experience (SRS §2.3).
+- [x] **Goal:** Mirror the Node CLI in Python so npm and PyPI users get an identical first experience (SRS §2.3). _Completed 2026-07-01._
 
 ### Scope-In
 
