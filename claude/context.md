@@ -31,7 +31,7 @@
 
 ## Current State
 
-**Stage:** Stage 5 complete - Initiation Skills. Stage 6 (6-Phase Feature Cycle + agents) is next.
+**Stage:** Stage 6 complete - 6-Phase Feature Cycle + agents. Stage 7 (Maintenance Skills) is next.
 
 **Tech stack**
 
@@ -52,8 +52,10 @@
 - `tools/strip-personas.mjs` - Stage 2 persona-gate stripping utility (Node stdlib).
 - `tools/count-tokens.mjs` - Stage 2 tiktoken (cl100k_base) token counter.
 - `tests/` - flat repo-level Vitest suite (payload parity, persona snapshots, token budget, lint, CLI end-to-end, doctor, upgrade merge, cross-language init parity, skill structural validators). See `tests/README.md` for the file map.
-- `templates/.claude/skills/` - canonical location for shipped skills. Stage 5 shipped `spec-requirements/`, `spec-design/`, `spec-plan/`. Each is a single-file `SKILL.md` with YAML frontmatter (`name`, `description`) and prose body.
+- `templates/.claude/skills/` - canonical location for shipped skills. Stage 5 shipped `spec-requirements/`, `spec-design/`, `spec-plan/`. Stage 6 added `spec-feature/`, `spec-refactor/`. Each is a single-file `SKILL.md` with YAML frontmatter (`name`, `description`) and prose body.
+- `templates/.claude/agents/` - canonical location for shipped sub-agents. Stage 6 shipped six agents (`spec-interrogator`, `spec-architect`, `spec-planner`, `spec-coder`, `spec-refactorer`, `spec-doc-writer`), each with a YAML frontmatter `tools:` allowlist pinned to SRS §2.2.4.
 - `skills/` (repo root) - intentionally empty redirect; readers point here first, README sends them to `templates/.claude/skills/`.
+- `agents/` (repo root) - intentionally empty redirect mirroring the `skills/` pattern.
 - `.markdownlint.jsonc` - lenient markdownlint config accepting HTML markers and template placeholders.
 - `skills/`, `agents/`, `website/` - placeholders (READMEs only) for later stages.
 - `srs.md`, `CLAUDE.md`, `claude/plan.md` - spec, behavior contract, build plan.
@@ -326,6 +328,61 @@
 
 ---
 
+## 2026-07-01 - Stage 6: 6-Phase Feature Cycle + agents
+
+**Prompt / trigger:** `/feature-dev` for Stage 6 (plan.md).
+
+**What was done:**
+
+- Shipped the `/spec-feature` orchestrator skill at `templates/.claude/skills/spec-feature/SKILL.md`. It walks all six SRS §3.5 phases in order, refuses to skip without an explicit `--skip <phase>` flag AND a written `claude/design-decisions.md` entry (FR-FEATURE), delegates each phase to the corresponding sub-agent, and enforces the FR-CODE-05 memory-update ordering (`context.md → features.md → design-decisions.md → learnings.md → CHANGELOG.md`).
+- Shipped the preliminary `/spec-refactor` skill at `templates/.claude/skills/spec-refactor/SKILL.md`. It refuses to proceed without the current cycle's changed-files list, dispatches the `spec-refactorer` sub-agent with that scope, and verifies no out-of-scope files were touched. Stage 7 will finalize the audit/isolation contract.
+- Shipped six sub-agents under `templates/.claude/agents/`. Each has YAML frontmatter (`name`, `description`, `tools`) and a prose body with a "MUST NOT" boundary section. Tool allowlists match SRS §2.2.4 exactly:
+  - `spec-interrogator.md` - `tools: Read`
+  - `spec-architect.md` - `tools: Read, Grep, Glob`
+  - `spec-planner.md` - `tools: Read, Grep`
+  - `spec-coder.md` - `tools: Read, Write, Edit, Bash`
+  - `spec-refactorer.md` - `tools: Read, Edit`
+  - `spec-doc-writer.md` - `tools: Read, Write, Edit`
+- Wrote `tests/agents.test.ts` (24 assertions). For each of the six agents: valid frontmatter, exact tool-allowlist match against SRS §2.2.4, and presence of the "MUST NOT" boundary section. Plus three cross-cutting invariants: spec-interrogator has no write tools; spec-refactorer cannot Write new files; spec-doc-writer has no Bash.
+- Extended `tests/skills.test.ts` with 12 new assertions across the two new skills: names every phase in order, refusal + design-decisions.md logging, delegates to all six sub-agents by name, FR-CODE-05 memory update order (checked structurally by scanning the fenced-order block, not scattered filename references elsewhere in the prose), re-reads memory before code (FR-CODE-01), diff-scoped refactor refusal (FR-CODE-04).
+- Extended `tests/init.test.ts` REQUIRED list with 8 new scaffolded paths (2 skills + 6 agents).
+- Rewrote `agents/README.md` at the repo root as a redirect to `templates/.claude/agents/`, mirroring the pattern used for `skills/README.md` in Stage 5.
+- Refreshed all three payload copies via `cp -R`; `tools/check-payload-parity.mjs` exits 0 with 27 files matching SHA-256 (up from 19 in Stage 5).
+- Post-lint fix: added `text` language tags to fenced output blocks in every new agent/skill file (MD040) via a one-shot awk pass, then ran `prettier --write` on `templates/.claude/**/*.md` to normalize a heading-adjacent blank line.
+
+**Files touched:**
+
+- `templates/.claude/agents/spec-interrogator.md` - create - Read-only cross-questioner (FR-REQ, Phase 1).
+- `templates/.claude/agents/spec-architect.md` - create - ≥2-option architect (Phase 2).
+- `templates/.claude/agents/spec-planner.md` - create - stage decomposer (Phase 5).
+- `templates/.claude/agents/spec-coder.md` - create - single-stage implementer (Phase 6, FR-CODE-01..03).
+- `templates/.claude/agents/spec-refactorer.md` - create - diff-scoped cleaner (FR-CODE-04).
+- `templates/.claude/agents/spec-doc-writer.md` - create - memory-layer maintainer (FR-CODE-05).
+- `templates/.claude/skills/spec-feature/SKILL.md` - create - 6-phase orchestrator.
+- `templates/.claude/skills/spec-refactor/SKILL.md` - create - preliminary diff-scoped refactor.
+- `tests/agents.test.ts` - create - 24 structural assertions with SRS §2.2.4 allowlist enforcement.
+- `tests/skills.test.ts` - update - added 12 assertions across spec-feature and spec-refactor.
+- `tests/init.test.ts` - update - REQUIRED list grew by 8 scaffolded paths.
+- `agents/README.md` - update - rewritten as redirect to `templates/.claude/agents/`.
+- Payload copies (`packages/cli-node/dist/templates/**`, `packages/cli-python/_payload/**`, `packages/cli-python/src/spec_init/_payload/**`) - update - copy-in-place refresh; parity script exits 0 (27 files).
+- `claude/plan.md` - update - Stage 6 checkbox to [x] with note that the SRS §9 live end-to-end feature-cycle verification is deferred to Stage 10 acceptance.
+
+**Decisions made:**
+
+- **Skill-orchestrator + tool-bounded-agents split.** `/spec-feature` is the sequencing + policy layer (which phase runs when, when to refuse, in what order to write memory). The six agents are the tool-bounded actors (each with an explicit `tools:` allowlist matching SRS §2.2.4). A rogue prompt inside `spec-interrogator` cannot escape the `Read`-only allowlist because Claude Code enforces the frontmatter at dispatch time. That is stronger than any prose "do not write" instruction.
+- **Structural test of FR-CODE-05 memory ordering via fenced-block scan.** The prescribed order (`context.md → features.md → design-decisions.md → learnings.md → CHANGELOG.md`) appears in a fenced code block inside `spec-feature/SKILL.md`. Naive `body.indexOf(name)` finds the earliest mention anywhere in the prose (many of these filenames appear multiple times in the skill), which makes the test flakey. Instead, extract the fenced-order block via regex and check ordering inside it. Deterministic and drift-catching.
+- **End-to-end LLM-run acceptance deferred to Stage 10.** The plan's acceptance criterion ("scripted feature completes all six phases on a sample app") requires a real Claude session and is expensive to run in CI. Stage 6 provides everything a Stage 10 human acceptance run needs: the skill, the six agents, structural tests that guarantee the definitions still encode the FR-* rules. The 90-minute acceptance run happens once at Stage 10 with a real user.
+- **Repo-root `agents/` follows the same redirect pattern as `skills/`.** No new source-of-truth location; the placement decision from Stage 5 (skills live under `templates/.claude/`) generalizes to agents. Cross-language parity, payload check, and CLI code all remain unchanged.
+
+**Open questions / follow-ups:**
+
+- Token-budget regression test (cycle 5 ≤ 120% of cycle 1) belongs to Stage 10 - it needs real LLM runs to measure.
+- Consider a lint rule that flags a SKILL.md or agent .md dropping below N lines, so accidental truncation during future edits does not silently strip a phase or refusal clause.
+- The `spec-refactor` skill defers the "audit trail of tool calls" isolation contract to Stage 7. Track that as a Stage 7 responsibility.
+- The `spec-doc-writer` agent currently checks for Student persona by looking for the "For the Student" block in `CLAUDE.md`. If a user manually deletes that block after scaffold, learnings.md updates silently stop. Consider a stronger detection mechanism in Stage 7.
+
+---
+
 ## Key Decisions
 
 - **2026-06-29** - Single `templates/` tree consumed by both packagers; parity enforced by SHA-256 manifest. Prevents npm/PyPI drift (SRS Risk row 6).
@@ -344,6 +401,9 @@
 - **2026-07-01** - Cross-language `init` parity enforced by `tests/cli-parity.test.ts`: SHA-256 of every scaffolded file must match between Node and Python CLIs for every persona.
 - **2026-07-01** - Skill source of truth lives at `templates/.claude/skills/`, not `skills/` at repo root. Reinterpretation of NFR-MAINT-02 "single directory" as "no duplication," so skills flow through the templates payload pipeline with zero build magic.
 - **2026-07-01** - SKILL.md prompts are tested structurally (grep for FR-* directives) rather than by LLM invocation. Deterministic, cheap, and catches directive removal at PR time.
+- **2026-07-01** - Skill/agent split: skills are sequencing + refusal-gate policy; agents are tool-bounded execution actors. The `tools:` allowlist in each agent's YAML frontmatter is enforced by Claude Code at dispatch time, which is stronger than any prose instruction.
+- **2026-07-01** - Ordering assertions on load-bearing fenced blocks (like FR-CODE-05's memory update order) scan the block itself, not the whole file - many of the same filenames appear elsewhere in the prose.
+- **2026-07-01** - Live 6-phase-cycle acceptance run (SRS §9's "90-minute new-user walkthrough") is deferred to Stage 10 and executed once with a real Claude session, not in CI.
 
 ## Open Questions / TODOs
 
@@ -357,4 +417,7 @@
 - [ ] Verify `pipx install ./dist/spec-init-0.1.0a0-py3-none-any.whl` succeeds locally before Stage 10 publish.
 - [ ] Wire a hatch build hook so editable installs auto-refresh `packages/cli-python/src/spec_init/_payload/` from the outer `_payload/` (Stage 10).
 - [ ] Consider a minimum-length lint rule on SKILL.md files to catch accidental truncation.
+- [ ] Stage 7 `/spec-refactor` finalizes the audit-trail / tool-call verification for diff-scope isolation.
+- [ ] Stronger Student-persona detection than "grep for the For the Student block" (Stage 7).
+- [ ] Token-budget regression assertion (cycle 5 ≤ 120% of cycle 1) at Stage 10.
 - [ ] SRS §11 open questions carried as deferred work to Stage 10.

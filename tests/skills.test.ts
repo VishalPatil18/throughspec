@@ -185,3 +185,101 @@ describe('spec-plan SKILL', () => {
     expect(s.body).toMatch(/Why this step\?/);
   });
 });
+
+describe('spec-feature SKILL', () => {
+  const s = loadSkill('spec-feature');
+
+  it('has valid frontmatter with name and description', () => {
+    expect(s.frontmatter.name).toBe('spec-feature');
+    expect((s.frontmatter.description as string).length).toBeGreaterThan(40);
+  });
+
+  it('names every one of the six phases (FR-FEATURE)', () => {
+    for (const phase of [
+      /Phase 1 - Requirements/i,
+      /Phase 2 - Architecting/i,
+      /Phase 3 - Product Specs/i,
+      /Phase 4 - Tech Specs/i,
+      /Phase 5 - Planning/i,
+      /Phase 6 - Writing Code/i,
+    ]) {
+      expect(s.body).toMatch(phase);
+    }
+  });
+
+  it('refuses to skip phases without --skip and logs the override', () => {
+    expect(s.body).toMatch(/--skip/);
+    expect(s.body).toMatch(/design-decisions\.md/);
+    expect(s.body).toMatch(/refuse|Refusal/i);
+  });
+
+  it('delegates to every Stage-6 sub-agent', () => {
+    for (const agent of [
+      /spec-interrogator/,
+      /spec-architect/,
+      /spec-planner/,
+      /spec-coder/,
+      /spec-refactorer/,
+      /spec-doc-writer/,
+    ]) {
+      expect(s.body).toMatch(agent);
+    }
+  });
+
+  it('enforces FR-CODE-05 memory update order exactly', () => {
+    // Look at the prescribed-order block only, not scattered references
+    // elsewhere in the skill. The block is a fenced numbered list that
+    // begins with `1. claude/context.md`.
+    const blockMatch = s.body.match(/```[\s\S]*?1\. claude\/context\.md[\s\S]*?CHANGELOG\.md[\s\S]*?```/);
+    expect(blockMatch, 'prescribed-order block missing').toBeTruthy();
+    const block = blockMatch![0];
+    const order = ['context.md', 'features.md', 'design-decisions.md', 'learnings.md', 'CHANGELOG.md'];
+    const positions = order.map((f) => block.indexOf(f));
+    for (let i = 1; i < positions.length; i += 1) {
+      expect(positions[i], `${order[i]} must appear after ${order[i - 1]}`).toBeGreaterThan(
+        positions[i - 1] as number,
+      );
+    }
+  });
+
+  it('re-reads memory before code (FR-CODE-01)', () => {
+    expect(s.body).toMatch(/re-read `CLAUDE\.md`|read `CLAUDE\.md`/);
+    expect(s.body).toMatch(/context\.md/);
+    expect(s.body).toMatch(/features\.md/);
+  });
+
+  it('has completion summary and student-persona annotation', () => {
+    expect(s.body).toMatch(/Shipped feature|completion summary/i);
+    expect(s.body).toMatch(/student persona/i);
+    expect(s.body).toMatch(/Why this step\?/);
+  });
+});
+
+describe('spec-refactor SKILL', () => {
+  const s = loadSkill('spec-refactor');
+
+  it('has valid frontmatter with name and description', () => {
+    expect(s.frontmatter.name).toBe('spec-refactor');
+    expect((s.frontmatter.description as string).length).toBeGreaterThan(40);
+  });
+
+  it('is diff-scoped: refuses without the changed-files list (FR-CODE-04)', () => {
+    expect(s.body).toMatch(/diff-scoped|diff scope/i);
+    expect(s.body).toMatch(/refuse to proceed|Cannot refactor/i);
+    expect(s.body).toMatch(/changed[- ]files list|current cycle/i);
+  });
+
+  it('delegates to spec-refactorer sub-agent', () => {
+    expect(s.body).toMatch(/spec-refactorer/);
+  });
+
+  it('does not authorise touching files outside the diff', () => {
+    expect(s.body).toMatch(/only these files|only the current cycle|outside the (?:current cycle'?s? )?diff/i);
+  });
+
+  it('has completion summary and student-persona annotation', () => {
+    expect(s.body).toMatch(/Refactored|completion summary/i);
+    expect(s.body).toMatch(/student persona/i);
+    expect(s.body).toMatch(/Why this step\?/);
+  });
+});

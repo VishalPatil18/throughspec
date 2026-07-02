@@ -213,7 +213,7 @@
 
 ## Stage 6 - 6-Phase Feature Cycle (`/spec-feature` + Agents)
 
-- [ ] **Goal:** Implement the full 6-phase cycle (SRS §3.5, §5.2) and the agents that support it, then prove it by shipping one real feature inside a sample project.
+- [x] **Goal:** Implement the full 6-phase cycle (SRS §3.5, §5.2) and the agents that support it, then prove it by shipping one real feature inside a sample project. _Completed 2026-07-01 (skill/agent definitions + structural tests; end-to-end feature-cycle verification via a real LLM run is deferred to Stage 10 acceptance)._
 
 ### Scope-In
 

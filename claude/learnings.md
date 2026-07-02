@@ -204,3 +204,38 @@ Throughspec's `tests/skills.test.ts` does exactly this. For each of the three in
 If a future editor accidentally deletes the "refuses to proceed" language from `spec-requirements/SKILL.md`, `vitest run` fails immediately. The LLM at runtime would silently accept the change; the structural test catches it before the change ships.
 
 The rule of thumb: **prompts are documents; document contracts are testable statically.** The tests do not prove Claude will behave correctly - nothing short of a running LLM does - but they prove Claude will _see_ the instructions that make correct behavior possible. That is the biggest failure mode a static test can prevent, and it is enough to catch the vast majority of accidental regressions.
+
+### Claude Code sub-agents as tool-scoped actors
+
+> A sub-agent's `tools:` allowlist looks like a hint. Why is it actually a security boundary?
+
+When Claude Code dispatches a sub-agent, it does not just pass the agent's prompt into the model and hope the prose ("do not write files") is honored. The dispatch mechanism itself enforces the `tools:` allowlist declared in the agent's YAML frontmatter. If an agent's frontmatter says `tools: Read`, then even if the prompt inside the agent's `.md` file somehow instructs the model to call `Write`, that tool call is rejected before it reaches the filesystem. The allowlist is a runtime gate, not a suggestion.
+
+That is qualitatively different from a monolithic prompt that says "please don't write files during Phase 2." A monolithic prompt relies on the model's compliance. A tool-scoped sub-agent relies on the harness. When the harness enforces the scope, an adversarial prompt injection inside the agent's inputs cannot escape that scope by convincing the model to break its own rule.
+
+For Throughspec that shaped the six-agent split:
+
+- `spec-interrogator` (`tools: Read`) - cross-questions the user; cannot accidentally scribble on a file.
+- `spec-architect` (`tools: Read, Grep, Glob`) - reads the codebase to propose options; cannot edit.
+- `spec-coder` (`tools: Read, Write, Edit, Bash`) - the only agent with write authority, and only for implementing one stage at a time.
+- `spec-refactorer` (`tools: Read, Edit`) - can modify existing files but not create new ones. Refactor cannot smuggle in a new module.
+- `spec-doc-writer` (`tools: Read, Write, Edit`) - updates the memory layer but has no `Bash`, so it cannot run tests or shell commands that would drift the workflow into implementation territory.
+
+The general rule: when a workflow needs distinct capabilities (read-only interrogation vs. write-authorized implementation), do not build one prompt that promises to behave in different modes. Build multiple agents, one per capability profile, and let the harness enforce the boundary.
+
+### Skill-orchestrator + agent-worker split
+
+> Why does `/spec-feature` delegate to six sub-agents instead of doing all six phases itself?
+
+The obvious alternative to Throughspec's design is a monolithic `/spec-feature` skill that walks all six phases in one long prompt. That would be simpler on paper: one file, one place to look.
+
+The problem is that different phases have different failure modes and different tool needs. Phase 1 (Requirements) needs a read-only interrogator that cannot accidentally write code while thinking out loud. Phase 6 (Writing Code) needs full write and bash authority. A monolithic prompt has to declare its tool allowlist as the _union_ of every phase's needs - which means during Phase 1, the same prompt has `Write` and `Bash` available, and the "don't write files during interrogation" instruction is a prose promise, not a harness-enforced boundary.
+
+The split Throughspec chose is:
+
+- **Skill = orchestration + policy.** `/spec-feature` decides what runs when, checks refusal gates (`--skip` requires a `design-decisions.md` entry), and enforces cross-phase invariants (FR-CODE-05 memory update order). It does not need write authority itself; it dispatches to agents that have exactly the authority they need for their phase.
+- **Agents = capability-scoped workers.** Each agent has the minimum tool set for its job. Its prompt is short, focused, and impossible to derail into another phase's work because the harness will not let it.
+
+The tradeoff: two-tier design means seven files instead of one. In exchange, every phase's failure mode is bounded by tool scope, and the orchestration policy is separable from the execution details. If someone later swaps the interrogator implementation, the orchestrator stays put; if someone changes the phase order, only the orchestrator moves.
+
+The pattern generalizes: **when a workflow has phases with genuinely different capability requirements, split the "when" from the "how."** The orchestrator owns sequencing and policy; each worker owns its phase's actual work, with the smallest tool set that can accomplish it.
