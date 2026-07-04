@@ -239,3 +239,46 @@ The split Throughspec chose is:
 The tradeoff: two-tier design means seven files instead of one. In exchange, every phase's failure mode is bounded by tool scope, and the orchestration policy is separable from the execution details. If someone later swaps the interrogator implementation, the orchestrator stays put; if someone changes the phase order, only the orchestrator moves.
 
 The pattern generalizes: **when a workflow has phases with genuinely different capability requirements, split the "when" from the "how."** The orchestrator owns sequencing and policy; each worker owns its phase's actual work, with the smallest tool set that can accomplish it.
+
+### Reproduction-first bug fixing
+
+> Why does `/spec-bug` refuse to proceed without a reproduction recipe? The user says the bug is real - is that not enough?
+
+The most common failure mode of a bug-fix workflow is not "the fix is wrong." It is "the fix targets a symptom instead of the defect." A user reports "the login button doesn't work"; a well-meaning developer inspects the login handler, finds a plausible-looking issue, edits it, ships, and the button still doesn't work - because the actual defect was in the session middleware two layers deeper, and the plausible-looking issue was benign.
+
+A reproduction recipe forecloses that failure mode. A recipe is:
+
+- The exact command that produces the failure.
+- The expected output.
+- The actual output.
+- The environment.
+
+If the developer cannot reproduce the failure by running the recipe, the "bug" is either misdiagnosed (user error, environment drift, a different codebase) or transient (flakey, dependent on state the recipe does not capture). Either way, editing code before the recipe reproduces is guessing.
+
+Throughspec's `/spec-bug` skill refuses to proceed without a recipe. That refusal drives three downstream guarantees:
+
+- The **failing regression test** exists because the recipe told us what "fails" means. The test IS the recipe, encoded.
+- The **smallest possible diff** is enforceable because we can verify the diff changes the recipe's actual output. We do not need to guess whether the fix "works"; we run the recipe again and see.
+- The **CHANGELOG.md entry** is precise ("Fixed X in Y" instead of "Fixed something in the login area") because the recipe defines X.
+
+The rule generalizes to any bug-fix workflow: **make reproduction a precondition, not a hope.** If the report cannot be turned into a runnable recipe, the fix cycle should not start. Turning "there's a bug" into "here is the recipe that fails" is where diagnostic value is created; skipping that step trades certainty for velocity, and the trade is almost always bad.
+
+### Isolation-by-audit-log as a compensating control
+
+> Claude Code enforces the `tools:` allowlist at dispatch. Why does `/spec-refactor` also write an audit log?
+
+Sub-agent tool allowlists are a preventive control: they stop scope violations before they happen. `spec-refactorer` cannot Write a new file because Write is not in its allowlist - the harness rejects the tool call at dispatch time.
+
+But there is a subtler failure mode the allowlist does not address: the agent uses only its authorized tools, and still edits files outside the intended scope. `spec-refactorer` has `Read` and `Edit` - both perfectly legitimate - and could nonetheless Edit files that were not on the changed-files list handed to it by `/spec-refactor`. Nothing in the harness watches whether the paths passed to Edit are on the diff-scope list; that check exists only in the skill's prose ("touch only these files").
+
+Prose-level enforcement is a promise. To catch a promise-broken case, you need an audit trail: a record of what the agent actually did, that a reviewer (or a scripted verifier at Stage 10) can compare against what the agent was supposed to do.
+
+`/spec-refactor` writes `.claude/refactor-audits/refactor-audit-{ISO}.md` after every pass, containing:
+
+- The scope handed to `spec-refactorer` (input contract).
+- The files `spec-refactorer` reported changing (output claim).
+- A verification checklist for a reviewer.
+
+The audit is append-only even on rollback, so the trail cannot be selectively pruned. A drift now becomes observable at PR-review time (or CI-verification time) rather than production time. That is **compensating control** in the classical sense: the harness cannot prevent the failure directly, so the workflow generates the evidence needed to catch it after the fact.
+
+The general rule: **when a control is enforced by convention (prose in a prompt), pair it with an audit that makes the convention observable.** Preventive controls stop the failure; compensating controls surface it. Both matter; either alone leaves a gap.

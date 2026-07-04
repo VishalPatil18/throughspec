@@ -282,4 +282,124 @@ describe('spec-refactor SKILL', () => {
     expect(s.body).toMatch(/student persona/i);
     expect(s.body).toMatch(/Why this step\?/);
   });
+
+  it('writes an audit trail under .claude/refactor-audits/ (Stage 7 finalized FR-CODE-04)', () => {
+    expect(s.body).toMatch(/audit trail|audit log/i);
+    expect(s.body).toMatch(/\.claude\/refactor-audits\//);
+  });
+});
+
+describe('spec-bug SKILL', () => {
+  const s = loadSkill('spec-bug');
+
+  it('has valid frontmatter with name and description', () => {
+    expect(s.frontmatter.name).toBe('spec-bug');
+    expect((s.frontmatter.description as string).length).toBeGreaterThan(40);
+  });
+
+  it('refuses to proceed without a reproduction recipe (FR-BUG-01)', () => {
+    expect(s.body).toMatch(/reproduction recipe|reproducer/i);
+    expect(s.body).toMatch(/refuse to proceed|Cannot proceed/i);
+  });
+
+  it('requires the smallest possible diff (FR-BUG-02)', () => {
+    expect(s.body).toMatch(/smallest (possible )?diff/i);
+  });
+
+  it('requires a failing-before/passing-after regression test (FR-BUG-03)', () => {
+    expect(s.body).toMatch(/regression test/i);
+    expect(s.body).toMatch(/fail(s|ing)? (?:against|before|today)|MUST fail/i);
+  });
+
+  it('forbids refactors and unrelated improvements (FR-BUG-04)', () => {
+    expect(s.body).toMatch(/no refactors|Forbid.*[Rr]efactors|refactors[^.]*outlaws|refactors.*FR-BUG-04/i);
+  });
+
+  it('appends to CHANGELOG.md under ### Fixed (FR-BUG-05)', () => {
+    expect(s.body).toMatch(/CHANGELOG\.md/);
+    expect(s.body).toMatch(/### Fixed/);
+  });
+
+  it('delegates to spec-bug-hunter for isolation', () => {
+    expect(s.body).toMatch(/spec-bug-hunter/);
+  });
+
+  it('delegates the fix to spec-coder', () => {
+    expect(s.body).toMatch(/spec-coder/);
+  });
+
+  it('has completion summary and student-persona annotation', () => {
+    expect(s.body).toMatch(/Fixed|completion summary/i);
+    expect(s.body).toMatch(/student persona/i);
+    expect(s.body).toMatch(/Why this step\?/);
+  });
+});
+
+describe('spec-docs SKILL', () => {
+  const s = loadSkill('spec-docs');
+
+  it('has valid frontmatter with name and description', () => {
+    expect(s.frontmatter.name).toBe('spec-docs');
+    expect((s.frontmatter.description as string).length).toBeGreaterThan(40);
+  });
+
+  it('reconciles docs against context.md, features.md, README.md (FR-DOCS-01)', () => {
+    expect(s.body).toMatch(/context\.md/);
+    expect(s.body).toMatch(/features\.md/);
+    expect(s.body).toMatch(/README\.md/);
+    expect(s.body).toMatch(/reconcile/i);
+  });
+
+  it('produces a diff for approval before applying (FR-DOCS-02)', () => {
+    expect(s.body).toMatch(/diff.*approval|Wait for user approval|PROPOSED DOC CHANGES/i);
+  });
+
+  it('refuses to modify source code (FR-DOCS-03)', () => {
+    expect(s.body).toMatch(/source[- ]code/i);
+    expect(s.body).toMatch(/refuse|Cannot apply|MUST NOT/i);
+  });
+
+  it('flags stale features (FR-DOCS-04)', () => {
+    expect(s.body).toMatch(/stale|no longer exists|STALE FEATURES/i);
+  });
+
+  it('has completion summary and student-persona annotation', () => {
+    expect(s.body).toMatch(/Reconciled|completion summary/i);
+    expect(s.body).toMatch(/student persona/i);
+    expect(s.body).toMatch(/Why this step\?/);
+  });
+});
+
+describe('spec-sync SKILL', () => {
+  const s = loadSkill('spec-sync');
+
+  it('has valid frontmatter with name and description', () => {
+    expect(s.frontmatter.name).toBe('spec-sync');
+    expect((s.frontmatter.description as string).length).toBeGreaterThan(40);
+  });
+
+  it('reconciles context.md against actual repo state', () => {
+    expect(s.body).toMatch(/context\.md/);
+    expect(s.body).toMatch(/drift|reconcile/i);
+  });
+
+  it('compresses files over 1,500 lines (NFR-PERF-03)', () => {
+    expect(s.body).toMatch(/1,?500/);
+    expect(s.body).toMatch(/compress/i);
+  });
+
+  it('preserves a compressed-from audit trail', () => {
+    expect(s.body).toMatch(/compressed[- ]from/i);
+    expect(s.body).toMatch(/git|git log/);
+  });
+
+  it('refuses to compress a file with uncommitted changes', () => {
+    expect(s.body).toMatch(/uncommitted changes/i);
+  });
+
+  it('has completion summary and student-persona annotation', () => {
+    expect(s.body).toMatch(/Synced memory|completion summary/i);
+    expect(s.body).toMatch(/student persona/i);
+    expect(s.body).toMatch(/Why this step\?/);
+  });
 });

@@ -247,7 +247,7 @@
 
 ## Stage 7 - Maintenance Skills (`/spec-refactor`, `/spec-bug`, `/spec-docs`, `/spec-sync`)
 
-- [ ] **Goal:** Ship the four maintenance skills that keep the project honest after the initial build (FR-BUG, FR-DOCS, FR-CODE-04, §5.3, §5.4, §5.5).
+- [x] **Goal:** Ship the four maintenance skills that keep the project honest after the initial build (FR-BUG, FR-DOCS, FR-CODE-04, §5.3, §5.4, §5.5). _Completed 2026-07-02._
 
 ### Scope-In
 

@@ -44,6 +44,7 @@ const AGENT_ALLOWLIST: Record<string, string[]> = {
   'spec-coder': ['Read', 'Write', 'Edit', 'Bash'],
   'spec-refactorer': ['Read', 'Edit'],
   'spec-doc-writer': ['Read', 'Write', 'Edit'],
+  'spec-bug-hunter': ['Read', 'Grep', 'Bash'],
 };
 
 for (const [agentName, allowlist] of Object.entries(AGENT_ALLOWLIST)) {
@@ -90,5 +91,12 @@ describe('agents cross-cutting', () => {
   it('spec-doc-writer has no Bash (memory writes only, no shell)', () => {
     const a = loadAgent('spec-doc-writer');
     expect(a.tools).not.toContain('Bash');
+  });
+
+  it('spec-bug-hunter cannot Write or Edit (patches route through spec-coder)', () => {
+    const a = loadAgent('spec-bug-hunter');
+    expect(a.tools).not.toContain('Write');
+    expect(a.tools).not.toContain('Edit');
+    expect(a.tools).toContain('Bash');
   });
 });

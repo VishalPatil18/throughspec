@@ -31,7 +31,7 @@
 
 ## Current State
 
-**Stage:** Stage 6 complete - 6-Phase Feature Cycle + agents. Stage 7 (Maintenance Skills) is next.
+**Stage:** Stage 7 complete - Maintenance Skills. Stage 8 (Integrations: Graphify, Obsidian) is next.
 
 **Tech stack**
 
@@ -52,8 +52,8 @@
 - `tools/strip-personas.mjs` - Stage 2 persona-gate stripping utility (Node stdlib).
 - `tools/count-tokens.mjs` - Stage 2 tiktoken (cl100k_base) token counter.
 - `tests/` - flat repo-level Vitest suite (payload parity, persona snapshots, token budget, lint, CLI end-to-end, doctor, upgrade merge, cross-language init parity, skill structural validators). See `tests/README.md` for the file map.
-- `templates/.claude/skills/` - canonical location for shipped skills. Stage 5 shipped `spec-requirements/`, `spec-design/`, `spec-plan/`. Stage 6 added `spec-feature/`, `spec-refactor/`. Each is a single-file `SKILL.md` with YAML frontmatter (`name`, `description`) and prose body.
-- `templates/.claude/agents/` - canonical location for shipped sub-agents. Stage 6 shipped six agents (`spec-interrogator`, `spec-architect`, `spec-planner`, `spec-coder`, `spec-refactorer`, `spec-doc-writer`), each with a YAML frontmatter `tools:` allowlist pinned to SRS §2.2.4.
+- `templates/.claude/skills/` - canonical location for shipped skills. Stage 5 shipped `spec-requirements/`, `spec-design/`, `spec-plan/`. Stage 6 added `spec-feature/` and preliminary `spec-refactor/`. Stage 7 finalized `spec-refactor/` (audit trail) and added `spec-bug/`, `spec-docs/`, `spec-sync/`.
+- `templates/.claude/agents/` - canonical location for shipped sub-agents. Stage 6 shipped six agents. Stage 7 added `spec-bug-hunter` (Read, Grep, Bash). All seven SRS §2.2.4 agents now present, each with a frontmatter `tools:` allowlist pinned to the spec.
 - `skills/` (repo root) - intentionally empty redirect; readers point here first, README sends them to `templates/.claude/skills/`.
 - `agents/` (repo root) - intentionally empty redirect mirroring the `skills/` pattern.
 - `.markdownlint.jsonc` - lenient markdownlint config accepting HTML markers and template placeholders.
@@ -383,6 +383,54 @@
 
 ---
 
+## 2026-07-02 - Stage 7: Maintenance Skills
+
+**Prompt / trigger:** `/feature-dev` for Stage 7 (plan.md).
+
+**What was done:**
+
+- Shipped three new maintenance skills at `templates/.claude/skills/`:
+  - `spec-bug/SKILL.md` - isolated bug workflow. Refuses without a reproduction recipe (FR-BUG-01), delegates isolation to `spec-bug-hunter`, requires failing-before/passing-after regression test (FR-BUG-03), delegates the smallest possible diff (FR-BUG-02) to `spec-coder` with explicit no-refactor scope (FR-BUG-04), and appends a single line under `### Fixed` in `CHANGELOG.md` (FR-BUG-05). No memory-layer updates from this skill - bug fixes are a separate track from feature cycles.
+  - `spec-docs/SKILL.md` - isolated docs reconciliation. Reads repo state and cross-checks against `claude/context.md`, `claude/features.md`, `README.md` (FR-DOCS-01), produces a unified-diff-style proposal (FR-DOCS-02), refuses to modify anything under a source path (FR-DOCS-03), and flags features documented but no longer present in the code (FR-DOCS-04).
+  - `spec-sync/SKILL.md` - drift check + memory compression. Cross-checks `claude/context.md`'s Current State against actual repo, compresses any memory file over 1,500 lines (NFR-PERF-03), and writes a `compressed-from` audit block preserving reversibility from git. Refuses to compress a file with uncommitted changes.
+- Finalized `spec-refactor/SKILL.md` (Stage 6 shipped preliminary) by adding Step 4: write an audit log to `.claude/refactor-audits/refactor-audit-{ISO}.md` after every pass. Audit is append-only even on rollback so tool-call verification has a permanent trail.
+- Shipped the seventh and final agent `spec-bug-hunter.md` at `templates/.claude/agents/` with `tools: Read, Grep, Bash` per SRS §2.2.4. Deliberately no Write/Edit - the "patches" language in the SRS is reconciled by having spec-bug-hunter isolate and produce a draft regression test, then hand the fix off to `spec-coder` for the actual edit + tests-and-verify pass.
+- Extended `tests/agents.test.ts` (26 assertions now) with `spec-bug-hunter` allowlist enforcement plus the cross-cutting "spec-bug-hunter cannot Write or Edit - patches route through spec-coder" invariant.
+- Extended `tests/skills.test.ts` (58 assertions now) with `describe` blocks for `spec-bug`, `spec-docs`, `spec-sync`, plus the audit-trail assertion for `spec-refactor`. Skill count went from 5 to 8 shipped skills (all seven SRS §2.2.3 skills plus the one-off refactor pass).
+- Extended `tests/init.test.ts` REQUIRED list by 4 paths (3 skills + 1 agent).
+- Refreshed all three payload copies via `cp -R`; parity script exits 0 with 31 files matching SHA-256 (up from 27 in Stage 6).
+- Post-lint fix: original `spec-bug-hunter.md` had a nested fenced code block inside a bullet list (regression-test placeholder), which triggered MD007/MD032/MD031/MD040 in a cascade. Rewrote the REGRESSION TEST section to prose form. Ran `prettier --write` on `templates/.claude/**/*.md` to normalize whitespace on the two edited skill files.
+
+**Files touched:**
+
+- `templates/.claude/agents/spec-bug-hunter.md` - create - Read+Grep+Bash allowlist; produces isolation report + draft regression test; delegates the fix to spec-coder.
+- `templates/.claude/skills/spec-bug/SKILL.md` - create - encodes FR-BUG-01..05.
+- `templates/.claude/skills/spec-docs/SKILL.md` - create - encodes FR-DOCS-01..04.
+- `templates/.claude/skills/spec-sync/SKILL.md` - create - encodes NFR-PERF-03 + drift check + compressed-from audit.
+- `templates/.claude/skills/spec-refactor/SKILL.md` - update - added Step 4 audit trail (FR-CODE-04 finalized), reworded Stage-6 preliminary note into the isolation contract summary.
+- `tests/agents.test.ts` - update - added spec-bug-hunter allowlist + cross-cutting invariant.
+- `tests/skills.test.ts` - update - added 28 assertions across spec-bug/docs/sync + spec-refactor audit assertion.
+- `tests/init.test.ts` - update - REQUIRED list grew by 4 scaffolded paths.
+- Payload copies (`packages/cli-node/dist/templates/**`, `packages/cli-python/_payload/**`, `packages/cli-python/src/spec_init/src/spec_init/_payload/**` (via `packages/cli-python/src/spec_init/_payload/**`)) - update - copy-in-place refresh; parity script exits 0 (31 files).
+- `claude/plan.md` - update - Stage 7 checkbox to [x].
+
+**Decisions made:**
+
+- **`spec-bug-hunter` follows SRS §2.2.4 literally: `Read, Grep, Bash`, no `Edit`.** The spec's "patches bugs" phrasing seems to imply Edit, but the tool allowlist as written does not include it. Reconciled by scoping spec-bug-hunter to isolation + draft-regression-test production, and routing the actual patch through spec-coder. This preserves the invariant that only one agent (`spec-coder`) has write authority to project source code, which is what makes bug-fix scope enforceable.
+- **Isolation-by-audit-log.** Claude Code cannot enforce tool-call auditing at dispatch time - the harness does not currently expose "which files did this agent read?" as an inspectable artifact. `spec-refactor` compensates by requiring the skill itself to write an on-disk audit log recording the file list. A later reviewer (or a Stage 10 CI check) can compare the log's "reported changing" list against the "scope handed" list. It is compensating control, not preventive - but it makes drift observable at review time instead of production time.
+- **Bug fixes are a separate track from feature cycles.** `spec-bug` writes only to `CHANGELOG.md` and does not touch `claude/context.md`, `claude/features.md`, `claude/design-decisions.md`, or `claude/learnings.md`. That mirrors how bug fixes work in most healthy repositories: they get a CHANGELOG entry and a regression test, not a feature-log entry, because "we fixed a defect" is different history from "we shipped a capability."
+- **`spec-sync` compression retains recency verbatim.** Older Session History and Feature entries get folded into a summary block; the most recent 2-3 stay untouched. The `compressed-from` block plus git history means a rollback is a single `git checkout` away. Never delete, never rewrite in place.
+- **Nested fenced code blocks in agent .md files are avoided.** The original spec-bug-hunter regression-test placeholder used ```` ```{lang} ```` inside an outer ```` ```text ```` block. Markdown parsers stop the outer fence at the first inner three-backtick, cascading multiple lint errors. Solution: describe the test content in prose instead of nesting a fence.
+
+**Open questions / follow-ups:**
+
+- The `.claude/refactor-audits/` directory does not exist in scaffolded projects at init time. The first `/spec-refactor` run creates it. Consider adding an empty placeholder + README to the scaffold in Stage 10 so a user browsing a fresh project sees the audit-log location intended.
+- `spec-docs` currently defines "source path" prose-style (`src/`, `packages/`, `lib/`). Consider a `.claude/config.yml` in Stage 10 that lets projects declare their source paths explicitly, so the refusal gate is data-driven instead of hardcoded.
+- Live end-to-end acceptance runs for all four maintenance skills belong to Stage 10 alongside the initiation/feature-cycle acceptance.
+- All seven SRS §2.2.4 agents are now shipped. §2.2.3 lists nine skills; we have shipped all nine (3 initiation + spec-feature + spec-refactor + spec-bug + spec-docs + spec-sync).
+
+---
+
 ## Key Decisions
 
 - **2026-06-29** - Single `templates/` tree consumed by both packagers; parity enforced by SHA-256 manifest. Prevents npm/PyPI drift (SRS Risk row 6).
@@ -404,6 +452,10 @@
 - **2026-07-01** - Skill/agent split: skills are sequencing + refusal-gate policy; agents are tool-bounded execution actors. The `tools:` allowlist in each agent's YAML frontmatter is enforced by Claude Code at dispatch time, which is stronger than any prose instruction.
 - **2026-07-01** - Ordering assertions on load-bearing fenced blocks (like FR-CODE-05's memory update order) scan the block itself, not the whole file - many of the same filenames appear elsewhere in the prose.
 - **2026-07-01** - Live 6-phase-cycle acceptance run (SRS §9's "90-minute new-user walkthrough") is deferred to Stage 10 and executed once with a real Claude session, not in CI.
+- **2026-07-02** - `spec-bug-hunter` follows SRS §2.2.4 literally with `Read, Grep, Bash` and no `Edit`; the patch step routes through `spec-coder`, preserving "only spec-coder writes to source" as a hard invariant.
+- **2026-07-02** - `spec-refactor` writes an on-disk audit log per pass. This is compensating control (drift becomes observable at review time) rather than preventive (Claude Code doesn't yet expose tool-call scope enforcement at dispatch time).
+- **2026-07-02** - Bug fixes are a separate track from feature cycles: `spec-bug` writes only `CHANGELOG.md`, never the memory layer.
+- **2026-07-02** - `spec-sync` compression retains recency verbatim and folds older material into a summary, with `compressed-from` block + git history making rollback trivial.
 
 ## Open Questions / TODOs
 
@@ -417,7 +469,9 @@
 - [ ] Verify `pipx install ./dist/spec-init-0.1.0a0-py3-none-any.whl` succeeds locally before Stage 10 publish.
 - [ ] Wire a hatch build hook so editable installs auto-refresh `packages/cli-python/src/spec_init/_payload/` from the outer `_payload/` (Stage 10).
 - [ ] Consider a minimum-length lint rule on SKILL.md files to catch accidental truncation.
-- [ ] Stage 7 `/spec-refactor` finalizes the audit-trail / tool-call verification for diff-scope isolation.
-- [ ] Stronger Student-persona detection than "grep for the For the Student block" (Stage 7).
+- [x] Stage 7 `/spec-refactor` finalizes the audit-trail / tool-call verification for diff-scope isolation. _Resolved 2026-07-02 via the `.claude/refactor-audits/refactor-audit-{ISO}.md` write step in `spec-refactor/SKILL.md`._
+- [ ] Stronger Student-persona detection than "grep for the For the Student block" - deferred to Stage 10 UX polish.
+- [ ] Seed `.claude/refactor-audits/` in the scaffolded project so users see where audit logs land before the first refactor.
+- [ ] Data-driven source-path definition for `spec-docs` refusal gate (via `.claude/config.yml`) - Stage 10.
 - [ ] Token-budget regression assertion (cycle 5 ≤ 120% of cycle 1) at Stage 10.
 - [ ] SRS §11 open questions carried as deferred work to Stage 10.

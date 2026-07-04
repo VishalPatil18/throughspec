@@ -34,12 +34,16 @@ const REQUIRED = [
   '.claude/skills/spec-plan/SKILL.md',
   '.claude/skills/spec-feature/SKILL.md',
   '.claude/skills/spec-refactor/SKILL.md',
+  '.claude/skills/spec-bug/SKILL.md',
+  '.claude/skills/spec-docs/SKILL.md',
+  '.claude/skills/spec-sync/SKILL.md',
   '.claude/agents/spec-interrogator.md',
   '.claude/agents/spec-architect.md',
   '.claude/agents/spec-planner.md',
   '.claude/agents/spec-coder.md',
   '.claude/agents/spec-refactorer.md',
   '.claude/agents/spec-doc-writer.md',
+  '.claude/agents/spec-bug-hunter.md',
 ];
 
 function initInto(dir: string, name: string, extra: string[] = []): { status: number; ms: number } {
