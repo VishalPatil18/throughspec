@@ -310,7 +310,7 @@
 
 ## Stage 9 - Companion Website
 
-- [ ] **Goal:** Stand up the static documentation/distribution site with every section enumerated in SRS §7.3.
+- [x] **Goal:** Stand up the static documentation/distribution site with every section enumerated in SRS §7.3. _Completed 2026-07-08. Deployed Lighthouse verification deferred to Stage 10._
 
 ### Scope-In
 

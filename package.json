@@ -9,11 +9,15 @@
     "node": ">=20"
   },
   "workspaces": [
-    "packages/cli-node"
+    "packages/cli-node",
+    "website"
   ],
   "scripts": {
     "build": "npm run build --workspaces --if-present",
     "build:python": "python3 packages/cli-python/src/spec_init/_build.py && cd packages/cli-python && uv build",
+    "dev:site": "npm run dev -w @throughspec/website",
+    "build:site": "npm run build -w @throughspec/website",
+    "test:site": "npm run test:e2e -w @throughspec/website",
     "lint": "eslint .",
     "lint:py": "uvx ruff check .",
     "format": "prettier --write .",
