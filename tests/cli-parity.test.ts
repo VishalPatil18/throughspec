@@ -93,8 +93,13 @@ describe('cross-language init parity', () => {
     scaffoldNode(nodeDir, 'p', extra);
     scaffoldPython(pyDir, 'p', extra);
 
-    const nodeClaude = readFileSync(join(nodeDir, 'p/CLAUDE.md'), 'utf8');
-    const pyClaude = readFileSync(join(pyDir, 'p/CLAUDE.md'), 'utf8');
-    expect(pyClaude).toBe(nodeClaude);
+    const nodeFiles = walk(join(nodeDir, 'p')).filter((f) => !f.startsWith('.spec-init/'));
+    const pyFiles = walk(join(pyDir, 'p')).filter((f) => !f.startsWith('.spec-init/'));
+    expect(pyFiles).toEqual(nodeFiles);
+    for (const rel of nodeFiles) {
+      const nPath = join(nodeDir, 'p', rel);
+      const pPath = join(pyDir, 'p', rel);
+      expect(sha256(pPath), `SHA-256 differs for ${rel}`).toBe(sha256(nPath));
+    }
   });
 });

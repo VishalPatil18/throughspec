@@ -1,0 +1,48 @@
+{
+  "main": {
+    "id": "throughspec-vault-root",
+    "type": "split",
+    "children": [
+      {
+        "id": "throughspec-context-tab",
+        "type": "leaf",
+        "state": {
+          "type": "markdown",
+          "state": {
+            "file": "claude/context.md",
+            "mode": "source"
+          }
+        }
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "throughspec-left-sidebar",
+    "type": "split",
+    "children": [
+      {
+        "id": "throughspec-file-explorer",
+        "type": "leaf",
+        "state": { "type": "file-explorer" }
+      },
+      {
+        "id": "throughspec-graph-view",
+        "type": "leaf",
+        "state": { "type": "graph" }
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "active": "throughspec-context-tab",
+  "lastOpenFiles": [
+    "claude/context.md",
+    "claude/features.md",
+    "claude/design-decisions.md",
+    "claude/learnings.md",
+    "claude/plan.md",
+    "claude/srs.md",
+    "design/design.md"
+  ]
+}

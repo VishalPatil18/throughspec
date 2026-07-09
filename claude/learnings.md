@@ -282,3 +282,58 @@ Prose-level enforcement is a promise. To catch a promise-broken case, you need a
 The audit is append-only even on rollback, so the trail cannot be selectively pruned. A drift now becomes observable at PR-review time (or CI-verification time) rather than production time. That is **compensating control** in the classical sense: the harness cannot prevent the failure directly, so the workflow generates the evidence needed to catch it after the fact.
 
 The general rule: **when a control is enforced by convention (prose in a prompt), pair it with an audit that makes the convention observable.** Preventive controls stop the failure; compensating controls surface it. Both matter; either alone leaves a gap.
+
+### Toggleable integrations via HTML-comment marker fences
+
+> Why do the Graphify and Obsidian integrations use `<!-- integration:NAME -->` fences instead of separate template files or a template engine?
+
+The Stage 8 requirement was a "toggle-roundtrip that leaves zero residual files": scaffold, add an integration, remove it, and the tree matches the original scaffold byte-for-byte. Three options existed to encode which content belonged to which integration.
+
+- **Template engine** (Handlebars, Nunjucks, Jinja) - runs at scaffold time, produces different output for different toggles. Every writer (human, LLM) must learn the templating syntax, and there is a new build-time dependency in both the Node and Python packages.
+- **Duplicate templates**, one per active-set combination - four permutations for two integrations (none, graphify, obsidian, both). Adding a third integration would grow to eight. Every documentation edit lands in 2⁴ = 16 places for four integrations, and drift is guaranteed within a week.
+- **Fenced marker blocks** - HTML comments delimit each integration's content inside the single source-of-truth template. The Stage 2 persona pattern already used this shape (`<!-- persona:NAME -->`) and had proven zero-dep, grep-friendly, and invisible in every markdown viewer.
+
+Stage 8 chose the third. A single `<!-- integration:graphify -->` ... `<!-- /integration:graphify -->` block sits inside the template. At scaffold time, `stripIntegrations(source, active)` walks the source and either drops the block (integration off) or removes only the fence markers and keeps the body (integration on). The template stays readable — a human can see exactly what content each integration contributes because it lives right there, marked but not hidden.
+
+The pattern generalizes: **when a document has variant content, encode the variation inline with delimiters, not by duplicating the document or wrapping it in a templating language.** The delimiters make the variation locally visible; a plain-text file with markers is easier to review, easier to grep, and requires no runtime beyond a regex replacer.
+
+One subtlety: adding an integration post-scaffold requires content the current file no longer has (the marker fences were removed at init). Stage 8 solves this by re-deriving from the `.spec-init/base/` snapshot — the pristine payload that was already being kept for `spec-init upgrade`'s three-way merge. Re-using an existing invariant (the snapshot) was cheaper than inventing new state.
+
+### YAML front-matter that survives markdown formatters
+
+> Prettier reformats standalone `---` into thematic breaks. Markdownlint reads `---` right below a text line as a setext heading. How can a template file carry Obsidian's `---\ntags: [...]\n---` block AND pass both linters?
+
+Obsidian recognizes YAML front-matter only when the file starts with `---` on line 1 (with no leading whitespace or comments). Stage 8 needed the six `claude/*.md` templates plus `design/design.md` to carry front-matter when Obsidian is on and to omit it when Obsidian is off. Both states must lint clean because the template repo asserts `markdownlint` and `prettier --check` on every commit.
+
+Two markdown formatters interpret `---` differently:
+
+- **Prettier** treats a standalone `---` line as a thematic break (`<hr>`). It reformats them by inserting a blank line after, breaking the YAML syntax. Prettier only respects `---` as YAML front-matter when the whole block is at position 0 of the file — inside an HTML-comment-delimited region, it treats them as thematic breaks.
+- **Markdownlint** sees a text line followed by `---` on the next line as a setext-style H2 heading (`tags: [srs]` becomes "the heading text," `---` becomes "the setext underline"). MD003 then complains if any subsequent atx heading (`## Foo`) mixes styles, cascading multiple errors.
+
+Stage 8's compromise:
+
+1. **Inner `<!-- prettier-ignore-start -->` / `<!-- prettier-ignore-end -->` fences** wrap the YAML block inside the outer integration marker. Prettier respects these comments and skips reformatting the fenced region entirely.
+2. **The strip utility drops the prettier-ignore helper comments** at scaffold time. `stripIntegrations()` runs a post-pass `.replace(/<!--\s*prettier-ignore-(start|end)\s*-->\n?/g, '')` so the helper never appears in the scaffolded output. Combined with the leading-newline trim, this leaves `---` on line 1 where Obsidian expects it.
+3. **`MD003` and `MD022` disabled globally** in `.markdownlint.jsonc`. The local alternative — `<!-- markdownlint-disable -->` / `<!-- markdownlint-enable -->` directives around each front-matter block — would require threading their removal through strip too, doubling the escape-comment surface for one rule.
+
+The generalizable lesson: **tools that parse the same characters differently need mediating fences, not workarounds in the content itself.** The template's YAML front-matter is unchanged. The two linters are placated by two separate mechanisms (prettier: ignore comments; markdownlint: config), neither of which pollutes the semantic content. When the strip utility runs, both mechanisms are removed, and what lands on disk is exactly what Obsidian expects: `---\ntags: [srs, throughspec]\n---` on line 1.
+
+An alternative — using TOML front-matter (`+++`) which prettier does not misinterpret — was rejected because Obsidian's TOML support is more restrictive than YAML and third-party tools less consistently recognize it.
+
+### Surgical re-derive: touch only the files whose contract you're changing
+
+> `spec-init customize --add graphify` needs to inject content into files the user may have edited. How does it avoid overwriting Session-History entries in `context.md`?
+
+The tempting default is "regenerate the whole templated tree from the snapshot with the new active set." That is what `--persona` has always done for `CLAUDE.md`: read snapshot, apply strip with new persona, overwrite. Documented, accepted.
+
+Extended naively to `--add`/`--remove`, that policy would rewrite every `.md` file in the templated set — including `claude/context.md`, `claude/features.md`, `claude/learnings.md` — because each one carries an obsidian front-matter marker. If the user has been running `/spec-feature` and appending Session History entries to `context.md` for weeks, `customize --add graphify` would erase all of it. That is not a trade-off worth accepting for a checkbox toggle.
+
+The surgical fix: **scan the snapshot for files that contain the specific marker the current action is toggling, and re-derive only those.** Concretely:
+
+- `--add graphify` / `--remove graphify` → find files whose snapshot content contains `<!-- integration:graphify -->`. That is currently just `CLAUDE.md` and `README.md`. `context.md` carries only `<!-- integration:obsidian -->`, so it is not re-derived.
+- `--add obsidian` / `--remove obsidian` → find files with `<!-- integration:obsidian -->`. That includes the six `claude/*.md`, `design/design.md`, and both `CLAUDE.md` / `README.md`. Toggling obsidian *does* replay the memory files (because their front-matter is what makes graph-view work), and the doc clearly notes this trade-off — but toggling graphify leaves the memory files alone.
+- `--persona student` → find files with `<!-- persona:` — currently just `CLAUDE.md`. Same as the pre-Stage-8 behavior, unchanged.
+
+The wider principle: **the scope of a change should equal the scope of the contract that changed.** When only the Graphify contract changes, only files that opted into the Graphify contract get replayed. Files that opted into other contracts (obsidian, persona) or into no contract (CHANGELOG.md, plain memory files without markers) are untouched.
+
+Implementing this required nothing new: the snapshot already exists (Stage 3 introduced it for `upgrade`), the markers already exist (Stage 8 added them), and the scan is `snapContent.includes(marker)`. What matters is that the design principle was made explicit — "surgical re-derive by marker match" — instead of defaulting to "replay everything." A one-line change in intent, a thousand user edits preserved.

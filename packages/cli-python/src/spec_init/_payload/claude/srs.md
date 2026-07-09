@@ -1,3 +1,14 @@
+<!-- integration:obsidian -->
+<!-- prettier-ignore-start -->
+
+---
+tags: [srs, throughspec]
+aliases: [Requirements]
+---
+
+<!-- prettier-ignore-end -->
+<!-- /integration:obsidian -->
+
 # Software Requirements Specification
 
 > Built by `/spec-requirements`. Treat as frozen once approved. Re-run the skill to amend.

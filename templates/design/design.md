@@ -1,3 +1,14 @@
+<!-- integration:obsidian -->
+<!-- prettier-ignore-start -->
+
+---
+tags: [design, throughspec]
+aliases: [Design System]
+---
+
+<!-- prettier-ignore-end -->
+<!-- /integration:obsidian -->
+
 # Design System
 
 > Built by `/spec-design`. Single source of truth for the project's visual language.

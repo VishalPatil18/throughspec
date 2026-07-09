@@ -96,8 +96,19 @@ When invoked via \`/spec-docs\`:
 
 ## 8. Integrations active in this project
 
-- [ ] Graphify - _see \`.graphify/config.yml\`_
-- [ ] Obsidian - _vault rooted at project directory_
+<!-- Integration blocks below are inserted or removed by \`spec-init init --integrations …\` and \`spec-init customize --add/--remove <name>\`. If no block appears here, no integrations are active. -->
+
+<!-- integration:graphify -->
+
+- [x] **Graphify** - _see \`.graphify/config.yml\`_. Prefer Graphify queries over full-repo greps when available.
+
+<!-- /integration:graphify -->
+
+<!-- integration:obsidian -->
+
+- [x] **Obsidian** - _vault rooted at project directory_. The \`claude/\` and \`design/\` markdown files carry front-matter for graph-view rendering.
+
+<!-- /integration:obsidian -->
 
 ---
 
@@ -217,8 +228,19 @@ When invoked via \`/spec-docs\`:
 
 ## 8. Integrations active in this project
 
-- [ ] Graphify - _see \`.graphify/config.yml\`_
-- [ ] Obsidian - _vault rooted at project directory_
+<!-- Integration blocks below are inserted or removed by \`spec-init init --integrations …\` and \`spec-init customize --add/--remove <name>\`. If no block appears here, no integrations are active. -->
+
+<!-- integration:graphify -->
+
+- [x] **Graphify** - _see \`.graphify/config.yml\`_. Prefer Graphify queries over full-repo greps when available.
+
+<!-- /integration:graphify -->
+
+<!-- integration:obsidian -->
+
+- [x] **Obsidian** - _vault rooted at project directory_. The \`claude/\` and \`design/\` markdown files carry front-matter for graph-view rendering.
+
+<!-- /integration:obsidian -->
 
 ---
 
@@ -340,8 +362,19 @@ When invoked via \`/spec-docs\`:
 
 ## 8. Integrations active in this project
 
-- [ ] Graphify - _see \`.graphify/config.yml\`_
-- [ ] Obsidian - _vault rooted at project directory_
+<!-- Integration blocks below are inserted or removed by \`spec-init init --integrations …\` and \`spec-init customize --add/--remove <name>\`. If no block appears here, no integrations are active. -->
+
+<!-- integration:graphify -->
+
+- [x] **Graphify** - _see \`.graphify/config.yml\`_. Prefer Graphify queries over full-repo greps when available.
+
+<!-- /integration:graphify -->
+
+<!-- integration:obsidian -->
+
+- [x] **Obsidian** - _vault rooted at project directory_. The \`claude/\` and \`design/\` markdown files carry front-matter for graph-view rendering.
+
+<!-- /integration:obsidian -->
 
 ---
 
@@ -461,8 +494,19 @@ When invoked via \`/spec-docs\`:
 
 ## 8. Integrations active in this project
 
-- [ ] Graphify - _see \`.graphify/config.yml\`_
-- [ ] Obsidian - _vault rooted at project directory_
+<!-- Integration blocks below are inserted or removed by \`spec-init init --integrations …\` and \`spec-init customize --add/--remove <name>\`. If no block appears here, no integrations are active. -->
+
+<!-- integration:graphify -->
+
+- [x] **Graphify** - _see \`.graphify/config.yml\`_. Prefer Graphify queries over full-repo greps when available.
+
+<!-- /integration:graphify -->
+
+<!-- integration:obsidian -->
+
+- [x] **Obsidian** - _vault rooted at project directory_. The \`claude/\` and \`design/\` markdown files carry front-matter for graph-view rendering.
+
+<!-- /integration:obsidian -->
 
 ---
 

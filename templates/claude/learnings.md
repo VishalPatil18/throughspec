@@ -1,3 +1,14 @@
+<!-- integration:obsidian -->
+<!-- prettier-ignore-start -->
+
+---
+tags: [learnings, throughspec]
+aliases: [Learnings Log]
+---
+
+<!-- prettier-ignore-end -->
+<!-- /integration:obsidian -->
+
 # Learnings Log
 
 > Student-facing trail of concepts encountered while building. Each entry teaches _why_ a decision was made, not just _what_ was done.

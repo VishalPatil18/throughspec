@@ -79,12 +79,45 @@ describe('spec-init init', () => {
     expect(claude).not.toContain('For the Team Lead');
   });
 
-  it('flips integration checkboxes when --integrations is passed', () => {
+  it('activates integration blocks and payload files when --integrations is passed', () => {
     const dir = mkdtempSync(join(tmpdir(), 'throughspec-integ-'));
     initInto(dir, 'p', ['--persona', 'vibe', '--integrations', 'graphify,obsidian']);
-    const claude = readFileSync(join(dir, 'p/CLAUDE.md'), 'utf8');
-    expect(claude).toContain('- [x] Graphify');
-    expect(claude).toContain('- [x] Obsidian');
+    const proj = join(dir, 'p');
+    const claude = readFileSync(join(proj, 'CLAUDE.md'), 'utf8');
+    expect(claude).toContain('**Graphify**');
+    expect(claude).toContain('**Obsidian**');
+    // Marker fences are consumed at init and must not appear in the output.
+    expect(claude).not.toContain('<!-- integration:');
+    // Integration file trees are present on disk.
+    expect(existsSync(join(proj, '.graphify/config.yml'))).toBe(true);
+    expect(existsSync(join(proj, '.obsidian/workspace.json'))).toBe(true);
+    // Obsidian front-matter reaches every claude/*.md and design/design.md.
+    for (const rel of [
+      'claude/srs.md',
+      'claude/plan.md',
+      'claude/context.md',
+      'claude/features.md',
+      'claude/learnings.md',
+      'claude/design-decisions.md',
+      'design/design.md',
+    ]) {
+      const head = readFileSync(join(proj, rel), 'utf8').slice(0, 100);
+      expect(head.startsWith('---\n'), rel).toBe(true);
+    }
+  });
+
+  it('omits integration blocks and files when --integrations is not passed', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'throughspec-no-integ-'));
+    initInto(dir, 'p', ['--persona', 'engineer']);
+    const proj = join(dir, 'p');
+    const claude = readFileSync(join(proj, 'CLAUDE.md'), 'utf8');
+    expect(claude).not.toContain('**Graphify**');
+    expect(claude).not.toContain('**Obsidian**');
+    expect(claude).not.toContain('<!-- integration:');
+    expect(existsSync(join(proj, '.graphify'))).toBe(false);
+    expect(existsSync(join(proj, '.obsidian'))).toBe(false);
+    const srsHead = readFileSync(join(proj, 'claude/srs.md'), 'utf8').slice(0, 30);
+    expect(srsHead.startsWith('# ')).toBe(true);
   });
 
   it('refuses to overwrite a non-empty directory without --force', () => {

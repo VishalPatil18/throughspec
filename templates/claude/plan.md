@@ -1,3 +1,14 @@
+<!-- integration:obsidian -->
+<!-- prettier-ignore-start -->
+
+---
+tags: [plan, throughspec]
+aliases: [Build Plan]
+---
+
+<!-- prettier-ignore-end -->
+<!-- /integration:obsidian -->
+
 # Build Plan
 
 > Built by `/spec-plan`. 8–10 stages. Each stage MUST end in a standalone, testable, runnable deliverable.

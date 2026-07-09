@@ -1,3 +1,14 @@
+<!-- integration:obsidian -->
+<!-- prettier-ignore-start -->
+
+---
+tags: [decisions, throughspec]
+aliases: [Design Decisions]
+---
+
+<!-- prettier-ignore-end -->
+<!-- /integration:obsidian -->
+
 # Design Decisions Log
 
 > Append-only. Each decision is permanent context. If a decision is reversed, add a new entry that supersedes the old one - never delete history.

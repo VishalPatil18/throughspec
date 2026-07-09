@@ -20,5 +20,14 @@
   // Compact table alignment (templates use tight tables intentionally).
   "MD060": false,
   // Emphasis style: templates use underscore, which prettier preserves.
-  "MD049": { "style": "underscore" }
+  "MD049": { "style": "underscore" },
+  // Heading style: templates use atx (`##`) throughout, but the
+  // integration:obsidian front-matter fence line right below `tags:` gets
+  // misread as a setext heading. Turn the rule off to avoid the false
+  // positive; atx style is enforced by convention in the templates.
+  "MD003": false,
+  // Blank-lines-around-headings would flag the `---` fence line right below
+  // the `tags:` line of an obsidian front-matter block. Templates use
+  // prettier-ignore around these fences and the scaffold strips them cleanly.
+  "MD022": false
 }

@@ -10,8 +10,12 @@ from pathlib import Path
 
 from ..args import CliOptions, Integration, Persona, UsageError
 from ..checklist import post_init_checklist
+from ..integrations import strip_integrations
 from ..payload import resolve_payload_dir
 from ..persona import strip_personas
+
+# Payload prefix (forward-slash) that holds per-integration file trees.
+INTEGRATIONS_PREFIX = "_integrations/"
 
 
 @dataclass(frozen=True)
@@ -39,26 +43,32 @@ def run_init(opts: CliOptions) -> InitResult:
                 "       Pass --force to proceed, or choose a different name."
             )
 
-    files = _walk_payload(payload_dir)
+    all_files = _walk_payload(payload_dir)
+    # Files under _integrations/ are per-integration payloads. They are copied
+    # conditionally by _apply_integrations(), never as part of the base tree.
+    base_files = [rel for rel in all_files if not rel.startswith(INTEGRATIONS_PREFIX)]
 
     if opts.dry_run:
-        sys.stdout.write(f"[dry-run] would write {len(files)} files into {out_dir}\n")
-        for rel in files:
+        sys.stdout.write(f"[dry-run] would write {len(base_files)} files into {out_dir}\n")
+        for rel in base_files:
+            sys.stdout.write(f"[dry-run]   {rel}\n")
+        for rel in integration_files_for(payload_dir, opts.integrations):
             sys.stdout.write(f"[dry-run]   {rel}\n")
         return InitResult(out_dir=out_dir, files_written=0, dry_run=True)
 
     out_dir.mkdir(parents=True, exist_ok=True)
     written = 0
-    for rel in files:
+    for rel in base_files:
         src = payload_dir / rel
         dest = out_dir / rel
         dest.parent.mkdir(parents=True, exist_ok=True)
         content = _maybe_transform(rel, src.read_text(encoding="utf-8"), opts.persona, opts.integrations)
         dest.write_text(content, encoding="utf-8", newline="")
         written += 1
+    written += apply_integrations(payload_dir, out_dir, opts.integrations)
 
-    # Snapshot the raw payload for future three-way upgrades. dirs_exist_ok
-    # lets --force re-init overwrite an existing snapshot.
+    # Snapshot the raw payload (including _integrations/) for future
+    # `upgrade` and `customize` re-derives.
     base_dir = out_dir / ".spec-init" / "base"
     shutil.copytree(payload_dir, base_dir, dirs_exist_ok=True)
     meta = out_dir / ".spec-init" / "meta.json"
@@ -95,20 +105,45 @@ def _maybe_transform(
     persona: Persona | None,
     integrations: tuple[Integration, ...],
 ) -> str:
-    """Apply persona strip and integration checkbox flip to CLAUDE.md only."""
-    if rel != "CLAUDE.md":
+    """Apply persona strip and integration strip to `.md` files; others untouched."""
+    if not rel.endswith(".md"):
         return content
     out = content
-    if persona:
+    if rel == "CLAUDE.md" and persona:
         out = strip_personas(out, persona)
-    for name in integrations:
-        out = flip_integration(out, name, on=True)
+    out = strip_integrations(out, integrations)
     return out
 
 
-def flip_integration(content: str, name: Integration, *, on: bool) -> str:
-    """Flip the `- [ ] <Name>` line in CLAUDE.md section 8 to `- [x]` (or back)."""
-    label = "Graphify" if name == "graphify" else "Obsidian"
-    from_ = f"- [ ] {label}" if on else f"- [x] {label}"
-    to = f"- [x] {label}" if on else f"- [ ] {label}"
-    return content.replace(from_, to)
+def integration_files_for(
+    payload_dir: Path,
+    active: tuple[Integration, ...],
+) -> list[str]:
+    """List destination-relative paths that will be written for `active`."""
+    out: list[str] = []
+    for name in active:
+        root = payload_dir / "_integrations" / name
+        if not root.exists():
+            continue
+        out.extend(_walk_payload(root))
+    return sorted(out)
+
+
+def apply_integrations(
+    payload_dir: Path,
+    out_dir: Path,
+    active: tuple[Integration, ...],
+) -> int:
+    """Copy every file under _integrations/<name>/ into `out_dir` for active names."""
+    count = 0
+    for name in active:
+        root = payload_dir / "_integrations" / name
+        if not root.exists():
+            continue
+        for rel in _walk_payload(root):
+            src = root / rel
+            dest = out_dir / rel
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            dest.write_bytes(src.read_bytes())
+            count += 1
+    return count

@@ -78,11 +78,17 @@ Invoke any phase via Claude Code:
 
 ## Integrations
 
-<!-- Activate the ones you opted into during scaffold. -->
+<!-- Integration blocks below are inserted or removed by `spec-init init --integrations …` and `spec-init customize --add/--remove <name>`. If no block appears in this section, no integrations are active. -->
+
+<!-- integration:graphify -->
 
 ### Graphify
 
 This project is wired for [Graphify](https://graphify.net/) - a code knowledge graph over the codebase. Configuration lives in `.graphify/config.yml`.
+
+<!-- /integration:graphify -->
+
+<!-- integration:obsidian -->
 
 ### Obsidian
 
@@ -93,6 +99,8 @@ The `claude/` and `design/` directories form an [Obsidian](https://obsidian.md/)
 - **Excalidraw** - sketch architecture diagrams alongside specs
 
 Open the project folder in Obsidian to navigate the markdown graph visually.
+
+<!-- /integration:obsidian -->
 
 ---
 

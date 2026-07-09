@@ -280,7 +280,7 @@
 
 ## Stage 8 - Integrations (Graphify, Obsidian)
 
-- [ ] **Goal:** Ship the two optional integrations as fully toggleable add-ons (FR-INTEGRATE-01..03).
+- [x] **Goal:** Ship the two optional integrations as fully toggleable add-ons (FR-INTEGRATE-01..03). _Completed 2026-07-08._
 
 ### Scope-In
 

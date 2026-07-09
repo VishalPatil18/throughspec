@@ -31,7 +31,7 @@
 
 ## Current State
 
-**Stage:** Stage 7 complete - Maintenance Skills. Stage 8 (Integrations: Graphify, Obsidian) is next.
+**Stage:** Stage 8 complete - Integrations (Graphify, Obsidian). Stage 9 (Companion Website) is next.
 
 **Tech stack**
 
@@ -47,13 +47,15 @@
 
 - `packages/cli-node/` - Node CLI (Stage 3): `src/{index,args,payload,persona,checklist,three-way-merge}.ts` + `src/commands/{init,customize,add-skill,upgrade,doctor}.ts`. Ships `dist/templates/` alongside `dist/index.js`.
 - `packages/cli-python/` - Python CLI (Stage 4): `src/spec_init/{cli,args,payload,persona,checklist,three_way_merge}.py` + `commands/{init,customize,add_skill,upgrade,doctor}.py`. Wheel packages `_payload/` via hatchling `force-include`. Runtime dep: `merge3`.
-- `templates/` - single source-of-truth payload consumed by both CLIs.
+- `templates/` - single source-of-truth payload consumed by both CLIs. Stage 8 added `templates/_integrations/{graphify,obsidian}/` - optional per-integration file trees that init/customize copy conditionally and that walkPayload skips when producing the base tree.
 - `tools/check-payload-parity.mjs` - SHA-256 manifest parity check across both build outputs.
 - `tools/strip-personas.mjs` - Stage 2 persona-gate stripping utility (Node stdlib).
+- `tools/strip-integrations.mjs` - Stage 8 integration-gate stripping utility (Node stdlib). Also strips `<!-- prettier-ignore-{start,end} -->` helpers used inside obsidian front-matter fences and normalizes leading/trailing/interior whitespace so kept YAML front-matter lands on line 1.
 - `tools/count-tokens.mjs` - Stage 2 tiktoken (cl100k_base) token counter.
 - `tests/` - flat repo-level Vitest suite (payload parity, persona snapshots, token budget, lint, CLI end-to-end, doctor, upgrade merge, cross-language init parity, skill structural validators). See `tests/README.md` for the file map.
 - `templates/.claude/skills/` - canonical location for shipped skills. Stage 5 shipped `spec-requirements/`, `spec-design/`, `spec-plan/`. Stage 6 added `spec-feature/` and preliminary `spec-refactor/`. Stage 7 finalized `spec-refactor/` (audit trail) and added `spec-bug/`, `spec-docs/`, `spec-sync/`.
 - `templates/.claude/agents/` - canonical location for shipped sub-agents. Stage 6 shipped six agents. Stage 7 added `spec-bug-hunter` (Read, Grep, Bash). All seven SRS §2.2.4 agents now present, each with a frontmatter `tools:` allowlist pinned to the spec.
+- `packages/cli-node/src/integrations.ts` and `packages/cli-python/src/spec_init/integrations.py` - Stage 8 TS/Python ports of `stripIntegrations(source, active)`. Byte-parity with `tools/strip-integrations.mjs` guarded by `tests/integrations-parity.test.ts` and `packages/cli-python/tests/test_integrations.py`.
 - `skills/` (repo root) - intentionally empty redirect; readers point here first, README sends them to `templates/.claude/skills/`.
 - `agents/` (repo root) - intentionally empty redirect mirroring the `skills/` pattern.
 - `.markdownlint.jsonc` - lenient markdownlint config accepting HTML markers and template placeholders.
@@ -431,6 +433,70 @@
 
 ---
 
+## 2026-07-08 - Stage 8: Integrations (Graphify, Obsidian)
+
+**Prompt / trigger:** `/feature-dev` for Stage 8 (plan.md).
+
+**What was done:**
+
+- Introduced integration-marker fences (`<!-- integration:NAME -->` ... `<!-- /integration:NAME -->`) that mirror the persona-marker pattern from Stage 2. Wrapped `- [x]` list entries in `templates/CLAUDE.md` §8 and the `### Graphify` / `### Obsidian` sub-sections in `templates/README.md`. Prepended obsidian-fenced YAML front-matter (`tags`, `aliases`) to all six `templates/claude/*.md` files and `templates/design/design.md`.
+- Wrapped the YAML fence lines inside each obsidian block with `<!-- prettier-ignore-start -->` / `<!-- prettier-ignore-end -->` so prettier does not reformat `---` into thematic breaks (which would break Obsidian's line-1 front-matter requirement after strip).
+- Added a per-integration payload subtree under `templates/_integrations/`: `graphify/.graphify/config.yml` (with sensible defaults + include/exclude globs) and `obsidian/.obsidian/workspace.json` (with the memory files pinned in `lastOpenFiles`).
+- Wrote `tools/strip-integrations.mjs` (Node stdlib), `packages/cli-node/src/integrations.ts`, and `packages/cli-python/src/spec_init/integrations.py` - three-way byte-parity implementation of `stripIntegrations(source, active)`. All three keep a block's body when its NAME is in `active`, strip whole blocks otherwise, drop `<!-- prettier-ignore-{start,end} -->` helpers, and normalize whitespace so a kept front-matter block ends at line 1.
+- Rewrote both CLIs' `init` commands to skip the `_integrations/` payload prefix when producing the base tree, apply `stripIntegrations` to every `.md` file, then copy each active integration's file tree from `_integrations/<name>/` into the project root. The snapshot in `.spec-init/base/` still receives the full raw payload (including `_integrations/`) so `upgrade` and `customize` can re-derive.
+- Rewrote both CLIs' `customize` commands (removing the old `flipIntegration()` code path entirely). `--add` / `--remove` load `.spec-init/meta.json`, compute the next active set, re-derive **only** files whose snapshot content contains `<!-- integration:<target> -->` (with the new active set + current persona), and either copy the `_integrations/<target>/` file tree into the project or delete it and prune emptied directories. `--persona` re-derives only files containing `<!-- persona:` (currently `CLAUDE.md`).
+- Extended `.markdownlint.jsonc` with `MD003: false` and `MD022: false` because both rules misread the `---` fence line right below `tags:` as a setext H2. Alternatives (per-file HTML disable directives) required threading their removal through strip - the config flip was less invasive.
+- Wrote `tests/integrations.test.ts` (Stage 8 acceptance: three toggle-roundtrip cases + external-link check), `tests/integrations-parity.test.ts` (TS ↔ mjs strip parity across four fixture files × four active sets = 16 cases), and `packages/cli-python/tests/test_integrations.py` (Python ↔ mjs parity + a Python-CLI-driven roundtrip + meta.json state assertion). Rewrote `tests/customize.test.ts` for the marker-based flow. Extended `tests/init.test.ts` with integrations-on / integrations-off assertions on file trees and front-matter placement. Extended `tests/cli-parity.test.ts` to do full-tree byte parity across CLIs when integrations are on.
+- Regenerated persona snapshots (`tests/stage2/__snapshots__/personas.test.ts.snap`) because the CLAUDE.md §8 rewrite changed the persona strip output.
+- Rebuilt Node CLI (`npm run build -w packages/cli-node`) and refreshed both Python payload copies via `cp -R`. `tools/check-payload-parity.mjs` exits 0 with 33 files matching SHA-256 (up from 31 in Stage 7).
+- Full Vitest suite: 149 passed / 1 skipped / 0 failed. ESLint on `packages/cli-node/src` clean. Python tests not run locally (`uv` not installed on the dev machine); ad-hoc Python ↔ mjs parity check on `templates/claude/srs.md` matches for all four active sets. Python `py_compile` on all changed files exits clean.
+
+**Files touched:**
+
+- `templates/CLAUDE.md` - update - §8 checkbox lines wrapped in integration:graphify / integration:obsidian fences.
+- `templates/README.md` - update - `### Graphify` / `### Obsidian` sub-sections wrapped in integration fences.
+- `templates/claude/{srs,plan,context,features,learnings,design-decisions}.md` - update - obsidian-fenced YAML front-matter prepended with inner prettier-ignore fences.
+- `templates/design/design.md` - update - obsidian-fenced YAML front-matter prepended.
+- `templates/_integrations/graphify/.graphify/config.yml` - create - Graphify integration config.
+- `templates/_integrations/obsidian/.obsidian/workspace.json` - create - Obsidian workspace layout.
+- `tools/strip-integrations.mjs` - create - integration-marker strip utility (stdlib).
+- `packages/cli-node/src/integrations.ts` - create - TS port of stripIntegrations().
+- `packages/cli-python/src/spec_init/integrations.py` - create - Python port of stripIntegrations().
+- `packages/cli-node/src/commands/init.ts` - update - skip `_integrations/`, apply stripIntegrations to every .md, copy per-integration file trees for active names. Removed `flipIntegration()`.
+- `packages/cli-node/src/commands/customize.ts` - rewrite - snapshot-driven re-derive by marker match; add/remove copy or delete integration file trees; prune emptied directories.
+- `packages/cli-python/src/spec_init/commands/init.py` - update - Python mirror of the Node init changes.
+- `packages/cli-python/src/spec_init/commands/customize.py` - rewrite - Python mirror of the Node customize rewrite.
+- `.markdownlint.jsonc` - update - disabled MD003 and MD022 so the YAML front-matter fence isn't misread as a setext H2.
+- `tests/integrations.test.ts` - create - Stage 8 toggle-roundtrip acceptance.
+- `tests/integrations-parity.test.ts` - create - TS ↔ mjs strip parity across four fixtures × four active sets.
+- `tests/customize.test.ts` - rewrite - assertions against the new marker-based flow.
+- `tests/init.test.ts` - update - integrations-on / integrations-off tree assertions + front-matter placement check.
+- `tests/cli-parity.test.ts` - update - full-tree byte parity across CLIs when integrations are on.
+- `packages/cli-python/tests/test_integrations.py` - create - Python ↔ mjs parity + Python-CLI roundtrip.
+- `tests/stage2/__snapshots__/personas.test.ts.snap` - update - regenerated snapshots after CLAUDE.md §8 rewrite.
+- `packages/cli-node/dist/**` and both Python payload copies - update - copy-in-place refresh; parity script exits 0 (33 files).
+- `claude/plan.md` - update - Stage 8 checkbox to [x].
+
+**Decisions made:**
+
+- **Marker fences over a template engine.** The Stage 2 persona pattern generalizes: `<!-- integration:NAME -->` ... `<!-- /integration:NAME -->` is zero-dep, grep-friendly, renders as nothing in any markdown viewer, and lets a single source-of-truth template file describe both the on-state and the off-state.
+- **Per-integration payload subtree.** `templates/_integrations/<name>/` keeps the unified `templates/` source-of-truth intact while giving init/customize a bounded list of files to copy or delete. `walkPayload()` filters by prefix; no new build wiring, no new parity edge cases.
+- **Snapshot-driven re-derive on customize.** Adding an integration post-init requires content the project's live files no longer have (the marker fences were consumed at init time). The `.spec-init/base/` snapshot already exists to support `upgrade`; reusing it for `customize` avoids new on-disk state.
+- **Surgical re-derive by marker match.** Rather than blanket-overwriting every templated file on customize, both CLIs scan the snapshot for files containing `<!-- integration:<target> -->` (or `<!-- persona:` for --persona) and only rewrite those. Preserves user edits to memory files that don't host the marker.
+- **`<!-- prettier-ignore-start/-end -->` inside each obsidian block.** Prettier reformats standalone `---` into a thematic break with blank lines around, which breaks Obsidian's line-1 front-matter requirement. Prettier-ignore keeps the template lint-clean; the strip utility drops the helper comments so scaffolded output has YAML on line 1.
+- **Markdownlint MD003 + MD022 turned off (not per-block disable).** Both rules misread the `---` fence line right below `tags:` as a setext H2. Disabling globally is one edit vs threading `<!-- markdownlint-disable -->` / `<!-- markdownlint-enable -->` (plus stripping their comments) through every affected file.
+- **`flipIntegration()` deleted, not deprecated.** The old checkbox-flipper is fundamentally incompatible with the marker-fence model (there are no `- [ ]` lines to flip anymore — an inactive integration produces no content at all). Keeping it around as a no-op would confuse future readers.
+- **Three-implementation parity, matching persona.** `tools/strip-integrations.mjs` is the reference; the TS and Python ports are byte-parity-tested against it. Same pattern as persona; four implementations would be the break-even point for extracting a shared spec.
+
+**Open questions / follow-ups:**
+
+- `uv` is not installed on this dev machine, so the Python pytest suite for Stage 8 was not run locally. Ad-hoc Python ↔ mjs strip parity confirmed on `srs.md`; full suite runs at CI/Stage 10.
+- `spec-init doctor` does not yet cross-check `meta.json.integrations` against on-disk artifacts (e.g. verify `.graphify/config.yml` exists iff `graphify` is in meta). Optional Stage 10 polish.
+- Customize's snapshot-driven re-derive will replay CLAUDE.md §8 and README.md's Integrations section from the snapshot — user edits to those sections after init are lost when toggling. This is the same trade-off `--persona` has always had for CLAUDE.md; document it in the website's Customization Recipes (Stage 9) so users know to make integration decisions before manually editing those files.
+- The `_integrations/` payload prefix is a naming convention. If more optional payloads appear (e.g. Stage 10 might add a `.claude/refactor-audits/` placeholder), consider hoisting the "conditional payload subtree" idea into a formal manifest instead of relying on the prefix.
+
+---
+
 ## Key Decisions
 
 - **2026-06-29** - Single `templates/` tree consumed by both packagers; parity enforced by SHA-256 manifest. Prevents npm/PyPI drift (SRS Risk row 6).
@@ -456,6 +522,9 @@
 - **2026-07-02** - `spec-refactor` writes an on-disk audit log per pass. This is compensating control (drift becomes observable at review time) rather than preventive (Claude Code doesn't yet expose tool-call scope enforcement at dispatch time).
 - **2026-07-02** - Bug fixes are a separate track from feature cycles: `spec-bug` writes only `CHANGELOG.md`, never the memory layer.
 - **2026-07-02** - `spec-sync` compression retains recency verbatim and folds older material into a summary, with `compressed-from` block + git history making rollback trivial.
+- **2026-07-08** - Integration gating uses HTML-comment fences (`<!-- integration:NAME -->`) mirroring the Stage 2 persona pattern. Per-integration files live in `templates/_integrations/<name>/` and are copied/deleted conditionally; the `_integrations/` prefix is skipped by walkPayload when producing the base tree.
+- **2026-07-08** - `spec-init customize --add/--remove` re-derives affected files from the `.spec-init/base/` snapshot, not from the current live files (the current files no longer contain the marker fences after init consumes them). The re-derive is surgical: only files whose snapshot content contains the target integration's marker are rewritten, preserving user edits to memory files that don't host it.
+- **2026-07-08** - Obsidian YAML front-matter blocks in the templates are wrapped in `<!-- prettier-ignore-start -->` / `<!-- prettier-ignore-end -->` fences, and the strip utility drops those helper comments. This is the smallest change that keeps prettier from reformatting `---` into a thematic break while still landing YAML on line 1 in the scaffolded output.
 
 ## Open Questions / TODOs
 
@@ -465,7 +534,9 @@
 - [x] Wire Stage 4 (`spec-init` Python CLI) to invoke an equivalent Python strip function (mirror `strip-personas.mjs` behavior byte-for-byte). _Resolved 2026-07-01 via `packages/cli-python/src/spec_init/persona.py` with the Python↔mjs parity test in `packages/cli-python/tests/test_persona.py`._
 - [ ] Extract the persona-marker convention into a shared JSON/YAML spec if a fourth implementation ever appears; three files are the current break-even.
 - [x] `--version` as a top-level short-circuit. _Resolved 2026-07-01: Python CLI accepts `--version` before any command. Node CLI still requires a subcommand; consider aligning in Stage 10._
-- [ ] Cross-language parity coverage for `customize` and `upgrade` outputs (currently only `init`).
+- [ ] Cross-language parity coverage for `customize` and `upgrade` outputs (currently only `init`; Stage 8 extended `init` parity to cover integrations).
+- [ ] Extend `spec-init doctor` to cross-check `.spec-init/meta.json` integrations against on-disk artifacts (`.graphify/`, `.obsidian/`) - Stage 10 polish.
+- [ ] Document the customize-replays-templated-files trade-off in the Stage 9 website's Customization Recipes so users understand `--add`/`--remove` will replay CLAUDE.md §8 and README.md's Integrations section from the snapshot.
 - [ ] Verify `pipx install ./dist/spec-init-0.1.0a0-py3-none-any.whl` succeeds locally before Stage 10 publish.
 - [ ] Wire a hatch build hook so editable installs auto-refresh `packages/cli-python/src/spec_init/_payload/` from the outer `_payload/` (Stage 10).
 - [ ] Consider a minimum-length lint rule on SKILL.md files to catch accidental truncation.

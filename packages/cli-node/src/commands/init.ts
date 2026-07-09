@@ -1,8 +1,9 @@
 // spec-init init <name> [--persona] [--integrations] [--force] [--dry-run]
 //
-// Copies the shipped payload into <name>/, strips persona-gated blocks,
-// flips integration checkboxes, and stashes a snapshot in <name>/.spec-init/base/
-// so future `upgrade` runs have a three-way merge base.
+// Copies the shipped payload into <name>/, strips persona-gated and
+// integration-gated blocks, layers in files for any active integrations,
+// and stashes a snapshot in <name>/.spec-init/base/ so future `upgrade` runs
+// have a three-way merge base.
 
 import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';
@@ -10,7 +11,11 @@ import { UsageError } from '../args.js';
 import type { CliOptions, Integration, Persona } from '../args.js';
 import { resolvePayloadDir } from '../payload.js';
 import { stripPersonas } from '../persona.js';
+import { stripIntegrations } from '../integrations.js';
 import { postInitChecklist } from '../checklist.js';
+
+/** Payload prefix (forward-slash) that holds per-integration file trees. */
+export const INTEGRATIONS_PREFIX = '_integrations/';
 
 interface InitResult {
   outDir: string;
@@ -35,16 +40,23 @@ export function runInit(opts: CliOptions): InitResult {
     }
   }
 
-  const files = walkPayload(payloadDir);
+  const allFiles = walkPayload(payloadDir);
+  // Files under _integrations/ are per-integration payloads. They are copied
+  // conditionally by applyIntegrations(), never as part of the base tree.
+  const baseFiles = allFiles.filter((rel) => !rel.startsWith(INTEGRATIONS_PREFIX));
+
   if (opts.dryRun) {
-    process.stdout.write(`[dry-run] would write ${files.length} files into ${outDir}\n`);
-    for (const rel of files) process.stdout.write(`[dry-run]   ${rel}\n`);
+    process.stdout.write(`[dry-run] would write ${baseFiles.length} files into ${outDir}\n`);
+    for (const rel of baseFiles) process.stdout.write(`[dry-run]   ${rel}\n`);
+    for (const rel of integrationFilesFor(payloadDir, opts.integrations)) {
+      process.stdout.write(`[dry-run]   ${rel}\n`);
+    }
     return { outDir, filesWritten: 0, dryRun: true };
   }
 
   mkdirSync(outDir, { recursive: true });
   let written = 0;
-  for (const rel of files) {
+  for (const rel of baseFiles) {
     const src = join(payloadDir, rel);
     const dest = join(outDir, rel);
     mkdirSync(dirname(dest), { recursive: true });
@@ -52,8 +64,10 @@ export function runInit(opts: CliOptions): InitResult {
     writeFileSync(dest, content);
     written += 1;
   }
+  written += applyIntegrations(payloadDir, outDir, opts.integrations);
 
-  // Snapshot the raw (untransformed) payload for future three-way upgrades.
+  // Snapshot the raw (untransformed) payload - including _integrations/ - so
+  // future `upgrade` and `customize` runs can re-derive from a pristine base.
   const baseDir = join(outDir, '.spec-init', 'base');
   cpSync(payloadDir, baseDir, { recursive: true });
   writeFileSync(
@@ -83,28 +97,53 @@ function walkPayload(root: string): string[] {
   return out.sort();
 }
 
-/** Apply persona strip and integration checkbox flip to CLAUDE.md; other files untouched. */
+/** Apply persona and integration strips to `.md` files; other files untouched. */
 function maybeTransform(
   relPath: string,
   content: string,
   persona: Persona | null,
   integrations: readonly Integration[],
 ): string {
-  if (relPath !== 'CLAUDE.md') return content;
+  if (!relPath.endsWith('.md')) return content;
   let out = content;
-  if (persona) out = stripPersonas(out, persona);
-  for (const name of integrations) {
-    out = flipIntegration(out, name, true);
-  }
+  if (relPath === 'CLAUDE.md' && persona) out = stripPersonas(out, persona);
+  out = stripIntegrations(out, integrations);
   return out;
 }
 
-/** Flip the `- [ ] <Name>` line in section 8 of CLAUDE.md to `- [x]` (or back). */
-export function flipIntegration(content: string, name: Integration, on: boolean): string {
-  const label = name === 'graphify' ? 'Graphify' : 'Obsidian';
-  const from = on ? '- [ ] ' + label : '- [x] ' + label;
-  const to = on ? '- [x] ' + label : '- [ ] ' + label;
-  return content.replace(from, to);
+/** List destination-relative paths that will be written for `active`. */
+export function integrationFilesFor(
+  payloadDir: string,
+  active: readonly Integration[],
+): string[] {
+  const out: string[] = [];
+  for (const name of active) {
+    const root = join(payloadDir, '_integrations', name);
+    if (!existsSync(root)) continue;
+    for (const rel of walkPayload(root)) out.push(rel);
+  }
+  return out.sort();
+}
+
+/** Copy every file under _integrations/<name>/ into `outDir` for active names. */
+export function applyIntegrations(
+  payloadDir: string,
+  outDir: string,
+  active: readonly Integration[],
+): number {
+  let count = 0;
+  for (const name of active) {
+    const root = join(payloadDir, '_integrations', name);
+    if (!existsSync(root)) continue;
+    for (const rel of walkPayload(root)) {
+      const src = join(root, rel);
+      const dest = join(outDir, rel);
+      mkdirSync(dirname(dest), { recursive: true });
+      writeFileSync(dest, readFileSync(src));
+      count += 1;
+    }
+  }
+  return count;
 }
 
 /** Suppresses unused-var lint for statSync import needed only in tests. */

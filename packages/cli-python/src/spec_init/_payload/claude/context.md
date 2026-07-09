@@ -1,3 +1,14 @@
+<!-- integration:obsidian -->
+<!-- prettier-ignore-start -->
+
+---
+tags: [context, throughspec]
+aliases: [Project Context]
+---
+
+<!-- prettier-ignore-end -->
+<!-- /integration:obsidian -->
+
 # Project Context - Compressed Snapshot
 
 > Single source of truth for "what exists right now." Updated at the end of every feature cycle by `/spec-feature` and reconciled by `/spec-sync`.

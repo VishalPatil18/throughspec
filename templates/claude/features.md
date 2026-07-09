@@ -1,3 +1,14 @@
+<!-- integration:obsidian -->
+<!-- prettier-ignore-start -->
+
+---
+tags: [features, throughspec]
+aliases: [Features Log]
+---
+
+<!-- prettier-ignore-end -->
+<!-- /integration:obsidian -->
+
 # Features Log
 
 > Append-only log of features. Each entry is the final shape of one feature cycle.
