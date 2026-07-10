@@ -1,0 +1,599 @@
+# Instincts generated from https://github.com/VishalPatil18/throughspec
+# Generated: 2026-07-10T05:15:19.102Z
+# Version: 2.0
+# NOTE: This file supplements (does not replace) any existing curated instincts.
+# High-confidence manually curated instincts should be preserved alongside these.
+
+---
+id: throughspec-commit-conventional
+trigger: "when writing a commit message"
+confidence: 0.85
+domain: git
+source: repo-analysis
+source_repo: https://github.com/VishalPatil18/throughspec
+---
+
+# Throughspec Commit Conventional
+
+## Action
+
+Use conventional commit format with prefixes: feat, fix
+
+## Evidence
+
+- 12 commits analyzed
+- Detected conventional commit pattern
+- Examples: fix: template md files, feat: Canonical Project Payload
+
+---
+id: throughspec-commit-length
+trigger: "when writing a commit message"
+confidence: 0.6
+domain: git
+source: repo-analysis
+source_repo: https://github.com/VishalPatil18/throughspec
+---
+
+# Throughspec Commit Length
+
+## Action
+
+Keep commit messages concise (~28 characters)
+
+## Evidence
+
+- Average commit message length: 28 chars
+- Based on 12 commits
+
+---
+id: throughspec-naming-files
+trigger: "when creating a new file"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: https://github.com/VishalPatil18/throughspec
+---
+
+# Throughspec Naming Files
+
+## Action
+
+Use camelCase naming convention
+
+## Evidence
+
+- Analyzed file naming patterns in repository
+- Dominant pattern: camelCase
+
+---
+id: throughspec-import-relative
+trigger: "when importing modules"
+confidence: 0.75
+domain: code-style
+source: repo-analysis
+source_repo: https://github.com/VishalPatil18/throughspec
+---
+
+# Throughspec Import Relative
+
+## Action
+
+Use relative imports for project files
+
+## Evidence
+
+- Import analysis shows relative import pattern
+- Example: import { x } from '../lib/x'
+
+---
+id: throughspec-export-style
+trigger: "when exporting from a module"
+confidence: 0.7
+domain: code-style
+source: repo-analysis
+source_repo: https://github.com/VishalPatil18/throughspec
+---
+
+# Throughspec Export Style
+
+## Action
+
+Prefer named exports
+
+## Evidence
+
+- Export pattern analysis
+- Dominant style: named
+
+---
+id: throughspec-test-separate
+trigger: "when writing tests"
+confidence: 0.8
+domain: testing
+source: repo-analysis
+source_repo: https://github.com/VishalPatil18/throughspec
+---
+
+# Throughspec Test Separate
+
+## Action
+
+Place tests in the tests/ or __tests__/ directory, mirroring src structure
+
+## Evidence
+
+- Separate test directory pattern detected
+- Tests live in dedicated test folders
+
+---
+id: throughspec-test-framework
+trigger: "when writing tests"
+confidence: 0.9
+domain: testing
+source: repo-analysis
+source_repo: https://github.com/VishalPatil18/throughspec
+---
+
+# Throughspec Test Framework
+
+## Action
+
+Use playwright as the test framework
+
+## Evidence
+
+- Test framework detected: playwright
+- File pattern: *.test.ts
+
+---
+id: throughspec-test-naming
+trigger: "when creating a test file"
+confidence: 0.85
+domain: testing
+source: repo-analysis
+source_repo: https://github.com/VishalPatil18/throughspec
+---
+
+# Throughspec Test Naming
+
+## Action
+
+Name test files using the pattern: *.test.ts
+
+## Evidence
+
+- File pattern: *.test.ts
+- Consistent across test files
+
+---
+id: throughspec-test-types
+trigger: "when planning tests for a feature"
+confidence: 0.7
+domain: testing
+source: repo-analysis
+source_repo: https://github.com/VishalPatil18/throughspec
+---
+
+# Throughspec Test Types
+
+## Action
+
+Write unit, integration, e2e tests to match project standards
+
+## Evidence
+
+- Test types detected: unit, integration, e2e
+- Coverage config: no
+
+---
+id: throughspec-workflow-feature-development
+trigger: "when implementing a new feature"
+confidence: 0.9
+domain: workflow
+source: repo-analysis
+source_repo: https://github.com/VishalPatil18/throughspec
+---
+
+# Throughspec Workflow Feature Development
+
+## Action
+
+Follow the feature-development workflow:
+1. Add feature implementation
+2. Add tests for feature
+3. Update documentation
+
+## Evidence
+
+- Workflow detected from commit patterns
+- Frequency: ~25x per month
+- Files: tests/stage2/*, packages/cli-node/src/*, packages/cli-node/src/commands/*
+
+---
+id: throughspec-workflow-add-new-skill-or-agent
+trigger: "when doing add new skill or agent"
+confidence: 0.65
+domain: workflow
+source: repo-analysis
+source_repo: https://github.com/VishalPatil18/throughspec
+---
+
+# Throughspec Workflow Add New Skill Or Agent
+
+## Action
+
+Follow the add-new-skill-or-agent workflow:
+1. Create or update SKILL.md or agent markdown in templates/.claude/skills/ or templates/.claude/agents/
+2. Mirror the new skill or agent in packages/cli-python/src/spec_init/_payload/.claude/skills/ or .../agents/
+3. Update tests (e.g., tests/skills.test.ts, tests/agents.test.ts, tests/init.test.ts)
+4. Update claude/context.md, claude/learnings.md, claude/plan.md
+
+## Evidence
+
+- Workflow detected from commit patterns
+- Frequency: ~3x per month
+- Files: templates/.claude/skills/*/SKILL.md, templates/.claude/agents/*.md, packages/cli-python/src/spec_init/_payload/.claude/skills/*/SKILL.md
+
+---
+id: throughspec-workflow-scaffolding-cli-development
+trigger: "when doing scaffolding cli development"
+confidence: 0.6
+domain: workflow
+source: repo-analysis
+source_repo: https://github.com/VishalPatil18/throughspec
+---
+
+# Throughspec Workflow Scaffolding Cli Development
+
+## Action
+
+Follow the scaffolding-cli-development workflow:
+1. Add or update CLI source files (commands, args, persona, payload, etc.) in packages/cli-node or packages/cli-python
+2. Add or update README and package/pyproject files for the CLI
+3. Add or update tests for CLI commands and features
+4. Update claude/context.md, claude/learnings.md, claude/plan.md
+
+## Evidence
+
+- Workflow detected from commit patterns
+- Frequency: ~2x per month
+- Files: packages/cli-node/src/commands/*.ts, packages/cli-node/src/*.ts, packages/cli-node/README.md
+
+---
+id: throughspec-workflow-template-and-docs-update
+trigger: "when doing template and docs update"
+confidence: 0.65
+domain: workflow
+source: repo-analysis
+source_repo: https://github.com/VishalPatil18/throughspec
+---
+
+# Throughspec Workflow Template And Docs Update
+
+## Action
+
+Follow the template-and-docs-update workflow:
+1. Edit markdown files in templates/ and claude/ directories
+2. Update config files for issue templates or markdown linting
+3. Update related documentation in tests/ or tools/
+4. Update claude/context.md, claude/learnings.md, claude/plan.md
+
+## Evidence
+
+- Workflow detected from commit patterns
+- Frequency: ~3x per month
+- Files: templates/**/*.md, templates/.github/ISSUE_TEMPLATE/*, claude/*.md
+
+---
+id: throughspec-workflow-website-feature-development
+trigger: "when doing website feature development"
+confidence: 0.6
+domain: workflow
+source: repo-analysis
+source_repo: https://github.com/VishalPatil18/throughspec
+---
+
+# Throughspec Workflow Website Feature Development
+
+## Action
+
+Follow the website-feature-development workflow:
+1. Add or update page files in website/app/
+2. Update or add components in website/components/
+3. Edit or add supporting files (lib, config, styles, etc.)
+4. Update website/package.json and related configs
+5. Update claude/context.md, claude/learnings.md, claude/plan.md if needed
+
+## Evidence
+
+- Workflow detected from commit patterns
+- Frequency: ~2x per month
+- Files: website/app/**/*.tsx, website/components/**/*.tsx, website/lib/**/*.ts
+
+---
+id: throughspec-workflow-integration-feature-addition
+trigger: "when doing integration feature addition"
+confidence: 0.6
+domain: workflow
+source: repo-analysis
+source_repo: https://github.com/VishalPatil18/throughspec
+---
+
+# Throughspec Workflow Integration Feature Addition
+
+## Action
+
+Follow the integration-feature-addition workflow:
+1. Add or update integration config files in templates/_integrations/
+2. Mirror integration files in packages/cli-python/src/spec_init/_payload/_integrations/
+3. Update CLI integration logic in packages/cli-node or packages/cli-python
+4. Add or update tests for integrations
+5. Update claude/context.md, claude/learnings.md, claude/plan.md
+6. Update or add supporting tools/scripts
+
+## Evidence
+
+- Workflow detected from commit patterns
+- Frequency: ~2x per month
+- Files: templates/_integrations/**/*, packages/cli-python/src/spec_init/_payload/_integrations/**/*, packages/cli-node/src/integrations.ts
+
+---
+id: throughspec-instinct-file-naming
+trigger: "When creating or renaming a file in the codebase"
+confidence: 0.9
+domain: code-style
+source: repo-analysis
+source_repo: VishalPatil18/throughspec
+---
+
+# Throughspec Instinct File Naming
+
+## Action
+
+Use camelCase for files, PascalCase for classes, and SCREAMING_SNAKE_CASE for constants
+
+## Evidence
+
+- Pattern in codeStyle.namingConventions
+- Files in packages/cli-node/src/ and website/components/
+
+---
+id: throughspec-instinct-import-style
+trigger: "When importing modules in TypeScript files"
+confidence: 0.85
+domain: code-style
+source: repo-analysis
+source_repo: VishalPatil18/throughspec
+---
+
+# Throughspec Instinct Import Style
+
+## Action
+
+Use relative import paths
+
+## Evidence
+
+- Pattern in codeStyle.importStyle
+- Files in packages/cli-node/src/commands/*.ts
+
+---
+id: throughspec-instinct-export-style
+trigger: "When exporting functions or classes in TypeScript"
+confidence: 0.85
+domain: code-style
+source: repo-analysis
+source_repo: VishalPatil18/throughspec
+---
+
+# Throughspec Instinct Export Style
+
+## Action
+
+Use named exports
+
+## Evidence
+
+- Pattern in codeStyle.exportStyle
+- Files in packages/cli-node/src/*.ts
+
+---
+id: throughspec-instinct-test-file-pattern
+trigger: "When adding a test file"
+confidence: 0.9
+domain: testing
+source: repo-analysis
+source_repo: VishalPatil18/throughspec
+---
+
+# Throughspec Instinct Test File Pattern
+
+## Action
+
+Name the file with the pattern *.test.ts
+
+## Evidence
+
+- Pattern in testing.filePattern
+- Files in tests/*.test.ts
+
+---
+id: throughspec-instinct-test-types
+trigger: "When writing tests"
+confidence: 0.8
+domain: testing
+source: repo-analysis
+source_repo: VishalPatil18/throughspec
+---
+
+# Throughspec Instinct Test Types
+
+## Action
+
+Include unit, integration, and e2e tests as appropriate
+
+## Evidence
+
+- Pattern in testing.testTypes
+- Files in tests/ and website/playwright.config.ts
+
+---
+id: throughspec-instinct-playwright-framework
+trigger: "When setting up or updating test frameworks"
+confidence: 0.85
+domain: testing
+source: repo-analysis
+source_repo: VishalPatil18/throughspec
+---
+
+# Throughspec Instinct Playwright Framework
+
+## Action
+
+Use Playwright for automated testing
+
+## Evidence
+
+- Pattern in testing.framework
+- Config in website/playwright.config.ts
+
+---
+id: throughspec-instinct-conventional-commits
+trigger: "When writing a commit message"
+confidence: 0.95
+domain: git
+source: repo-analysis
+source_repo: VishalPatil18/throughspec
+---
+
+# Throughspec Instinct Conventional Commits
+
+## Action
+
+Use conventional commit format with 'feat' or 'fix' prefixes
+
+## Evidence
+
+- Pattern in commits.prefixes
+- Examples: 'feat: Canonical Project Payload', 'fix: template md files'
+
+---
+id: throughspec-instinct-commit-length
+trigger: "When composing a commit message"
+confidence: 0.7
+domain: git
+source: repo-analysis
+source_repo: VishalPatil18/throughspec
+---
+
+# Throughspec Instinct Commit Length
+
+## Action
+
+Keep the commit message concise (around 28 characters on average)
+
+## Evidence
+
+- Pattern in commits.averageLength
+- Examples: 'feat: Node.js Scaffolding CLI'
+
+---
+id: throughspec-instinct-add-skill-or-agent
+trigger: "When someone wants to introduce a new skill or agent to the system"
+confidence: 0.95
+domain: workflow
+source: repo-analysis
+source_repo: VishalPatil18/throughspec
+---
+
+# Throughspec Instinct Add Skill Or Agent
+
+## Action
+
+Create or update SKILL.md or agent markdown in templates/.claude/skills/ or templates/.claude/agents/, mirror in Python CLI payload, update tests, and update claude/context.md, claude/learnings.md, claude/plan.md
+
+## Evidence
+
+- Workflow: add-new-skill-or-agent
+- Commits and files in templates/.claude/skills/*/SKILL.md, packages/cli-python/src/spec_init/_payload/.claude/skills/*/SKILL.md, tests/skills.test.ts
+
+---
+id: throughspec-instinct-scaffold-cli
+trigger: "When someone wants to add or enhance a CLI tool for project scaffolding"
+confidence: 0.9
+domain: workflow
+source: repo-analysis
+source_repo: VishalPatil18/throughspec
+---
+
+# Throughspec Instinct Scaffold Cli
+
+## Action
+
+Add or update CLI source files, README, package/pyproject files, tests, and claude documentation
+
+## Evidence
+
+- Workflow: scaffolding-cli-development
+- Commits and files in packages/cli-node/src/commands/*.ts, packages/cli-python/src/spec_init/commands/*.py, tests/*.test.ts
+
+---
+id: throughspec-instinct-update-docs
+trigger: "When someone wants to revise or fix documentation templates or markdown files"
+confidence: 0.88
+domain: workflow
+source: repo-analysis
+source_repo: VishalPatil18/throughspec
+---
+
+# Throughspec Instinct Update Docs
+
+## Action
+
+Edit markdown files in templates/ and claude/ directories, update config files for issue templates or markdown linting, update related documentation in tests/ or tools/, and update claude documentation
+
+## Evidence
+
+- Workflow: template-and-docs-update
+- Commits and files in templates/**/*.md, .markdownlint.jsonc, claude/*.md
+
+---
+id: throughspec-instinct-website-feature
+trigger: "When someone wants to add or update website pages, UI components, or site configuration"
+confidence: 0.85
+domain: workflow
+source: repo-analysis
+source_repo: VishalPatil18/throughspec
+---
+
+# Throughspec Instinct Website Feature
+
+## Action
+
+Add or update files in website/app/, website/components/, website/lib/, website/package.json, and claude documentation if needed
+
+## Evidence
+
+- Workflow: website-feature-development
+- Commits and files in website/app/**/*.tsx, website/components/**/*.tsx, website/lib/**/*.ts
+
+---
+id: throughspec-instinct-add-integration
+trigger: "When someone wants to introduce or update an integration with an external tool or platform"
+confidence: 0.85
+domain: workflow
+source: repo-analysis
+source_repo: VishalPatil18/throughspec
+---
+
+# Throughspec Instinct Add Integration
+
+## Action
+
+Add or update integration config files in templates/_integrations/, mirror in Python CLI payload, update CLI integration logic, add or update tests, update claude documentation, and update or add supporting tools/scripts
+
+## Evidence
+
+- Workflow: integration-feature-addition
+- Commits and files in templates/_integrations, packages/cli-python/src/spec_init/_payload/_integrations, packages/cli-node/src/integrations.ts
+
