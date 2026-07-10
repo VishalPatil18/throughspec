@@ -137,8 +137,8 @@ export const PAGES: Record<string, DocPage> = {
         items: [
           { n: '1', title: '/spec-requirements', desc: 'At least three rounds of cross-questioning, then freezes claude/srs.md. Refuses to proceed while any of the five mandatory categories is empty.' },
           { n: '2', title: '/spec-design', desc: 'Extracts a design system from your references, or proposes one from the SRS. Never fabricates brand colors when a reference is supplied.' },
-          { n: '3', title: '/spec-plan', desc: 'Produces an 8-10 stage build plan, each ending in a standalone, testable, runnable deliverable.' },
-          { n: '4', title: '/spec-feature', desc: 'Enters the 6-phase feature cycle: Requirements → Architecting → Product Specs → Tech Specs → Planning → Writing Code.' },
+          { n: '3', title: '/spec-plan', desc: 'Produces an 8-10 step build plan, each ending in a standalone, testable, runnable deliverable.' },
+          { n: '4', title: '/spec-feature', desc: 'Enters the feature cycle: Requirements → Architecting → Product Specs → Tech Specs → Planning → Writing Code.' },
         ],
       },
       {
@@ -159,7 +159,7 @@ export const PAGES: Record<string, DocPage> = {
     label: 'Workflows',
     title: 'Workflows',
     intro:
-      'The Kit ships three workflows: the initiation cycle (once per project), the 6-phase feature cycle (once per feature), and the maintenance skills (as needed).',
+      'The Kit ships three workflows: the initiation cycle (once per project), the feature cycle (once per feature), and the maintenance skills (as needed).',
     blocks: [
       { t: 'h2', id: 'initiation', text: 'Initiation cycle' },
       { t: 'p', text: 'Run once, right after scaffold. Produces the three foundational documents that gate every future feature.' },
@@ -168,19 +168,19 @@ export const PAGES: Record<string, DocPage> = {
         items: [
           { term: '/spec-requirements', desc: 'Cross-questions until the SRS is complete, then freezes claude/srs.md. Refuses on empty load-bearing categories.' },
           { term: '/spec-design', desc: 'Builds design/design.md from user-supplied references or, when none are provided, proposes one from the SRS.' },
-          { term: '/spec-plan', desc: 'Emits claude/plan.md with 8-10 staged deliverables, each ending in a standalone, testable, runnable outcome.' },
+          { term: '/spec-plan', desc: 'Emits claude/plan.md with 8-10 step deliverables, each ending in a standalone, testable, runnable outcome.' },
         ],
       },
-      { t: 'h2', id: 'feature', text: '6-phase feature cycle' },
-      { t: 'p', text: '/spec-feature runs six ordered phases against a single stage from the plan. Skipping a phase requires an explicit --skip <phase> flag AND a logged entry in design-decisions.md.' },
+      { t: 'h2', id: 'feature', text: 'Feature cycle' },
+      { t: 'p', text: '/spec-feature runs six ordered steps against a single item from the plan. Skipping a step requires an explicit --skip <step> flag AND a logged entry in design-decisions.md.' },
       {
         t: 'steps',
         items: [
-          { n: '1', title: 'Requirements', desc: 'Cross-question transcript → features.md. Locked-in problem statement for this stage.' },
+          { n: '1', title: 'Requirements', desc: 'Cross-question transcript → features.md. Locked-in problem statement for this step.' },
           { n: '2', title: 'Architecting', desc: '≥2 architectural options with tradeoffs. Rejected options are recorded, not deleted.' },
           { n: '3', title: 'Product Specs', desc: 'UI, UX, entities, DB schema - everything the code needs to be unambiguous.' },
           { n: '4', title: 'Tech Specs', desc: 'Concrete stack + deploy targets; rejected alternatives noted.' },
-          { n: '5', title: 'Planning', desc: 'Staged plan with acceptance criteria; each step verifiable end-to-end.' },
+          { n: '5', title: 'Planning', desc: 'Step-by-step plan with acceptance criteria; each step verifiable end-to-end.' },
           { n: '6', title: 'Writing Code', desc: 'Implement → test → refactor → memory update. Memory is written in a fixed order: context.md → features.md → design-decisions.md → learnings.md → CHANGELOG.md.' },
         ],
       },
@@ -248,7 +248,7 @@ export const PAGES: Record<string, DocPage> = {
     intro:
       'For the Student persona: the sequence of concepts you traverse while shipping a first real project through Throughspec. Each concept is answered in learnings.md as you go.',
     blocks: [
-      { t: 'h2', id: 'phase-one', text: 'Phase 1 - Deciding' },
+      { t: 'h2', id: 'deciding', text: 'Deciding' },
       {
         t: 'defs',
         items: [
@@ -257,7 +257,7 @@ export const PAGES: Record<string, DocPage> = {
           { term: 'Load-bearing categories', desc: 'Users, jobs-to-be-done, success metric, constraints, non-goals. Skip one and the code drifts.' },
         ],
       },
-      { t: 'h2', id: 'phase-two', text: 'Phase 2 - Designing' },
+      { t: 'h2', id: 'designing', text: 'Designing' },
       {
         t: 'defs',
         items: [
@@ -266,25 +266,25 @@ export const PAGES: Record<string, DocPage> = {
           { term: 'Surfaces', desc: 'The map of physical UI regions - nav, content, marginalia. Design happens per surface, not per page.' },
         ],
       },
-      { t: 'h2', id: 'phase-three', text: 'Phase 3 - Planning' },
+      { t: 'h2', id: 'planning', text: 'Planning' },
       {
         t: 'defs',
         items: [
-          { term: 'Staged plan', desc: 'Why 8-10 stages, each with a standalone-testable-runnable deliverable. Each stage ships or the plan is wrong.' },
+          { term: 'Step-by-step plan', desc: 'Why 8-10 steps, each with a standalone-testable-runnable deliverable. Each step ships or the plan is wrong.' },
           { term: 'Acceptance criteria', desc: 'Turning "make it work" into a runnable test. Weak criteria demand constant clarification.' },
           { term: 'Effort bands', desc: 'S / M / L relative sizing. Absolute time estimates lie; relative sizing survives.' },
         ],
       },
-      { t: 'h2', id: 'phase-four', text: 'Phase 4 - Building' },
+      { t: 'h2', id: 'building', text: 'Building' },
       {
         t: 'defs',
         items: [
-          { term: 'The 6 phases', desc: 'Requirements → Architecting → Product → Tech → Planning → Writing Code. Ordered because each depends on the previous.' },
+          { term: 'The 6 steps', desc: 'Requirements → Architecting → Product → Tech → Planning → Writing Code. Ordered because each depends on the previous.' },
           { term: 'Sub-agents', desc: 'Tool-scoped actors. spec-interrogator can only Read. spec-coder can Write. Least-privilege by construction.' },
           { term: 'Memory-update order', desc: 'context.md first, CHANGELOG.md last. Why the order matters when compaction runs.' },
         ],
       },
-      { t: 'h2', id: 'phase-five', text: 'Phase 5 - Maintaining' },
+      { t: 'h2', id: 'maintaining', text: 'Maintaining' },
       {
         t: 'defs',
         items: [
@@ -297,7 +297,7 @@ export const PAGES: Record<string, DocPage> = {
         t: 'callout',
         variant: 'tip',
         label: 'Write it down',
-        text: 'After every phase, ask Claude "Why this step?" and append the answer to learnings.md. Six months later, that log is worth more than the code.',
+        text: 'After every step, ask Claude "Why this step?" and append the answer to learnings.md. Six months later, that log is worth more than the code.',
       },
     ],
   },

@@ -1,7 +1,11 @@
 import Link from 'next/link';
-import RevealOnScroll from '@/components/RevealOnScroll';
+import FadeIn from '@/components/motion/FadeIn';
 
-export const metadata = { title: 'Why Throughspec' };
+export const metadata = {
+  title: 'Why Throughspec',
+  description:
+    'Open-ended prompting drifts. Context cost balloons. Decisions get lost. Throughspec replaces all three with a process that compounds.',
+};
 
 const BEFORE = [
   'Open-ended prompts wander off intent with no spec to anchor them.',
@@ -45,26 +49,28 @@ const PERSONAS = [
 export default function WhyPage() {
   return (
     <main className="bg-warm font-serif text-ink">
-      <RevealOnScroll />
-
       <section className="mx-auto max-w-[900px] px-8 pb-12 pt-20 text-center">
-        <div className="reveal mb-7 inline-flex items-center gap-[9px] rounded-pill border border-ink px-4 py-[7px] text-xs">
+        <FadeIn className="mb-7 inline-flex items-center gap-[9px] rounded-pill border border-ink px-4 py-[7px] text-xs">
           WHY THROUGHSPEC
-        </div>
-        <h1 className="reveal d-1 mb-[22px] text-[60px] font-normal leading-[1.06] tracking-tighter2">
-          Vibe-coding gets you started.
-          <br />
-          Structure gets you shipped.
-        </h1>
-        <p className="reveal d-2 mx-auto max-w-[600px] text-[17px] leading-[1.55] tracking-tighter2 text-muted">
-          Open-ended prompting drifts. Context cost balloons. Decisions get lost. Throughspec replaces all three with a
-          process that compounds.
-        </p>
+        </FadeIn>
+        <FadeIn delay={0.05}>
+          <h1 className="mb-[22px] text-[60px] font-normal leading-[1.06] tracking-tighter2">
+            Vibe-coding gets you started.
+            <br />
+            Structure gets you shipped.
+          </h1>
+        </FadeIn>
+        <FadeIn delay={0.12}>
+          <p className="mx-auto max-w-[600px] text-[17px] leading-[1.55] tracking-tighter2 text-muted">
+            Open-ended prompting drifts. Context cost balloons. Decisions get lost. Throughspec replaces all three with a
+            process that compounds.
+          </p>
+        </FadeIn>
       </section>
 
       <section className="mx-auto max-w-[1100px] px-8 pb-14 pt-6">
         <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-          <div className="reveal rounded-[32px] border border-black/25 bg-warm p-10">
+          <FadeIn className="rounded-[32px] border border-black/25 bg-warm p-10">
             <div className="mb-[22px] text-xs uppercase tracking-[0.06em] text-dim">Vibe-driven</div>
             <div className="flex flex-col gap-4">
               {BEFORE.map((b) => (
@@ -74,8 +80,8 @@ export default function WhyPage() {
                 </div>
               ))}
             </div>
-          </div>
-          <div className="reveal d-1 rounded-[32px] bg-cloud p-10">
+          </FadeIn>
+          <FadeIn delay={0.08} className="rounded-[32px] bg-cloud p-10">
             <div className="mb-[22px] text-xs uppercase tracking-[0.06em] text-muted">Throughspec</div>
             <div className="flex flex-col gap-4">
               {AFTER.map((a) => (
@@ -85,42 +91,43 @@ export default function WhyPage() {
                 </div>
               ))}
             </div>
-          </div>
+          </FadeIn>
         </div>
       </section>
 
       <section className="mx-auto max-w-[900px] px-8 py-6">
-        {BELIEFS.map((b) => (
-          <div
+        {BELIEFS.map((b, i) => (
+          <FadeIn
             key={b.num}
-            className="reveal grid grid-cols-[120px_1fr] gap-8 border-t border-black/10 py-10"
+            delay={i * 0.06}
+            className="grid grid-cols-[120px_1fr] gap-8 border-t border-black/10 py-10"
           >
             <div className="pt-1.5 text-[13px] text-dim">{b.num}</div>
             <div>
               <h2 className="mb-[14px] text-[30px] font-normal leading-[1.12] tracking-tighter2">{b.title}</h2>
               <p className="text-[15.5px] leading-[1.65] tracking-tighter2 text-muted">{b.body}</p>
             </div>
-          </div>
+          </FadeIn>
         ))}
         <div className="border-t border-black/10" />
       </section>
 
       <section className="mx-auto max-w-[1100px] px-8 py-14">
-        <div className="reveal mb-10 text-center">
+        <FadeIn className="mb-10 text-center">
           <h2 className="text-[40px] font-normal tracking-tighter2">Built for four kinds of builder.</h2>
-        </div>
+        </FadeIn>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          {PERSONAS.map((p) => (
-            <div key={p.name} className="reveal rounded-3xl border border-ink bg-warm p-8">
+          {PERSONAS.map((p, i) => (
+            <FadeIn key={p.name} delay={i * 0.05} className="rounded-3xl border border-ink bg-warm p-8">
               <div className="mb-[10px] text-2xl tracking-tighter2">{p.name}</div>
               <p className="text-sm leading-[1.55] tracking-tighter2 text-muted">{p.body}</p>
-            </div>
+            </FadeIn>
           ))}
         </div>
       </section>
 
       <section className="mx-auto max-w-content px-8 pb-20">
-        <div className="reveal rounded-[40px] bg-dark px-12 py-16 text-center">
+        <FadeIn className="rounded-[40px] bg-dark px-12 py-16 text-center">
           <h2 className="mb-[14px] text-[44px] font-normal leading-[1.1] tracking-tighter2 text-warm">
             Stop re-deriving. Start shipping.
           </h2>
@@ -131,7 +138,7 @@ export default function WhyPage() {
           >
             Get started &rsaquo;
           </Link>
-        </div>
+        </FadeIn>
       </section>
     </main>
   );

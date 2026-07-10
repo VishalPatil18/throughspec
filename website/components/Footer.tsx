@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import BrandMark from './BrandMark';
+import CopyableCommand from './CopyableCommand';
 
 const COLUMNS: { title: string; items: { label: string; href: string }[] }[] = [
   {
@@ -55,12 +56,14 @@ export default function Footer() {
               structure keeps the work from drifting.
             </div>
             <div className="flex gap-2">
-              <code className="rounded-lg border border-ink bg-white px-3 py-[7px] font-mono text-xs text-ink">
-                npx spec-init
-              </code>
-              <code className="rounded-lg border border-ink bg-white px-3 py-[7px] font-mono text-xs text-ink">
-                pipx install spec-init
-              </code>
+              <CopyableCommand
+                text="npx spec-init"
+                className="rounded-lg border border-ink bg-white px-3 py-[7px] text-xs text-ink"
+              />
+              <CopyableCommand
+                text="pipx install spec-init"
+                className="rounded-lg border border-ink bg-white px-3 py-[7px] text-xs text-ink"
+              />
             </div>
           </div>
 
@@ -91,14 +94,8 @@ export default function Footer() {
             © 2026 Throughspec v1.0.0 · MIT licensed
           </div>
           <div className="flex gap-6">
-            <Link href="/privacy/" className="text-xs text-dim no-underline">
-              Privacy
-            </Link>
-            <Link href="/terms/" className="text-xs text-dim no-underline">
-              Terms
-            </Link>
-            <Link href="/about/" className="text-xs text-dim no-underline">
-              About
+            <Link href="/hire-the-developer/" className="text-xs text-dim underline">
+              Hire the Developer
             </Link>
             <span className="text-xs text-dim">Spec-driven. Drift-proof. Token-lean.</span>
           </div>

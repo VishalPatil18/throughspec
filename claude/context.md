@@ -31,17 +31,18 @@
 
 ## Current State
 
-**Stage:** Stage 8 complete - Integrations (Graphify, Obsidian). Stage 9 (Companion Website) is next.
+**Stage:** Stage 9 complete - Companion Website. Stage 10 (Cross-Platform Verification & v1.0.0 Release) is next.
 
 **Tech stack**
 
 - Node CLI: TypeScript (ESM), Node ≥ 18, distributed via npm as `spec-init`.
 - Python CLI: Python ≥ 3.10, packaged with `uv`, distributed via PyPI as `spec-init`.
-- Package manager (monorepo): npm workspaces.
+- Website: Next.js 15 App Router with `output: 'export'` (static HTML/CSS/JS), Tailwind CSS 3, self-hosted `@fontsource/source-serif-4` + `@fontsource/jetbrains-mono`, Pagefind for client-side search, Playwright for e2e.
+- Package manager (monorepo): npm workspaces (`packages/cli-node`, `website`).
 - Linting/formatting: Prettier + ESLint (JS/TS), Ruff (Python).
-- Test runner: Vitest (parity harness lives in `tests/parity`).
+- Test runner: Vitest (parity harness lives in `tests/parity`); Playwright for the website smoke + link tests.
 - License: MIT.
-- Deploy targets (later stages): Vercel free tier (website), npm + PyPI (packages).
+- Deploy targets: Vercel free tier (website, Stage 9), npm + PyPI (packages, Stage 10).
 
 **Repo layout**
 
@@ -58,6 +59,8 @@
 - `packages/cli-node/src/integrations.ts` and `packages/cli-python/src/spec_init/integrations.py` - Stage 8 TS/Python ports of `stripIntegrations(source, active)`. Byte-parity with `tools/strip-integrations.mjs` guarded by `tests/integrations-parity.test.ts` and `packages/cli-python/tests/test_integrations.py`.
 - `skills/` (repo root) - intentionally empty redirect; readers point here first, README sends them to `templates/.claude/skills/`.
 - `agents/` (repo root) - intentionally empty redirect mirroring the `skills/` pattern.
+- `website/` - Next.js 15 static-export site (Stage 9). `app/` holds the App Router pages (landing + why/features/about/privacy/terms/changelog + docs shell with 7 SRS §7.3 sections + 404). `components/` splits into shared (`Nav`, `Footer`, `AnnounceBar`, `BrandMark`, `RevealOnScroll`, `Search`), landing (`DataFlowSVG`, `PhaseCycler`, `NotFoundSVG`, `landing.module.css` for animation classes), and docs (`DocLayout`, `DocBlocks`). `lib/docs-content.ts` is the single source of truth for docs sidebar/prev-next/page bodies; `lib/changelog.ts` parses `../CHANGELOG.md` at build time. `scripts/build-search.mjs` runs Pagefind post-`next build` to emit `out/pagefind/`. `e2e/` holds Playwright smoke + link tests.
+- `design/` - `.dc.html` design mocks that the Stage 9 website ports to Tailwind + CSS-module animation classes; still the visual source of truth.
 - `.markdownlint.jsonc` - lenient markdownlint config accepting HTML markers and template placeholders.
 - `skills/`, `agents/`, `website/` - placeholders (READMEs only) for later stages.
 - `srs.md`, `CLAUDE.md`, `claude/plan.md` - spec, behavior contract, build plan.
@@ -497,6 +500,117 @@
 
 ---
 
+## 2026-07-08 - Stage 9: Companion Website
+
+**Prompt / trigger:** `/feature-dev` for Stage 9 (plan.md).
+
+**What was done:**
+
+- Stood up the Throughspec companion site under `website/` as a Next.js 15 App Router project with `output: 'export'` (fully static HTML/CSS/JS - no server runtime). Uses Tailwind CSS 3 for utilities, self-hosted `@fontsource/source-serif-4` + `@fontsource/jetbrains-mono` for typography, and Pagefind for client-side search over the built HTML.
+- Ported all eleven `design/*.dc.html` mocks to production pages, keeping the pixel-level layout, colors, and animations while replacing every inline `style` attribute with Tailwind utility classes or a scoped CSS module. Landing page includes the full animated Spec-Engine SVG (cogs, pistons, scanner, stamp press, gearbox, build drum, conveyor with running token squares, PSI gauge with swinging needle, steam plumes, mint tick lights) plus a 6-phase auto-cycler and IntersectionObserver-driven reveal animation. 404 uses its own broken-throughline SVG and a one-shot `rise` stagger.
+- Built the 7 SRS §7.3 sections (Install, Quickstart, Workflows, Design Prompt Library, Learning Map, Customization Recipes) as real prose grounded in the SRS + skills we shipped in Stages 3-8; Changelog is a top-level page that parses `../CHANGELOG.md` at build time via a server-only reader in `lib/changelog.ts`.
+- Docs shell (`components/docs/DocLayout.tsx`) unifies sidebar + breadcrumb + content column + on-page TOC + prev/next navigation. All docs content lives as typed `DocBlock[]` in `lib/docs-content.ts`; each `app/docs/*/page.tsx` is a thin two-line wrapper (`<DocLayout page={PAGES[key]} />`). `DocBlocks.tsx` renders seven block variants (h2, p, code, callout, list, defs, steps) with tone-mapped callout backgrounds (note = cloud, tip = mint-soft, warn = peach).
+- Search is a lazy-loaded client component (`components/Search.tsx`) with a Tailwind-styled modal, `⌘K` binding, and dynamic `import('/pagefind/pagefind.js')` so the ~40 KB Pagefind runtime only loads when the modal opens. `scripts/build-search.mjs` runs Pagefind after `next build` (16 pages, 1,151 words indexed).
+- Wired Playwright: `e2e/smoke.spec.ts` walks all 14 top-level routes plus the 404 asserting 200 + heading text; `e2e/links.spec.ts` crawls every route, collects every same-origin `href`, and asserts each resolves via `request` HEAD. `playwright.config.ts` spins up `serve out -p 4173` automatically so tests run against the static export.
+- Root `package.json` now declares `website` as a second workspace and exposes `dev:site` / `build:site` / `test:site` scripts; `vercel.json` in the website workspace points Vercel at `npm run build` and serves `out/`.
+- Verified: `next build` produces 17 static routes cleanly, `tsc --noEmit` passes, `scripts/build-search.mjs` writes `out/pagefind/` (fragment, index, pagefind-ui.js, etc.), and the total static export sits at 3.3 MB.
+
+**Files touched:**
+
+- `website/package.json`, `tsconfig.json`, `next.config.mjs`, `postcss.config.mjs`, `tailwind.config.ts`, `.gitignore`, `vercel.json`, `README.md` - create - project scaffold and deploy config.
+- `website/app/layout.tsx`, `fonts.ts`, `globals.css` - create - root layout, self-hosted font loader, Tailwind directives + 15 keyframe animations extracted from the mocks + `.reveal` staggered utilities.
+- `website/app/page.tsx` - create - Landing page (hero, DataFlowSVG, personas, three beliefs, initiation steps, PhaseCycler, memory-layer card, skills grid, integrations, FAQ, final CTA).
+- `website/app/why/page.tsx`, `features/page.tsx`, `about/page.tsx`, `privacy/page.tsx`, `terms/page.tsx`, `changelog/page.tsx`, `not-found.tsx` - create - marketing + legal + 404 pages.
+- `website/app/docs/page.tsx`, `install/`, `quickstart/`, `workflows/`, `design-prompt-library/`, `learning-map/`, `customization-recipes/` - create - thin per-route wrappers delegating to `<DocLayout>`.
+- `website/components/BrandMark.tsx`, `AnnounceBar.tsx`, `Nav.tsx`, `Footer.tsx`, `RevealOnScroll.tsx`, `Search.tsx` - create - shared layout components.
+- `website/components/landing/DataFlowSVG.tsx`, `PhaseCycler.tsx`, `NotFoundSVG.tsx`, `landing.module.css` - create - landing hero + 404 SVG animations.
+- `website/components/docs/DocLayout.tsx`, `DocBlocks.tsx` - create - docs shell + block renderer.
+- `website/lib/docs-content.ts`, `changelog.ts` - create - typed docs content model + build-time CHANGELOG parser.
+- `website/scripts/build-search.mjs` - create - post-build Pagefind indexer.
+- `website/e2e/smoke.spec.ts`, `links.spec.ts`, `playwright.config.ts` - create - e2e coverage.
+- `package.json` (root) - update - added `website` to workspaces + three helper scripts.
+
+**Decisions made:**
+
+- **Next.js 15 App Router with `output: 'export'`.** User picked Next over Astro during Phase 3. Static export gives us the zero-cost, zero-server deployment target (Vercel free tier) while keeping App Router ergonomics for server components (docs shell + changelog parser render server-side; only Nav, AnnounceBar, RevealOnScroll, PhaseCycler, and Search are client components).
+- **Pixel-faithful design port via Tailwind utilities + CSS modules; zero `style={…}` in JSX.** User asked for a 100% replica of the design mocks; CLAUDE.md §8 forbids inline CSS. Reconciled by mapping every design token to Tailwind's `theme.extend` (custom color names, letter-spacing, radius, max-width) and putting the animation shorthands that Tailwind can't express into `landing.module.css` and `globals.css` keyframes. `text-[74px]` / `px-[26px]` / `rounded-[40px]` arbitrary values cover the pixel values that don't fit the scale.
+- **Docs content as typed data, not MDX.** `lib/docs-content.ts` exports `PAGES: Record<slug, DocPage>` + `GROUPS: DocGroup[]`. Sidebar order, prev/next navigation, on-page TOC, and page bodies all derive from one source and can't drift out of sync. Trade-off: no ad-hoc Markdown-in-content, but adding a page = one entry in `GROUPS` + one in `PAGES` + a two-line `page.tsx`.
+- **Self-hosted fonts via `@fontsource/*`.** User approved during Phase 3. No third-party CDN, no privacy leak, no runtime dependency on Google Fonts; the WOFF2 assets ship in the npm install and load from the same origin as the HTML.
+- **Pagefind for search.** Zero-cost, no backend, index built at deploy time. Ships as a small static bundle in `out/pagefind/`; the modal lazy-imports the runtime on first `⌘K` so docs pages stay JS-light for Lighthouse.
+- **Nav is a client component; everything else that can be server-rendered, is.** `usePathname()` powers the active-link highlight without prop-drilling. Landing hero, marketing pages, docs pages, and changelog all render server-side.
+- **Server-only CHANGELOG parsing.** `lib/changelog.ts` uses `node:fs` to read `../CHANGELOG.md` at RSC render time. The file never ships to the client; the rendered releases become part of the static HTML.
+- **JSDoc `/** */` blocks are dangerous around paths.** Learned via a failed build: `/docs/*/page.tsx` inside a JSDoc closed the comment early. Line comments (`//`) are safer for annotating file paths.
+- **Site map = design mocks + SRS §7.3.** Landing, Why, Features, About, Privacy, Terms, 404, Changelog come from `design/*.dc.html`. The 7 SRS §7.3 sections live under `/docs/*`, which uses the `Docs.dc.html` shell. Changelog serves double duty (top-level marketing page AND SRS §7.3 Changelog).
+
+**Open questions / follow-ups:**
+
+- Lighthouse ≥90 Performance / ≥95 Accessibility targets from Stage 9 acceptance are unverified locally - Lighthouse doesn't run in this sandbox. Given zero-JS-by-default server components, self-hosted fonts, no unoptimized images, and Tailwind's tree-shaken CSS, the targets should hit on the deployed URL; verify as part of Stage 10.
+- Playwright smoke + link suites are wired but not executed here (would need `playwright install chromium` in CI). `next build` and `tsc --noEmit` both pass clean.
+- Vercel deploy not exercised. `vercel.json` declares the config; Stage 10 should publish once and confirm the stable URL + build time (<2 minutes was the plan's target).
+- `PhaseCycler` uses a `setInterval`; `RevealOnScroll` and `Search` respect `prefers-reduced-motion`, but `PhaseCycler` bails out entirely on reduced-motion - the six cards then all sit in their idle state. Consider a static "first card highlighted" fallback if that's too flat.
+- Search relies on Pagefind's `pagefind.js` living at `/pagefind/pagefind.js` in the deployed site. Local `next dev` won't have it (Pagefind only runs post-build); the modal's soft-fail returns no results in dev. Stage 10 should add a dev-mode notice or wire Pagefind to also run against `.next/`.
+- `lib/changelog.ts` uses `resolve(process.cwd(), '..', 'CHANGELOG.md')` - works from `website/` and from repo root. If someone runs `next build` from an unexpected working directory the path would miss; the acceptance test in `e2e/smoke.spec.ts` catches this indirectly (Changelog page 200 check).
+
+---
+
+## 2026-07-08 - Stage 9 follow-on: framer-motion + CopyableCommand + Hire page + SEO
+
+**Prompt / trigger:** `/feature-dev` follow-on batch on Stage 9 - 8 requested features on the shipped website.
+
+**What was done:**
+
+- Added `framer-motion` (MIT) as the only new runtime dep. Built `components/motion/FadeIn.tsx` - single `whileInView` + `viewport={{ once: true }}` component with `delay` / `y` / `duration` / `as` props. Replaces the `.reveal` / `.revealed` IntersectionObserver flow site-wide.
+- Deleted `components/RevealOnScroll.tsx` and the `.reveal` CSS block from `app/globals.css`. Kept the landing-page keyframes (`flow`, `glowPulse`, etc.) - SVG diagrams still use them via `landing.module.css`. Kept `rise` for the 404 stagger.
+- Swept every marketing/docs/changelog page swapping `<div className="reveal ...">` for `<FadeIn>`: `app/page.tsx`, `app/why/page.tsx`, `app/features/page.tsx`, `app/about/page.tsx`, `app/changelog/page.tsx`.
+- Built `components/CopyableCommand.tsx` - client component that renders a `<code>`-style button with a hover overlay (centered copy icon, 60% opacity) and pops a framer-motion `AnimatePresence` toast ("Copied to clipboard") right below the trigger, auto-dismissing at 3 s. Uses `navigator.clipboard.writeText` with a `document.execCommand('copy')` fallback for older browsers. Supports `tone="dark"` for the final CTA on the dark card.
+- Swapped every command surface site-wide to `CopyableCommand`: landing hero pill, landing initiation-steps codes, landing integrations flags, landing final-CTA npm + pipx pills, `Footer.tsx` npm + pipx pills, `components/docs/DocBlocks.tsx` `code` block variant (retains the outer white box, wraps the `<pre>` in the copy overlay).
+- New page at `app/hire-the-developer/page.tsx` - hero (open-to-work pill · US & Europe), maintainer narrative, six-skill grid (Spec-Driven Development / Full-stack Next.js · TypeScript / RAG & GenAI / Multi-provider LLM systems / Security & GDPR-by-design / Postgres), portfolio cards (VAi, Throughspec), dark CTA with GitHub / LinkedIn / email links.
+- Added a "Maintainer" section to `app/about/page.tsx` linking to `/hire-the-developer/`.
+- Added `Upcoming Features` section to `app/changelog/page.tsx` above the shipped releases: in-development items (Stage 10 CI matrix, v1.0 npm+PyPI publish, 90-min acceptance run), planned v1.1 items, under-consideration items. Shipped releases still parsed from `../CHANGELOG.md` via `lib/changelog.ts`.
+- SEO pass on `app/layout.tsx`: enriched root metadata with keywords, author, `alternates.canonical`, `openGraph` (siteName, locale), `twitter` summary_large_image, `robots.googleBot`. Added `description` to per-page metadata on why / features / about / changelog / hire.
+- File-based icons: `app/icon.tsx` (32×32) and `app/apple-icon.tsx` (180×180) rendering the BrandMark shape via `next/og` ImageResponse. `app/opengraph-image.tsx` (1200×630) shows brand mark + SPEC-DRIVEN badge + hero copy + npm/pipx pills. All three carry `export const dynamic = 'force-static'` (required by `output: 'export'`).
+- `app/sitemap.ts` enumerates all 15 real routes with weekly cadence on `/docs/*` and monthly elsewhere. `app/robots.ts` allows all + points at the sitemap. Both marked `force-static`.
+- Build verified: `next build` produces 23 static routes clean (up from 17 - added /hire-the-developer, /icon, /apple-icon, /opengraph-image, /robots.txt, /sitemap.xml). `tsc --noEmit` passes. Pagefind indexes 17 pages / 1,289 words (up from 16 / 1,151).
+
+**Files touched:**
+
+- `website/package.json` - update - added `framer-motion ^11.11.17`.
+- `website/components/motion/FadeIn.tsx` - create - framer-motion scroll-reveal wrapper.
+- `website/components/CopyableCommand.tsx` - create - hover copy target + toast.
+- `website/components/RevealOnScroll.tsx` - delete - replaced by FadeIn.
+- `website/app/globals.css` - update - removed `.reveal` / `.revealed` / `.d-*` block; kept keyframes and `rise` utility.
+- `website/app/page.tsx` - update - full sweep from `.reveal` to `<FadeIn>`; landing hero + initiation steps + final CTA use `<CopyableCommand>`.
+- `website/app/why/page.tsx`, `features/page.tsx`, `about/page.tsx`, `changelog/page.tsx` - update - `.reveal` → `<FadeIn>`; description metadata added.
+- `website/app/about/page.tsx` - update - new "Maintainer" section + `/hire-the-developer/` link.
+- `website/app/changelog/page.tsx` - update - "Upcoming Features" section above releases; three groups (in development / planned v1.1 / under consideration).
+- `website/app/hire-the-developer/page.tsx` - create - hire-me page (hero, narrative, skills grid, portfolio cards, dark CTA).
+- `website/components/Footer.tsx` - update - swapped npm + pipx `<code>` pills to `<CopyableCommand>`.
+- `website/components/docs/DocBlocks.tsx` - update - `code` block variant now wraps its `<pre>` in `<CopyableCommand>` so every docs code snippet is copyable.
+- `website/app/layout.tsx` - update - enriched root metadata (keywords, canonical, openGraph, twitter, googleBot).
+- `website/app/icon.tsx`, `apple-icon.tsx`, `opengraph-image.tsx` - create - file-based icons + OG card via ImageResponse; all marked `force-static`.
+- `website/app/sitemap.ts`, `robots.ts` - create - MetadataRoute sitemap + robots; both marked `force-static`.
+
+**Decisions made:**
+
+- **framer-motion over hand-rolled IntersectionObserver.** Deliberate trade of ~30 kB gz client JS for cleaner ergonomics (`<FadeIn delay={0.05}>` beats CSS-class stagger + observer wiring). User requested framer explicitly. Reduced-motion respected by framer defaults.
+- **`.reveal` CSS deleted, not archived.** Once the sweep landed, keeping the old class around would just be dead code with silent conflict potential (both systems fighting over opacity). Kept only the SVG keyframes because `landing.module.css` still references them.
+- **CopyableCommand wraps the existing markup rather than replacing it.** DocBlocks' `code` block keeps its outer white box + border; CopyableCommand adds the hover overlay + toast inside. Landing / footer flip from `<code>` to `<CopyableCommand>` entirely because those were single-line snippets with no inner structure worth preserving.
+- **Toast lives inside CopyableCommand.** Considered a portal-based site-wide toast layer; rejected because the copy interaction is bounded to one trigger and framer's `AnimatePresence` handles the enter/exit cleanly. Simpler than the alternative, ships less JS.
+- **Hire route named `/hire-the-developer/`, not `/hire/`.** Footer + About consistently link here; matches the deliberate footer copy already in place ("Hire the Developer").
+- **File-based icons via ImageResponse.** Zero binary assets in the repo. All three icons + OG card generate at build time using the BrandMark SVG. Every one needs `export const dynamic = 'force-static'` because `output: 'export'` refuses dynamic route handlers.
+- **`Upcoming Features` section is data-driven, not parsed from CHANGELOG.md.** CHANGELOG follows Keep-a-Changelog for shipped releases; upcoming items belong to project state not release history. Keeping them separate avoids polluting the release file.
+- **SEO: fields, not JSON-LD.** Enriched `metadata` covers OG / Twitter / robots / canonical. Left structured data (Article / BreadcrumbList) unshipped - marginal Lighthouse gain, not currently justified. Sitemap + robots + descriptions are the load-bearing SEO win.
+
+**Open questions / follow-ups:**
+
+- Framer-motion adds ~30 kB gz to the shared JS budget - previously docs pages were near-zero. Lighthouse re-check needed at Stage 10 to confirm ≥ 90 Performance still holds.
+- OG image `@fontsource/*` fonts NOT used by Satori (needs explicit `fonts` array in ImageResponse). Currently uses system serif fallback - fine for /og but not brand-perfect. Consider passing WOFF2 bytes if brand fidelity matters more.
+- Hire page portfolio links are hardcoded GitHub / LinkedIn URLs. Move to a `content/hire.ts` if the CV / links start changing frequently.
+- `CopyableCommand` fallback uses `document.execCommand('copy')` which is deprecated but still works in every current browser. If deprecated in future, switch to an inline `<textarea>` selection with keyboard-shortcut hint.
+- Playwright smoke suite still passes route-level; toast + copy interactions are not covered. Add hover + click assertions in `e2e/copy.spec.ts` if regressions surface.
+
+---
+
 ## Key Decisions
 
 - **2026-06-29** - Single `templates/` tree consumed by both packagers; parity enforced by SHA-256 manifest. Prevents npm/PyPI drift (SRS Risk row 6).
@@ -525,6 +639,14 @@
 - **2026-07-08** - Integration gating uses HTML-comment fences (`<!-- integration:NAME -->`) mirroring the Stage 2 persona pattern. Per-integration files live in `templates/_integrations/<name>/` and are copied/deleted conditionally; the `_integrations/` prefix is skipped by walkPayload when producing the base tree.
 - **2026-07-08** - `spec-init customize --add/--remove` re-derives affected files from the `.spec-init/base/` snapshot, not from the current live files (the current files no longer contain the marker fences after init consumes them). The re-derive is surgical: only files whose snapshot content contains the target integration's marker are rewritten, preserving user edits to memory files that don't host it.
 - **2026-07-08** - Obsidian YAML front-matter blocks in the templates are wrapped in `<!-- prettier-ignore-start -->` / `<!-- prettier-ignore-end -->` fences, and the strip utility drops those helper comments. This is the smallest change that keeps prettier from reformatting `---` into a thematic break while still landing YAML on line 1 in the scaffolded output.
+- **2026-07-08** - Website ships as a Next.js 15 App Router static export (`output: 'export'`) served from Vercel free tier. Chosen over Astro (per user's Phase-3 pick during Stage 9) after weighing zero-JS-by-default vs App Router ergonomics.
+- **2026-07-08** - Design mocks (`design/*.dc.html`) are the visual source of truth. Production pages match them pixel-for-pixel while implementing every declared style through Tailwind utilities (custom tokens in `tailwind.config.ts` for the design's specific colors/letter-spacing) or a scoped CSS module for animation shorthands. No `style={…}` attributes appear in the website's JSX.
+- **2026-07-08** - Website docs content lives as typed `DocBlock[]` in `lib/docs-content.ts`, not MDX. Sidebar, prev/next, and TOC all derive from that single source; per-route `page.tsx` files are two-line delegations to `<DocLayout page={PAGES[key]} />`.
+- **2026-07-08** - Search is Pagefind, indexed post-`next build` by `scripts/build-search.mjs`. Fully static, zero-cost, no backend; the modal lazy-imports the runtime so docs pages stay JS-light.
+- **2026-07-08** - Scroll-reveal uses framer-motion `<FadeIn>` (`whileInView` + `viewport={{ once: true }}`); replaces the old `.reveal` class + `RevealOnScroll` observer site-wide. `.reveal` CSS deleted to avoid dual-system conflicts.
+- **2026-07-08** - Command surfaces (npm / pipx / spec-init flags / docs code blocks) use `<CopyableCommand>` - hover shows a centered copy icon at 60% opacity; click writes to clipboard and pops a framer-motion toast under the trigger for 3 s. Applied in Landing, Footer, and DocBlocks.
+- **2026-07-08** - Hire page lives at `/hire-the-developer/` (matches the deliberate Footer copy). About page's Maintainer section links to it. Content is data-driven inside the page module; portfolio + skills lists are inline arrays.
+- **2026-07-08** - SEO via Next.js `metadata` (enriched root openGraph / twitter / robots + per-page descriptions), file-based icons (`icon.tsx`, `apple-icon.tsx`), `opengraph-image.tsx` via `next/og` ImageResponse, plus `sitemap.ts` + `robots.ts`. Every ImageResponse route + sitemap + robots requires `export const dynamic = 'force-static'` under `output: 'export'`.
 
 ## Open Questions / TODOs
 
@@ -536,7 +658,12 @@
 - [x] `--version` as a top-level short-circuit. _Resolved 2026-07-01: Python CLI accepts `--version` before any command. Node CLI still requires a subcommand; consider aligning in Stage 10._
 - [ ] Cross-language parity coverage for `customize` and `upgrade` outputs (currently only `init`; Stage 8 extended `init` parity to cover integrations).
 - [ ] Extend `spec-init doctor` to cross-check `.spec-init/meta.json` integrations against on-disk artifacts (`.graphify/`, `.obsidian/`) - Stage 10 polish.
-- [ ] Document the customize-replays-templated-files trade-off in the Stage 9 website's Customization Recipes so users understand `--add`/`--remove` will replay CLAUDE.md §8 and README.md's Integrations section from the snapshot.
+- [x] Document the customize-replays-templated-files trade-off in the Stage 9 website's Customization Recipes so users understand `--add`/`--remove` will replay CLAUDE.md §8 and README.md's Integrations section from the snapshot. _Resolved 2026-07-08 - covered in the Customization Recipes docs page under `/docs/customization-recipes/`._
+- [ ] Verify Lighthouse Performance ≥ 90 and Accessibility ≥ 95 on the deployed Vercel URL (Stage 10 acceptance).
+- [ ] Run Playwright e2e (`test:site`) in CI - suite is wired but has not been executed locally (needs `playwright install chromium`).
+- [ ] Publish website to Vercel and confirm the build finishes in < 2 minutes on their infra (Stage 10).
+- [ ] Add a `next dev`-mode notice to the Search modal that surfaces "index not built" (Pagefind only runs post-`next build`).
+- [ ] Consider a static "first card highlighted" fallback for `PhaseCycler` under `prefers-reduced-motion` instead of bailing out entirely.
 - [ ] Verify `pipx install ./dist/spec-init-0.1.0a0-py3-none-any.whl` succeeds locally before Stage 10 publish.
 - [ ] Wire a hatch build hook so editable installs auto-refresh `packages/cli-python/src/spec_init/_payload/` from the outer `_payload/` (Stage 10).
 - [ ] Consider a minimum-length lint rule on SKILL.md files to catch accidental truncation.

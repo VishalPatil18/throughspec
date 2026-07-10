@@ -16,6 +16,7 @@
   "dependencies": {
     "@fontsource/jetbrains-mono": "^5.1.1",
     "@fontsource/source-serif-4": "^5.1.1",
+    "framer-motion": "^11.11.17",
     "next": "^15.0.3",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"

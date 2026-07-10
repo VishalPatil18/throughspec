@@ -1,6 +1,7 @@
 // Renders a DocPage's `blocks` array. One switch, one component per variant.
 
 import type { DocBlock } from '@/lib/docs-content';
+import CopyableCommand from '@/components/CopyableCommand';
 
 const CALLOUT_TONE = {
   note: 'bg-cloud',
@@ -38,7 +39,14 @@ export default function DocBlocks({ blocks }: { blocks: DocBlock[] }) {
                 key={i}
                 className="mb-[22px] max-w-[680px] overflow-x-auto rounded-xl border border-ink bg-white px-5 py-[18px]"
               >
-                <pre className="m-0 whitespace-pre font-mono text-[13.5px] leading-[1.6] text-ink">{b.text}</pre>
+                <CopyableCommand
+                  text={b.text}
+                  className="w-full"
+                >
+                  <pre className="m-0 whitespace-pre text-left font-mono text-[13.5px] leading-[1.6] text-ink">
+                    {b.text}
+                  </pre>
+                </CopyableCommand>
               </div>
             );
           case 'callout':

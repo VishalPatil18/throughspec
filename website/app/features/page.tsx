@@ -1,16 +1,21 @@
 import Link from 'next/link';
-import RevealOnScroll from '@/components/RevealOnScroll';
+import FadeIn from '@/components/motion/FadeIn';
+import CopyableCommand from '@/components/CopyableCommand';
 
-export const metadata = { title: 'Features' };
+export const metadata = {
+  title: 'Features',
+  description:
+    'Everything Throughspec installs so your project never drifts: deterministic SDLC, token-lean memory layer, nine slash commands, and the structural guarantees that hold it together.',
+};
 
 const BIG_FEATURES = [
   {
     kicker: 'Deterministic SDLC',
     title: 'A spec-first pipeline that refuses to skip steps.',
-    body: 'Every feature runs through six ordered phases. The plan won’t generate while the SRS has open questions in load-bearing categories - structure is enforced, not suggested.',
+    body: 'Every feature runs through six ordered steps. The plan won’t generate while the SRS has open questions in load-bearing categories - structure is enforced, not suggested.',
     points: [
       'Requirements gate blocks code without a frozen spec',
-      '6 phases: requirements → architecting → product → tech → plan → build',
+      '6 steps: requirements → architecting → product → tech → plan → build',
       'Every override is logged in design-decisions.md',
     ],
     tone: 'cream' as const,
@@ -26,7 +31,7 @@ const BIG_FEATURES = [
       '/spec-sync compresses any file past 1,500 lines',
     ],
     tone: 'lavender' as const,
-    art: `claude/\n  context.md          state\n  srs.md              frozen\n  plan.md             8-10 stages\n  features.md         append-only\n  design-decisions.md append-only\n  learnings.md        append-only`,
+    art: `claude/\n  context.md          state\n  srs.md              frozen\n  plan.md             8-10 steps\n  features.md         append-only\n  design-decisions.md append-only\n  learnings.md        append-only`,
   },
   {
     kicker: 'Structure that compounds',
@@ -46,8 +51,8 @@ const SKILLS = [
   { cmd: '/spec-init', desc: 'Scaffold the project inside an existing Claude session.' },
   { cmd: '/spec-requirements', desc: 'Build claude/srs.md via cross-questioning.' },
   { cmd: '/spec-design', desc: 'Build design/design.md and download UI assets.' },
-  { cmd: '/spec-plan', desc: 'Build claude/plan.md with 8-10 staged deliverables.' },
-  { cmd: '/spec-feature', desc: 'Run the full 6-phase feature development cycle.' },
+  { cmd: '/spec-plan', desc: 'Build claude/plan.md with 8-10 step deliverables.' },
+  { cmd: '/spec-feature', desc: 'Run the full feature development cycle.' },
   { cmd: '/spec-refactor', desc: 'Clean only the current cycle’s diff - nothing else.' },
   { cmd: '/spec-bug', desc: 'Isolated bug resolution: reproduce, test, smallest fix.' },
   { cmd: '/spec-docs', desc: 'Reconcile docs against reality - never touches source.' },
@@ -57,32 +62,35 @@ const SKILLS = [
 const GUARANTEES = [
   { stat: '≤ 8k', label: 'tokens to load full project context on a mature repo' },
   { stat: '≤ 120%', label: 'cost of a 5th feature cycle vs. the first' },
-  { stat: '6', label: 'ordered phases, none skipped without a logged override' },
+  { stat: '6', label: 'ordered steps, none skipped without a logged override' },
   { stat: '2', label: 'channels - npm + PyPI - from one source of truth' },
 ];
 
 export default function FeaturesPage() {
   return (
     <main className="bg-warm font-serif text-ink">
-      <RevealOnScroll />
-
       <section className="mx-auto max-w-content px-8 pb-10 pt-[72px]">
-        <div className="reveal mb-[18px] text-xs uppercase tracking-[0.06em] text-dim">Features</div>
-        <h1 className="reveal d-1 mb-5 max-w-[820px] text-[58px] font-normal leading-[1.08] tracking-tighter2">
-          Everything the Kit installs so your project never drifts.
-        </h1>
-        <p className="reveal d-2 max-w-[600px] text-[17px] leading-[1.55] tracking-tighter2 text-muted">
-          A deterministic SDLC, a token-lean memory layer, nine slash commands, and the structural guarantees that hold
-          it all together.
-        </p>
+        <FadeIn className="mb-[18px] text-xs uppercase tracking-[0.06em] text-dim">Features</FadeIn>
+        <FadeIn delay={0.05}>
+          <h1 className="mb-5 max-w-[820px] text-[58px] font-normal leading-[1.08] tracking-tighter2">
+            Everything the Kit installs so your project never drifts.
+          </h1>
+        </FadeIn>
+        <FadeIn delay={0.12}>
+          <p className="max-w-[600px] text-[17px] leading-[1.55] tracking-tighter2 text-muted">
+            A deterministic SDLC, a token-lean memory layer, nine slash commands, and the structural guarantees that hold
+            it all together.
+          </p>
+        </FadeIn>
       </section>
 
       <section id="graphify" className="mx-auto flex max-w-content flex-col gap-5 px-8 py-6">
         {BIG_FEATURES.map((f, i) => (
-          <div
+          <FadeIn
             key={f.title}
+            delay={i * 0.06}
             className={
-              'reveal grid grid-cols-1 overflow-hidden rounded-[40px] md:grid-cols-2 ' +
+              'grid grid-cols-1 overflow-hidden rounded-[40px] md:grid-cols-2 ' +
               (f.tone === 'cream' ? 'border border-ink bg-warm' : 'bg-cloud')
             }
             id={i === 1 ? 'obsidian' : undefined}
@@ -110,42 +118,42 @@ export default function FeaturesPage() {
             >
               <pre className="m-0 whitespace-pre font-mono text-[12.5px] leading-[1.7] text-ink">{f.art}</pre>
             </div>
-          </div>
+          </FadeIn>
         ))}
       </section>
 
       <section className="mx-auto max-w-content px-8 py-12">
-        <div className="reveal mb-9">
+        <FadeIn className="mb-9">
           <div className="mb-[14px] text-xs uppercase tracking-[0.06em] text-dim">Nine slash commands</div>
           <h2 className="text-[40px] font-normal tracking-tighter2">One command for every move you make.</h2>
-        </div>
+        </FadeIn>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-          {SKILLS.map((sk) => (
-            <div key={sk.cmd} className="reveal rounded-3xl border border-ink bg-warm p-6">
+          {SKILLS.map((sk, i) => (
+            <FadeIn key={sk.cmd} delay={i * 0.04} className="rounded-3xl border border-ink bg-warm p-6">
               <code className="font-mono text-[15px] text-ink">{sk.cmd}</code>
               <div className="mt-3 text-[13px] leading-[1.5] tracking-tighter2 text-muted">{sk.desc}</div>
-            </div>
+            </FadeIn>
           ))}
         </div>
       </section>
 
       <section className="mx-auto max-w-content px-8 pb-12 pt-6">
-        <div className="reveal mb-10 text-center">
+        <FadeIn className="mb-10 text-center">
           <h2 className="mb-3 text-[40px] font-normal tracking-tighter2">Guarantees, not vibes.</h2>
           <p className="text-base tracking-tighter2 text-muted">Measurable commitments the Kit holds itself to.</p>
-        </div>
+        </FadeIn>
         <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-          {GUARANTEES.map((g) => (
-            <div key={g.label} className="reveal rounded-[28px] bg-cloud px-7 py-8">
+          {GUARANTEES.map((g, i) => (
+            <FadeIn key={g.label} delay={i * 0.04} className="rounded-[28px] bg-cloud px-7 py-8">
               <div className="mb-[10px] text-[40px] tracking-[-0.03em]">{g.stat}</div>
               <div className="text-[13.5px] leading-[1.5] tracking-tighter2 text-muted">{g.label}</div>
-            </div>
+            </FadeIn>
           ))}
         </div>
       </section>
 
       <section className="mx-auto max-w-content px-8 pb-20 pt-6">
-        <div className="reveal rounded-[40px] bg-dark px-12 py-16 text-center">
+        <FadeIn className="rounded-[40px] bg-dark px-12 py-16 text-center">
           <h2 className="mb-6 text-[44px] font-normal leading-[1.1] tracking-tighter2 text-warm">
             Read the docs. Run the cycle.
           </h2>
@@ -163,7 +171,7 @@ export default function FeaturesPage() {
               Why Throughspec
             </Link>
           </div>
-        </div>
+        </FadeIn>
       </section>
     </main>
   );

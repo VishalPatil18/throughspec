@@ -11,11 +11,42 @@ export const metadata: Metadata = {
     template: '%s - Throughspec',
   },
   description:
-    'Throughspec scaffolds a deterministic, spec-first workflow into Claude Code. Structure keeps the work from drifting.',
+    'Throughspec scaffolds a deterministic, spec-first workflow into Claude Code. Nine slash commands, seven tool-scoped agents, an append-only memory layer under 8k tokens, distributed on npm + PyPI.',
+  keywords: [
+    'Claude Code',
+    'spec-driven development',
+    'SDLC',
+    'AI coding',
+    'scaffolding',
+    'CLI',
+    'Next.js',
+    'RAG',
+  ],
+  authors: [{ name: 'Vishal Patil' }],
+  creator: 'Vishal Patil',
+  publisher: 'Throughspec',
+  applicationName: 'Throughspec',
+  category: 'developer tools',
+  alternates: { canonical: '/' },
   openGraph: {
-    title: 'Throughspec',
-    description: 'Spec-driven SDLC for Claude Code.',
     type: 'website',
+    url: 'https://throughspec.dev/',
+    siteName: 'Throughspec',
+    title: 'Throughspec - Spec-driven SDLC for Claude Code',
+    description:
+      'Deterministic scaffolding, an append-only memory layer, and nine slash commands - published to npm + PyPI.',
+    locale: 'en_US',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Throughspec - Spec-driven SDLC for Claude Code',
+    description:
+      'Deterministic scaffolding, an append-only memory layer, and nine slash commands - published to npm + PyPI.',
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true, 'max-image-preview': 'large' },
   },
 };
 

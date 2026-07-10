@@ -1,7 +1,8 @@
 import Link from 'next/link';
-import RevealOnScroll from '@/components/RevealOnScroll';
 import DataFlowSVG from '@/components/landing/DataFlowSVG';
 import PhaseCycler from '@/components/landing/PhaseCycler';
+import FadeIn from '@/components/motion/FadeIn';
+import CopyableCommand from '@/components/CopyableCommand';
 import s from '@/components/landing/landing.module.css';
 
 const PERSONAS = ['Vibe-coders', 'Students', 'Solo engineers', 'Team leads'];
@@ -28,15 +29,15 @@ const STEPS = [
   { num: '01', cmd: 'spec-init <name>', desc: 'Scaffolds the canonical directory tree with safe, lint-clean defaults - in under five seconds.' },
   { num: '02', cmd: '/spec-requirements', desc: 'Three-plus rounds of cross-questioning, then freezes claude/srs.md. Won’t proceed on empty load-bearing categories.' },
   { num: '03', cmd: '/spec-design', desc: 'Extracts a design system from your references, or proposes one from the SRS - never fabricates brand colors.' },
-  { num: '04', cmd: '/spec-plan', desc: 'Produces an 8-10 stage build plan, each ending in a standalone, testable, runnable deliverable.' },
-  { num: '05', cmd: '/spec-feature', desc: 'Enters the 6-phase feature cycle, one stage at a time - read memory, cross-question, implement, test, refactor.' },
+  { num: '04', cmd: '/spec-plan', desc: 'Produces an 8-10 step build plan, each ending in a standalone, testable, runnable deliverable.' },
+  { num: '05', cmd: '/spec-feature', desc: 'Enters the feature cycle, one step at a time - read memory, cross-question, implement, test, refactor.' },
 ];
 
 const MEMORY = [
   { file: 'CLAUDE.md', role: 'router + behavior contract' },
   { file: 'context.md', role: 'compressed current state' },
   { file: 'srs.md', role: 'frozen requirements' },
-  { file: 'plan.md', role: '8-10 stage plan' },
+  { file: 'plan.md', role: '8-10 step plan' },
   { file: 'features.md', role: 'append-only feature log' },
   { file: 'design-decisions.md', role: 'append-only decisions' },
 ];
@@ -45,8 +46,8 @@ const SKILLS = [
   { cmd: '/spec-init', desc: 'Scaffold the project inside an existing Claude session.' },
   { cmd: '/spec-requirements', desc: 'Build claude/srs.md via cross-questioning.' },
   { cmd: '/spec-design', desc: 'Build design/design.md and download UI assets.' },
-  { cmd: '/spec-plan', desc: 'Build claude/plan.md with 8-10 staged deliverables.' },
-  { cmd: '/spec-feature', desc: 'Run the full 6-phase feature development cycle.' },
+  { cmd: '/spec-plan', desc: 'Build claude/plan.md with 8-10 step deliverables.' },
+  { cmd: '/spec-feature', desc: 'Run the full feature development cycle.' },
   { cmd: '/spec-refactor', desc: 'Clean only the current cycle’s diff - nothing else.' },
   { cmd: '/spec-bug', desc: 'Isolated bug resolution: reproduce, test, smallest fix.' },
   { cmd: '/spec-docs', desc: 'Reconcile docs against reality - never touches source.' },
@@ -98,24 +99,26 @@ const FAQS = [
 export default function Landing() {
   return (
     <main className="overflow-x-hidden bg-warm font-serif text-ink">
-      <RevealOnScroll />
-
       {/* HERO */}
       <section className="mx-auto max-w-content px-8 pb-6 pt-20 text-center">
-        <div className="reveal mb-[34px] inline-flex items-center gap-[9px] rounded-pill border border-ink px-4 py-[7px] text-xs tracking-[0.01em]">
+        <FadeIn className="mb-[34px] inline-flex items-center gap-[9px] rounded-pill border border-ink px-4 py-[7px] text-xs tracking-[0.01em]">
           <span className="inline-block h-1.5 w-1.5 rounded-pill bg-ink" />
           SPEC-DRIVEN SDLC · FOR CLAUDE CODE
-        </div>
-        <h1 className="reveal d-1 mx-auto mb-[26px] max-w-[920px] text-[74px] font-normal leading-[1.08] tracking-tighter2">
-          Collapse the gap between
-          <br />
-          idea and shipped software.
-        </h1>
-        <p className="reveal d-2 mx-auto mb-9 max-w-[600px] text-[17px] leading-[1.5] tracking-tighter2 text-muted">
-          Throughspec scaffolds a deterministic, spec-first workflow into Claude Code. You make the
-          decisions. Claude does the heavy lifting. Structure keeps the work from drifting.
-        </p>
-        <div className="reveal d-3 flex flex-wrap items-center justify-center gap-[13px]">
+        </FadeIn>
+        <FadeIn delay={0.05}>
+          <h1 className="mx-auto mb-[26px] max-w-[920px] text-[74px] font-normal leading-[1.08] tracking-tighter2">
+            Collapse the gap between
+            <br />
+            idea and shipped software.
+          </h1>
+        </FadeIn>
+        <FadeIn delay={0.12}>
+          <p className="mx-auto mb-9 max-w-[600px] text-[17px] leading-[1.5] tracking-tighter2 text-muted">
+            Throughspec scaffolds a deterministic, spec-first workflow into Claude Code. You make the
+            decisions. Claude does the heavy lifting. Structure keeps the work from drifting.
+          </p>
+        </FadeIn>
+        <FadeIn delay={0.18} className="flex flex-wrap items-center justify-center gap-[13px]">
           <Link
             href="/docs/"
             className="inline-flex items-center gap-2 rounded-pill bg-dark px-[26px] py-[13px] text-sm font-medium text-warm no-underline"
@@ -128,105 +131,105 @@ export default function Landing() {
           >
             Read the docs
           </Link>
-        </div>
-        <div className="reveal d-4 mt-[26px] inline-flex items-center gap-3 rounded-[10px] border border-ink bg-white px-4 py-[11px] text-[13.5px]">
+        </FadeIn>
+        <FadeIn delay={0.24} className="mt-[26px] inline-flex items-center gap-3 rounded-[10px] border border-ink bg-white px-4 py-[11px] text-[13.5px]">
           <span className="text-dim">$</span>
-          <span>npx spec-init my-app</span>
-          <span className="h-4 w-px bg-black/20" />
-          <span className="text-xs text-dim">copy</span>
-        </div>
+          <CopyableCommand text="npx spec-init my-app">
+            <span>npx spec-init my-app</span>
+          </CopyableCommand>
+        </FadeIn>
       </section>
 
       {/* DATA FLOW DIAGRAM */}
-      <section className="reveal d-5 mx-auto max-w-content px-6 pb-2 pt-6">
+      <FadeIn as="section" delay={0.3} className="mx-auto max-w-content px-6 pb-2 pt-6">
         <DataFlowSVG />
         <div className="mx-auto mt-[6px] flex max-w-[1180px] justify-between text-[11px] uppercase tracking-[0.04em] text-dim">
           <span>Your decisions</span>
           <span>Deterministic SDLC</span>
           <span>Shipped, with memory</span>
         </div>
-      </section>
+      </FadeIn>
 
       {/* PERSONAS */}
       <section className="mx-auto max-w-content px-8 py-16 text-center">
-        <div className="reveal mb-6 text-xs uppercase tracking-[0.06em] text-dim">
+        <FadeIn className="mb-6 text-xs uppercase tracking-[0.06em] text-dim">
           Built for the way you actually build
-        </div>
-        <div className="reveal d-1 flex flex-wrap justify-center gap-[14px]">
+        </FadeIn>
+        <FadeIn delay={0.05} className="flex flex-wrap justify-center gap-[14px]">
           {PERSONAS.map((p) => (
             <div key={p} className="flex items-center gap-[9px] rounded-pill border border-ink px-5 py-[10px] text-[13px]">
               <span className="inline-block h-[5px] w-[5px] rounded-pill bg-ink" />
               {p}
             </div>
           ))}
-        </div>
+        </FadeIn>
       </section>
 
       {/* THREE BELIEFS */}
       <section className="mx-auto max-w-content px-8 pb-6 pt-10">
-        <div className="reveal mb-12 text-center">
+        <FadeIn className="mb-12 text-center">
           <h2 className="mb-[14px] text-[44px] font-normal tracking-tighter2">Three load-bearing beliefs</h2>
           <p className="text-base tracking-tighter2 text-muted">Everything in the Kit is downstream of these.</p>
-        </div>
+        </FadeIn>
         <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
           {BELIEFS.map((b, i) => (
-            <div
+            <FadeIn
               key={b.num}
-              className={
-                'reveal rounded-[40px] bg-cloud p-10 shadow-[0_0_10px_rgba(0,0,0,0.1)] ' +
-                (i === 1 ? 'd-1' : i === 2 ? 'd-2' : '')
-              }
+              delay={i * 0.08}
+              className="rounded-[40px] bg-cloud p-10 shadow-[0_0_10px_rgba(0,0,0,0.1)]"
             >
               <div className="mb-6 text-xs text-muted">{b.num}</div>
               <h3 className="mb-[14px] text-[26px] font-normal leading-[1.15] tracking-tighter2">{b.title}</h3>
               <p className="text-[14.5px] leading-[1.5] tracking-tighter2 text-muted">{b.body}</p>
-            </div>
+            </FadeIn>
           ))}
         </div>
       </section>
 
       {/* HOW IT WORKS */}
       <section className="mx-auto max-w-content px-8 py-[72px]">
-        <div className="reveal mb-11">
+        <FadeIn className="mb-11">
           <div className="mb-[14px] text-xs uppercase tracking-[0.06em] text-dim">The initiation cycle</div>
           <h2 className="max-w-[640px] text-[44px] font-normal tracking-tighter2">
             Five commands from empty folder to your first feature.
           </h2>
-        </div>
+        </FadeIn>
         <div className="flex flex-col">
-          {STEPS.map((step) => (
-            <div
+          {STEPS.map((step, i) => (
+            <FadeIn
               key={step.num}
-              className="reveal grid grid-cols-[64px_220px_1fr] items-center gap-6 border-t border-black/10 py-[26px]"
+              delay={i * 0.05}
+              className="grid grid-cols-[64px_220px_1fr] items-center gap-6 border-t border-black/10 py-[26px]"
             >
               <div className="text-sm text-dim">{step.num}</div>
-              <code className="justify-self-start rounded-lg border border-ink bg-white px-3 py-2 font-mono text-[15px] text-ink">
-                {step.cmd}
-              </code>
+              <CopyableCommand
+                text={step.cmd}
+                className="justify-self-start rounded-lg border border-ink bg-white px-3 py-2 text-[15px] text-ink"
+              />
               <div className="text-[15px] leading-[1.45] tracking-tighter2 text-muted">{step.desc}</div>
-            </div>
+            </FadeIn>
           ))}
           <div className="border-t border-black/10" />
         </div>
       </section>
 
-      {/* 6-PHASE CYCLE */}
+      {/* FEATURE CYCLE */}
       <section className="mx-auto max-w-content px-8 pb-[72px] pt-6">
-        <div className="reveal mb-11 text-center">
-          <div className="mb-[14px] text-xs uppercase tracking-[0.06em] text-dim">The 6-phase feature cycle</div>
-          <h2 className="mb-3 text-[44px] font-normal tracking-tighter2">No phase skipped. No code unspecced.</h2>
+        <FadeIn className="mb-11 text-center">
+          <div className="mb-[14px] text-xs uppercase tracking-[0.06em] text-dim">The feature cycle</div>
+          <h2 className="mb-3 text-[44px] font-normal tracking-tighter2">No step skipped. No code unspecced.</h2>
           <p className="text-base tracking-tighter2 text-muted">
-            <code className="font-mono text-sm">/spec-feature</code> runs six ordered phases, every time.
+            <code className="font-mono text-sm">/spec-feature</code> runs six ordered steps, every time.
           </p>
-        </div>
-        <div className="reveal d-1">
+        </FadeIn>
+        <FadeIn delay={0.05}>
           <PhaseCycler />
-        </div>
+        </FadeIn>
       </section>
 
       {/* MEMORY LAYER */}
       <section className="mx-auto max-w-content px-8 pb-[72px]">
-        <div className="reveal grid grid-cols-1 items-center gap-12 rounded-[40px] bg-cloud p-12 shadow-[0_0_10px_rgba(0,0,0,0.1)] md:grid-cols-[1.1fr_1fr]">
+        <FadeIn className="grid grid-cols-1 items-center gap-12 rounded-[40px] bg-cloud p-12 shadow-[0_0_10px_rgba(0,0,0,0.1)] md:grid-cols-[1.1fr_1fr]">
           <div>
             <div className="mb-[18px] text-xs uppercase tracking-[0.06em] text-muted">The memory layer</div>
             <h2 className="mb-4 text-[38px] font-normal leading-[1.12] tracking-tighter2">Memory beats re-derivation.</h2>
@@ -251,23 +254,23 @@ export default function Landing() {
               ~8k token ceiling
             </div>
           </div>
-        </div>
+        </FadeIn>
       </section>
 
       {/* SKILLS GRID */}
       <section className="mx-auto max-w-content px-8 pb-[72px]">
-        <div className="reveal mb-10">
+        <FadeIn className="mb-10">
           <div className="mb-[14px] text-xs uppercase tracking-[0.06em] text-dim">Skills catalog</div>
           <h2 className="max-w-[680px] text-[44px] font-normal tracking-tighter2">
             Nine slash commands. One for every move you make.
           </h2>
-        </div>
+        </FadeIn>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-          {SKILLS.map((sk) => (
-            <div key={sk.cmd} className="reveal rounded-3xl border border-ink bg-warm p-6">
+          {SKILLS.map((sk, i) => (
+            <FadeIn key={sk.cmd} delay={i * 0.04} className="rounded-3xl border border-ink bg-warm p-6">
               <code className="font-mono text-[15px] text-ink">{sk.cmd}</code>
               <div className="mt-3 text-[13px] leading-[1.5] tracking-tighter2 text-muted">{sk.desc}</div>
-            </div>
+            </FadeIn>
           ))}
         </div>
       </section>
@@ -275,8 +278,8 @@ export default function Landing() {
       {/* INTEGRATIONS */}
       <section className="mx-auto max-w-content px-8 pb-[72px]">
         <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-          {INTEGRATIONS.map((ig) => (
-            <div key={ig.name} className="reveal rounded-[40px] border border-ink bg-warm p-10">
+          {INTEGRATIONS.map((ig, i) => (
+            <FadeIn key={ig.name} delay={i * 0.06} className="rounded-[40px] border border-ink bg-warm p-10">
               <div className="mb-[18px] flex items-center gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-ink text-lg">
                   {ig.glyph}
@@ -284,20 +287,21 @@ export default function Landing() {
                 <div className="text-2xl tracking-tighter2">{ig.name}</div>
               </div>
               <p className="mb-[18px] text-[14.5px] leading-[1.55] tracking-tighter2 text-muted">{ig.desc}</p>
-              <code className="inline-block rounded-lg border border-ink bg-white px-3 py-2 font-mono text-[12.5px]">
-                {ig.flag}
-              </code>
-            </div>
+              <CopyableCommand
+                text={ig.flag}
+                className="inline-block rounded-lg border border-ink bg-white px-3 py-2 text-[12.5px]"
+              />
+            </FadeIn>
           ))}
         </div>
       </section>
 
       {/* FAQ */}
       <section className="mx-auto max-w-[820px] px-8 pb-[72px] pt-2">
-        <div className="reveal mb-10 text-center">
+        <FadeIn className="mb-10 text-center">
           <h2 className="text-[44px] font-normal tracking-tighter2">Questions, answered</h2>
-        </div>
-        <div className="reveal d-1">
+        </FadeIn>
+        <FadeIn delay={0.05}>
           {FAQS.map((f) => (
             <details key={f.q} className="border-b border-black/20">
               <summary className="flex items-center justify-between px-1 py-6 text-base tracking-tighter2">
@@ -309,12 +313,12 @@ export default function Landing() {
               </div>
             </details>
           ))}
-        </div>
+        </FadeIn>
       </section>
 
       {/* FINAL CTA */}
       <section className="mx-auto max-w-content px-8 pb-[88px]">
-        <div className="reveal rounded-[40px] bg-dark px-12 py-[72px] text-center">
+        <FadeIn className="rounded-[40px] bg-dark px-12 py-[72px] text-center">
           <h2 className="mb-4 text-[52px] font-normal leading-[1.08] tracking-tighter2 text-warm">
             Ship your next project
             <br />
@@ -336,14 +340,18 @@ export default function Landing() {
             </Link>
           </div>
           <div className="flex flex-wrap justify-center gap-[10px]">
-            <code className="rounded-lg border border-warm/25 bg-warm/10 px-[14px] py-2 font-mono text-[12.5px] text-warm">
-              npx spec-init my-app
-            </code>
-            <code className="rounded-lg border border-warm/25 bg-warm/10 px-[14px] py-2 font-mono text-[12.5px] text-warm">
-              pipx install spec-init
-            </code>
+            <CopyableCommand
+              text="npx spec-init my-app"
+              tone="dark"
+              className="rounded-lg border border-warm/25 bg-warm/10 px-[14px] py-2 text-[12.5px] text-warm"
+            />
+            <CopyableCommand
+              text="pipx install spec-init"
+              tone="dark"
+              className="rounded-lg border border-warm/25 bg-warm/10 px-[14px] py-2 text-[12.5px] text-warm"
+            />
           </div>
-        </div>
+        </FadeIn>
       </section>
     </main>
   );

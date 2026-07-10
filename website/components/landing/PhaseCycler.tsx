@@ -7,7 +7,7 @@ const PHASES = [
   { num: '02', title: 'Architecting', out: '≥2 options + tradeoffs → decisions' },
   { num: '03', title: 'Product Specs', out: 'UI, UX, entities, DB schema' },
   { num: '04', title: 'Tech Specs', out: 'Stack + deploy, rejected alts noted' },
-  { num: '05', title: 'Planning', out: 'Staged plan, acceptance criteria' },
+  { num: '05', title: 'Planning', out: 'Step-by-step plan, acceptance criteria' },
   { num: '06', title: 'Writing Code', out: 'Implement → test → refactor → memory' },
 ];
 

@@ -337,3 +337,69 @@ The surgical fix: **scan the snapshot for files that contain the specific marker
 The wider principle: **the scope of a change should equal the scope of the contract that changed.** When only the Graphify contract changes, only files that opted into the Graphify contract get replayed. Files that opted into other contracts (obsidian, persona) or into no contract (CHANGELOG.md, plain memory files without markers) are untouched.
 
 Implementing this required nothing new: the snapshot already exists (Stage 3 introduced it for `upgrade`), the markers already exist (Stage 8 added them), and the scan is `snapContent.includes(marker)`. What matters is that the design principle was made explicit — "surgical re-derive by marker match" — instead of defaulting to "replay everything." A one-line change in intent, a thousand user edits preserved.
+
+### Next.js static export as a zero-cost deploy target
+
+> The docs site is Next.js 15, but there is no Node server running it. How does that work, and what do you give up?
+
+A traditional Next.js app runs on a Node server. Every request goes through a `next start` process that decides between rendering a page (React server component), streaming a partial (Suspense), running a Route Handler, or serving a cached static page. That server needs uptime, memory, and cost — which is why the classic Vercel bill grows with traffic.
+
+Setting `output: 'export'` in `next.config.mjs` switches the whole build into a different mode. At `next build` time, every page in `app/` is rendered once into HTML+CSS+JS and written to `out/`. There is no server. There is no `next start`. The `out/` directory is the entire site, and any static host (S3, GitHub Pages, Vercel free tier, a raw nginx) can serve it.
+
+The trade-off is explicit — a small list of features stops working:
+
+- **No Route Handlers, no `revalidatePath`, no on-demand ISR.** All pages are frozen at build time. If your content changes, you rebuild and redeploy.
+- **`next/image` optimization is off** (you must set `images: { unoptimized: true }`). Images ship at their source size; you handle sizing yourself.
+- **No middleware.** Auth, redirects, rewrites — none of it runs. If you need them, use the host's rewrites or a client-side check.
+- **Every route is a folder of `index.html`.** `trailingSlash: true` in the config makes internal links point at `/docs/quickstart/` rather than `/docs/quickstart`, so any static host serves the folder cleanly.
+
+What you keep is significant. Server components still render server-side — they just render at build time, once, and the output is baked into the HTML. That is why the Throughspec docs pages can `import { readFileSync } from 'node:fs'` to parse `../CHANGELOG.md`: the read happens during `next build`, the result becomes part of the static HTML, and the client never touches Node. Client components still hydrate — `Nav`, `AnnounceBar`, `RevealOnScroll`, `PhaseCycler`, and `Search` all work because Next.js still bundles React and serves it as a small runtime.
+
+The rule to remember: **static export means "server code runs at build time, client code runs in the browser, nothing runs in between."** If your feature needs "in between" (per-user data, real-time updates, secrets that shouldn't ship in HTML), static export isn't the right shape. If it doesn't, you pay nothing to serve millions of requests. For a docs site, the trade is trivially worth it — a documentation site is by definition the same for every visitor.
+
+### Porting a pixel-perfect design without inline styles
+
+> The design mocks have `style="…"` on every element. The house rule says no inline CSS. How do you keep the visual output byte-for-byte identical while paying that rule?
+
+There are three tiers of style expression, from most to least Tailwind-friendly:
+
+1. **Values in Tailwind's default scale.** `text-sm`, `bg-white`, `mb-6`, `rounded-xl`. These map to Tailwind's built-in tokens; use them wherever the mock's pixel value happens to match.
+2. **Values outside the default scale but expressible.** Tailwind's arbitrary-value syntax (`text-[74px]`, `px-[26px]`, `rounded-[40px]`, `bg-black/20`) accepts any CSS value. The output is still a utility class, still purge-safe, still tree-shakeable — the class name embeds the exact pixel value the mock demands.
+3. **Values Tailwind can't reach.** CSS keyframe animations with staggered delays and specific durations aren't expressible as utility classes. Complex gradients with custom stops aren't either. These go into a CSS module (component-scoped) or global CSS (site-wide, e.g. `@keyframes`).
+
+The Throughspec Landing page uses all three tiers. The hero headline is `text-[74px] font-normal leading-[1.08] tracking-tighter2`. The mint glow's gradient is a global CSS rule under `mintGlow` in a `<defs>` block inside the SVG. The cog animation is `.spin32 { animation: spin 3.2s linear infinite; }` in `landing.module.css` — the keyframe `@keyframes spin` lives in `globals.css` and the module class just names a specific instance of it.
+
+Design tokens the mock uses in more than one place go into `tailwind.config.ts`'s `theme.extend`:
+
+```ts
+colors: { warm: '#f6f3f1', ink: '#000', muted: '#4e4d4d', dim: '#797776', dark: '#242424', mint: '#a7fccd' }
+```
+
+Now `bg-warm`, `text-muted`, `border-ink` are first-class utilities. The design's semantic meaning (warm off-white background, muted secondary text) is encoded in the class name, not just the hex.
+
+A three-tier Tier-2 → Tier-3 escape hatch matters because designers legitimately need pixel-specific values that aren't semantic tokens. Trying to force those into `theme.extend` (`spacing: { '4.5': '18px' }`) bloats the config with one-off keys; trying to write them as inline styles violates the rule. Arbitrary values on utility classes and CSS modules for animation shorthands cover the last mile without polluting either.
+
+The pattern generalizes: **utility classes for anything expressible, scoped CSS for anything Tailwind can't reach, and never inline styles.** The rule holds because it protects two things — a purge-safe production CSS bundle (utility classes) and locally-visible component behavior (CSS modules). Both properties break when JSX starts carrying `style={…}` — the value is invisible to the purger, invisible to a `Cmd+F` across `.css` files, and invisible to component libraries that want to compose your component.
+
+### Static-first search: indexing HTML instead of running a query engine
+
+> Docs sites need search. Every hosted search service — Algolia, Meilisearch, ElasticSearch — costs money or needs a server. How does the site search work if none of them are running?
+
+Traditional site search follows a request-response pattern. A user types a query; the client sends it to a backend; the backend consults an inverted index; the backend returns ranked results. Somebody has to keep that backend running — the vendor charges you for it, or you pay the ops cost to run it yourself.
+
+Pagefind flips the model. **The index becomes part of the static site.** At build time, `pagefind --site out/` walks every `.html` file, tokenizes every visible word, and builds an inverted index sharded into small binary chunks under `out/pagefind/`. Each chunk is a few kilobytes. The chunks are addressed by word prefix — the first three characters of the query determine which chunk to fetch.
+
+At query time, the client:
+
+1. Downloads `/pagefind/pagefind.js` (the runtime, ~30 KB).
+2. Takes the user's query, hashes the first few characters, requests the matching chunk from `/pagefind/index/<hash>.pf_index`.
+3. Runs the search entirely in the browser against that chunk — ranking, snippet extraction, all client-side.
+4. Requests the `fragment` chunk that holds the excerpt HTML for the top results and renders them.
+
+Total network cost for a typical query: one JS file (cached forever), one index chunk (~5–20 KB), one fragment chunk (~5 KB). No backend. No rate limits. No secrets.
+
+The trade-off is that **the index is only accurate as of the last build**. Add a page, ship a build. Change content in a page, ship a build. This matches the static-export model exactly — the whole site rebuilds when content changes, and the search index rides along. If your content changes minute-to-minute (a live blog, a support ticket queue), Pagefind is the wrong tool. If your content is edited-and-shipped (docs, marketing, a blog), it is a perfect fit.
+
+The lazy-load matters for Lighthouse. Pagefind's runtime is ~30 KB gzipped — enough to notice on First Contentful Paint if it loads on every docs page. The Throughspec `Search.tsx` component uses `dynamic import` — the runtime only downloads when the user actually opens the modal (either by clicking or by pressing `⌘K`). Between page load and the first query, the docs page ships zero search JS.
+
+The generalizable rule: **when the content is static, the index can be static too.** Search is not intrinsically a server workload; it becomes one when the content is dynamic. Match the search tier to the content tier — dynamic sites need query engines, static sites need static indexes — and the ops bill collapses.
