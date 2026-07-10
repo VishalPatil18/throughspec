@@ -41,15 +41,12 @@ export default function CopyableCommand({ text, className, children, tone = 'lig
         onClick={onCopy}
         aria-label={`Copy command: ${text}`}
         className={
-          'group relative inline-flex items-center font-mono ' + (className ?? '')
+          'group relative inline-flex items-center pr-8 font-mono ' + (className ?? '')
         }
       >
         {children ?? <span>{text}</span>}
         <span
-          className={
-            'pointer-events-none absolute inset-0 flex items-center justify-center rounded-lg opacity-0 transition-opacity duration-150 group-hover:opacity-60 ' +
-            (tone === 'dark' ? 'bg-black/40' : 'bg-warm/70')
-          }
+          className="pointer-events-none absolute right-2 top-1/2 flex -translate-y-1/2 items-center justify-center opacity-0 transition-opacity duration-150 group-hover:opacity-60"
           aria-hidden="true"
         >
           <CopyIcon stroke={iconStroke} />

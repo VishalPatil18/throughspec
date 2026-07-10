@@ -53,12 +53,20 @@ export default function Search() {
   const loadPagefind = useCallback(async (): Promise<Pagefind | null> => {
     if (pagefindRef.current) return pagefindRef.current;
     try {
-      // The index is at /pagefind/pagefind.js after a static export.
-      const mod = (await import(/* webpackIgnore: true */ '/pagefind/pagefind.js' as string)) as Pagefind;
+      // Bypass webpack/turbopack static analysis: bundlers rewrite
+      // `import('/pagefind/pagefind.js')` even with a webpackIgnore comment
+      // in Next.js 15, so we hide the specifier inside a Function ctor.
+      const dynamicImport = new Function('return import("/pagefind/pagefind.js")');
+      const mod = (await dynamicImport()) as Pagefind;
       pagefindRef.current = mod;
       return mod;
-    } catch {
-      // In dev (no static export yet) Pagefind isn't installed; fail soft.
+    } catch (err) {
+      // In `next dev` /pagefind/ does not exist (Pagefind runs post-build).
+      // Log so failures do not sit silent behind an empty modal.
+      console.warn(
+        '[Search] Pagefind not available. In dev, run `npm run build` first. In prod, verify /pagefind/pagefind.js is deployed.',
+        err,
+      );
       return null;
     }
   }, []);
@@ -143,7 +151,7 @@ export default function Search() {
                 >
                   <div className="text-[14px] text-ink">{r.title}</div>
                   <div
-                    className="mt-1 text-[12.5px] leading-[1.5] text-muted"
+                    className="search-result mt-1 text-[12.5px] leading-[1.5] text-muted"
                     dangerouslySetInnerHTML={{ __html: r.excerpt }}
                   />
                 </a>

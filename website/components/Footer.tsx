@@ -93,10 +93,11 @@ export default function Footer() {
           <div className="text-xs tracking-[-0.01em] text-dim">
             © 2026 Throughspec v1.0.0 · MIT licensed
           </div>
-          <div className="flex gap-6">
+          <div className="flex gap-2 items-center">
             <Link href="/hire-the-developer/" className="text-xs text-dim underline">
               Hire the Developer
             </Link>
+            <span>·</span>
             <span className="text-xs text-dim">Spec-driven. Drift-proof. Token-lean.</span>
           </div>
         </div>

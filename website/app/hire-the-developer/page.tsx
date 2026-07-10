@@ -17,9 +17,10 @@ const SKILLS = [
 ];
 
 const LINKS = [
+  { label: 'About me!', href: 'https://v-ai.org/', kind: 'primary' as const },
+  { label: 'LinkedIn', href: 'https://www.linkedin.com/in/vishalrameshpatil/', kind: 'primary' as const },
   { label: 'GitHub', href: 'https://github.com/vishalpatil18', kind: 'primary' as const },
-  { label: 'LinkedIn', href: 'https://www.linkedin.com/in/vishal18/', kind: 'primary' as const },
-  { label: 'Email', href: 'mailto:vishal18@umd.edu', kind: 'secondary' as const },
+  { label: 'Email', href: 'mailto:hire.vishalpatil@gmail.com', kind: 'primary' as const },
 ];
 
 export default function HireThePage() {
@@ -42,8 +43,25 @@ export default function HireThePage() {
         <FadeIn delay={0.12}>
           <p className="max-w-[640px] text-[17px] leading-[1.6] tracking-tighter2 text-muted text-justify">
             AI engineer and researcher shipping end-to-end products from specification through production. My last
-            project, <span className="text-ink">VAi</span> - an AI assistant that talks to recruiters on a job
-            seeker&rsquo;s behalf - went viral and was featured by CNBC.
+            project,{' '}
+            <a
+              href="https://v-ai.org/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-ink underline"
+            >
+              VAi
+            </a>{' '}
+            - an AI assistant that talks to recruiters on a job seeker&rsquo;s behalf - went viral and was{' '}
+            <a
+              href="https://www.cnbc.com/2026/04/30/these-2-job-seekers-built-ai-chatbots-to-talk-to-recruiters-for-them.html"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-ink underline"
+            >
+              featured by CNBC
+            </a>
+            .
           </p>
         </FadeIn>
       </section>
@@ -95,23 +113,74 @@ export default function HireThePage() {
           <h2 className="text-[36px] font-normal tracking-tighter2">Shipped work.</h2>
         </FadeIn>
         <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-          <FadeIn className="rounded-[32px] bg-cloud p-10">
-            <div className="mb-2 text-xs uppercase tracking-[0.06em] text-muted">Product · Viral 2026</div>
-            <h3 className="mb-3 text-[24px] font-normal tracking-tighter2">VAi - AI assistant & portfolio</h3>
-            <p className="mb-4 text-[14.5px] leading-[1.6] tracking-tighter2 text-[#3d3d3d] text-justify">
-              An AI that talks to recruiters on Vishal's behalf. Featured by CNBC. Multi-provider LLM routing,
-              retrieval over a resume + JD corpus, GDPR-aware storage, evaluated end-to-end.
-            </p>
-            <div className="text-[12.5px] tracking-tighter2 text-muted">GenAI · LLM routing · RAG · GDPR</div>
+          <FadeIn className="block">
+            <a
+              href="https://v-ai.org/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block rounded-[32px] bg-cloud p-10 no-underline transition-shadow hover:shadow-[0_0_20px_rgba(0,0,0,0.08)]"
+            >
+              <div className="mb-2 text-xs uppercase tracking-[0.06em] text-muted">Portfolio · Viral 2026</div>
+              <h3 className="mb-3 text-[24px] font-normal tracking-tighter2 text-ink">
+                VAi - AI assistant & portfolio
+              </h3>
+              <p className="mb-4 text-[14.5px] leading-[1.6] tracking-tighter2 text-[#3d3d3d] text-justify">
+                An AI that talks to recruiters on Vishal&rsquo;s behalf. Featured by CNBC. Multi-provider LLM
+                routing, retrieval over a resume + JD corpus, GDPR-aware storage, evaluated end-to-end.
+              </p>
+              <div className="text-[12.5px] tracking-tighter2 text-muted">GenAI · LLM routing · RAG · GDPR</div>
+            </a>
           </FadeIn>
-          <FadeIn delay={0.06} className="rounded-[32px] border border-ink bg-warm p-10">
-            <div className="mb-2 text-xs uppercase tracking-[0.06em] text-muted">Open source · 2026</div>
-            <h3 className="mb-3 text-[24px] font-normal tracking-tighter2">Throughspec</h3>
-            <p className="mb-4 text-[14.5px] leading-[1.6] tracking-tighter2 text-muted">
-              A spec-driven SDLC for Claude Code, published to npm + PyPI from one source-of-truth template tree.
-              Nine slash commands, seven tool-scoped agents, an append-only memory layer under 8k tokens.
-            </p>
-            <div className="text-[12.5px] tracking-tighter2 text-dim">TypeScript · Python · Next.js · Design system</div>
+
+          <FadeIn delay={0.06} className="block">
+            <Link
+              href="/"
+              className="block rounded-[32px] border border-ink bg-warm p-10 no-underline transition-shadow hover:shadow-[0_0_20px_rgba(0,0,0,0.08)]"
+            >
+              <div className="mb-2 text-xs uppercase tracking-[0.06em] text-muted">Open source · 2026</div>
+              <h3 className="mb-3 text-[24px] font-normal tracking-tighter2 text-ink">Throughspec</h3>
+              <p className="mb-4 text-[14.5px] leading-[1.6] tracking-tighter2 text-muted">
+                A spec-driven SDLC for Claude Code, published to npm + PyPI from one source-of-truth template tree.
+                Nine slash commands, seven tool-scoped agents, an append-only memory layer under 8k tokens.
+              </p>
+              <div className="text-[12.5px] tracking-tighter2 text-dim">
+                TypeScript · Python · Next.js · Design system
+              </div>
+            </Link>
+          </FadeIn>
+
+          <FadeIn delay={0.12} className="block">
+            <a
+              href="https://pro-bot.dev/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block rounded-[32px] border border-ink bg-warm p-10 no-underline transition-shadow hover:shadow-[0_0_20px_rgba(0,0,0,0.08)]"
+            >
+              <div className="mb-2 text-xs uppercase tracking-[0.06em] text-muted">Open source · 2026</div>
+              <h3 className="mb-3 text-[24px] font-normal tracking-tighter2 text-ink">ProBot</h3>
+              <p className="mb-4 text-[14.5px] leading-[1.6] tracking-tighter2 text-muted">
+                AI chatbot generator for non-developers. Inspired by VAi - turns a resume, product page, or FAQ into
+                a hosted assistant without writing code.
+              </p>
+              <div className="text-[12.5px] tracking-tighter2 text-dim">GenAI · LLM routing · RAG · GDPR</div>
+            </a>
+          </FadeIn>
+
+          <FadeIn delay={0.18} className="block">
+            <a
+              href="https://vmarker.tech/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block rounded-[32px] bg-cloud p-10 no-underline transition-shadow hover:shadow-[0_0_20px_rgba(0,0,0,0.08)]"
+            >
+              <div className="mb-2 text-xs uppercase tracking-[0.06em] text-muted">Research project · 2026</div>
+              <h3 className="mb-3 text-[24px] font-normal tracking-tighter2 text-ink">vmarker</h3>
+              <p className="mb-4 text-[14.5px] leading-[1.6] tracking-tighter2 text-[#3d3d3d] text-justify">
+                Turn video into searchable knowledge. Timestamp-level retrieval over long-form video, indexed with
+                VideoRAG and routed across multiple LLMs.
+              </p>
+              <div className="text-[12.5px] tracking-tighter2 text-muted">VideoRAG · GenAI · LLM routing</div>
+            </a>
           </FadeIn>
         </div>
       </section>
@@ -124,7 +193,7 @@ export default function HireThePage() {
             Let&rsquo;s ship something worth remembering.
           </h2>
           <p className="mb-8 max-w-[520px] mx-auto text-[15px] tracking-tighter2 text-[#b9b6b4]">
-            Full-time, contract, or advisory. Open to remote across the US &amp; Europe.
+            Full-time, contract, or advisory. Open to work across the US &amp; Europe.
           </p>
           <div className="flex flex-wrap justify-center gap-3">
             {LINKS.map((l) => (

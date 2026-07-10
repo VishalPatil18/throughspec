@@ -67,3 +67,13 @@ details[open] [data-pm] {
 .rise.r-3 { animation-delay: 0.16s; }
 .rise.r-4 { animation-delay: 0.22s; }
 .rise.r-5 { animation-delay: 0.28s; }
+
+/* Pagefind excerpt highlights - dangerouslySetInnerHTML inserts <mark> tags
+ * around matched terms. Style them to stand out on the warm background. */
+.pagefind-excerpt mark,
+.search-result mark {
+  background: #a7fccd;
+  color: #000;
+  padding: 0 2px;
+  border-radius: 2px;
+}
