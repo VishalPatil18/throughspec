@@ -1,0 +1,45 @@
+# Publish the Node CLI to npm on tag push or manual dispatch. Verifies the
+# tag matches packages/cli-node/package.json version before publishing.
+# Uses OIDC provenance so consumers can verify the artifact's origin.
+
+name: publish-npm
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write # required for `npm publish --provenance`
+
+jobs:
+  publish:
+    name: npm publish
+    runs-on: ubuntu-latest
+    environment: npm-publish
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://registry.npmjs.org/
+          cache: npm
+      - name: install
+        run: npm ci
+      - name: verify tag matches package version
+        if: startsWith(github.ref, 'refs/tags/')
+        shell: bash
+        run: |
+          TAG="${GITHUB_REF#refs/tags/v}"
+          PKG=$(node -p "require('./packages/cli-node/package.json').version")
+          if [ "$TAG" != "$PKG" ]; then
+            echo "::error::tag v$TAG does not match packages/cli-node/package.json version $PKG"
+            exit 1
+          fi
+      - name: build
+        run: npm run build -w packages/cli-node
+      - name: publish to npm
+        run: npm publish --workspace packages/cli-node --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

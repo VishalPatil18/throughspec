@@ -1,6 +1,6 @@
 {
   "name": "spec-init",
-  "version": "0.1.0-alpha.0",
+  "version": "0.1.0",
   "description": "Throughspec - Spec-driven. Drift-proof. Token-lean. Scaffolds a Claude Code project around a deterministic SDLC.",
   "license": "MIT",
   "type": "module",

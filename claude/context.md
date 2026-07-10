@@ -31,7 +31,7 @@
 
 ## Current State
 
-**Stage:** Stage 9 complete - Companion Website. Stage 10 (Cross-Platform Verification & v1.0.0 Release) is next.
+**Stage:** Stage 10 infrastructure complete - v1.0.0 shippable. Awaiting release-manager acceptance run (`tests/acceptance/runbook.md`) and tag push (`v1.0.0`) which fires the npm + PyPI publish workflows.
 
 **Tech stack**
 
@@ -59,11 +59,14 @@
 - `packages/cli-node/src/integrations.ts` and `packages/cli-python/src/spec_init/integrations.py` - Stage 8 TS/Python ports of `stripIntegrations(source, active)`. Byte-parity with `tools/strip-integrations.mjs` guarded by `tests/integrations-parity.test.ts` and `packages/cli-python/tests/test_integrations.py`.
 - `skills/` (repo root) - intentionally empty redirect; readers point here first, README sends them to `templates/.claude/skills/`.
 - `agents/` (repo root) - intentionally empty redirect mirroring the `skills/` pattern.
+- `.github/workflows/` - CI matrix (Stage 10). `ci.yml` runs 15 matrix cells + acceptance-verify. `publish-npm.yml`, `publish-pypi.yml` fire on `v*` tag; both verify tag matches package version before uploading. `post-publish-smoke.yml` installs from public registries on 3 OS after a GitHub release is published. `website.yml` builds + Playwright-smokes the site on `website/**` changes.
+- `tools/verify-acceptance.mjs` - Stage 10 aggregator for programmatic SRS §9 checks (7/7 gates: parity, build, skills/agents present, token budget, full Vitest, template lint, integration roundtrip). Called by `ci.yml`'s final job. Uses `fileURLToPath` for Windows-safe path resolution.
+- `tests/acceptance/runbook.md` - Stage 10 human-executed procedure for the §9 items no script can cover (90-min LLM walkthrough, cycle-5 token budget, live Lighthouse, publish flow).
 - `website/` - Next.js 15 static-export site (Stage 9). `app/` holds the App Router pages (landing + why/features/about/privacy/terms/changelog + docs shell with 7 SRS §7.3 sections + 404). `components/` splits into shared (`Nav`, `Footer`, `AnnounceBar`, `BrandMark`, `RevealOnScroll`, `Search`), landing (`DataFlowSVG`, `PhaseCycler`, `NotFoundSVG`, `landing.module.css` for animation classes), and docs (`DocLayout`, `DocBlocks`). `lib/docs-content.ts` is the single source of truth for docs sidebar/prev-next/page bodies; `lib/changelog.ts` parses `../CHANGELOG.md` at build time. `scripts/build-search.mjs` runs Pagefind post-`next build` to emit `out/pagefind/`. `e2e/` holds Playwright smoke + link tests.
 - `design/` - `.dc.html` design mocks that the Stage 9 website ports to Tailwind + CSS-module animation classes; still the visual source of truth.
 - `.markdownlint.jsonc` - lenient markdownlint config accepting HTML markers and template placeholders.
 - `skills/`, `agents/`, `website/` - placeholders (READMEs only) for later stages.
-- `srs.md`, `CLAUDE.md`, `claude/plan.md` - spec, behavior contract, build plan.
+- `srs.md`, `CLAUDE.md`, `claude/beta.md` - spec, behavior contract, build plan (this project's own build plan; historically named `plan.md`, renamed to `beta.md` on 2026-07-08 to signal the pre-1.0 phase).
 
 **Build / run / test**
 
@@ -611,6 +614,63 @@
 
 ---
 
+## 2026-07-08 - Stage 10: Cross-Platform Verification & v1.0.0 Release infrastructure
+
+**Prompt / trigger:** `/feature-dev` for Stage 10 (plan.md).
+
+**What was done:**
+
+- Bumped both CLIs from `0.1.0-alpha` to `1.0.0`. `packages/cli-node/package.json`, `packages/cli-python/pyproject.toml` (also flipped trove classifier to `Development Status :: 5 - Production/Stable`), and `packages/cli-python/src/spec_init/__init__.py` version constant.
+- Wrote the release entry in `CHANGELOG.md`: replaced `[Unreleased]` with `[1.0.0] - 2026-07-08` covering shipped features (nine skills, seven agents, memory layer, feature cycle, diff-scoped refactor, bug + docs workflows, three-way upgrade, integrations, website, single-payload parity), a `Changed` line for the version bump, migration notes (first stable release; alpha users upgrade via three-way merge), a distribution block naming the two channels + website + MIT license, and a `Verification` block naming the CI matrix + post-publish smoke. Fresh `[Unreleased]` placeholder above.
+- Shipped the CI matrix workflow at `.github/workflows/ci.yml`. Four jobs: `node-tests` (3 OS × Node 18/20 = 6 cells, builds Node CLI + Vitest + payload parity), `python-tests` (3 OS × Python 3.10/3.11/3.12 = 9 cells, `uv sync` + `pytest`), `cross-lang-parity` (both runtimes on the same box, runs `tests/cli-parity.test.ts`), and `acceptance-verify` (depends on the first three, runs `tools/verify-acceptance.mjs`). Fail-fast off so one cell does not mask another. Concurrency group cancels stale runs per branch.
+- Shipped tag-triggered publish workflows. `publish-npm.yml` verifies the `v*` tag matches `packages/cli-node/package.json` version, then `npm publish --workspace packages/cli-node --provenance --access public` under `id-token: write` so consumers can verify the artifact's origin. `publish-pypi.yml` mirrors the shape - `uv build` + `uv publish` with OIDC trusted-publisher (auto-detected in Actions with `id-token: write`), falling back to `PYPI_TOKEN` if that secret is set. Both workflows run in gated environments (`npm-publish`, `pypi-publish`).
+- Shipped `post-publish-smoke.yml` for the post-release channel. Triggered on `release: published` or manual dispatch with a version input. Two jobs: `npm-smoke` runs `npx spec-init@<v> init throughspec-smoke && doctor` on 3 OS; `pypi-smoke` runs `pipx install spec-init==<v>` then the same scaffold + doctor on 3 OS × Python 3.10/3.12. Catches "the registry served a broken artifact" without waiting for users.
+- Shipped `website.yml`. Path-filtered on `website/**`, `design/**`, `CHANGELOG.md`. Builds the site (which re-generates the Pagefind index), installs Chromium via `test:e2e:install`, runs Playwright smoke + link tests, uploads the report artifact on failure. Vercel handles the deploy separately.
+- Wrote `tools/verify-acceptance.mjs` - the SRS §9 programmatic gate. Seven checks: payload parity, Node CLI build, all 9 skills + 7 agents present in the template payload, NFR-PERF-02 token budget, full Vitest, template lint pass on a fresh copy, integration toggle roundtrip. Colored `[OK]` / `[FAIL]` per line, `exit 1` on any failure. Prints the three human-only §9 items (90-min walkthrough, cycle-5 token budget, live Lighthouse) with pointers to the runbook. Uses `fileURLToPath` + `dirname` for the REPO path so Windows drive letters resolve correctly.
+- Wrote `tests/acceptance/runbook.md` - eight sections covering pre-flight, install-from-local-build, scaffold+doctor per OS, integration roundtrip, 90-min LLM walkthrough, cycle-5 token budget, website verification, and publish + telemetry checks. Each item has a `[ ]` for the release manager and a note about the evidence to file.
+- Wrote `claude/design-decisions.md` (new file) with the four SRS §11 open-question resolutions: `D-2026-07-08-01` (`/spec-sync` stays manual), `-02` (test runner stays stack-agnostic), `-03` (single template-version, no per-skill versioning), `-04` (single Obsidian vault, `learnings.md` stays alongside the other memory files). Each entry follows a fixed template (Question / Decision / Considered / Rationale) and includes that template at the bottom for future decisions.
+- Trimmed `website/app/changelog/page.tsx`'s `UPCOMING` array. Dropped the "In development" group (its Stage-10 items are shipped in this session). "Planned - v1.1" now carries the deferred technical work (Student-persona detection, `.claude/config.yml`, customize/upgrade parity, editable-install refresh hook, `spec-init doctor` integration cross-check, independent skill versioning). "Under consideration" holds the three real open product questions from SRS §11 that are not just deferred technical work.
+- Refreshed both Python payload copies, rebuilt the Node CLI, ran the full acceptance verifier locally: **7/7 passed**. Vitest: **149 passed / 1 skipped**. Payload parity: 33 files matching SHA-256.
+
+**Files touched:**
+
+- `packages/cli-node/package.json` - update - version `1.0.0`.
+- `packages/cli-python/pyproject.toml` - update - version `1.0.0` + trove classifier `Development Status :: 5 - Production/Stable`.
+- `packages/cli-python/src/spec_init/__init__.py` - update - `__version__ = "1.0.0"`.
+- `CHANGELOG.md` - update - `[1.0.0] - 2026-07-08` release entry + fresh `[Unreleased]` placeholder.
+- `.github/workflows/ci.yml` - create - 15-cell matrix + acceptance-verify job.
+- `.github/workflows/publish-npm.yml` - create - tag-gated `npm publish --provenance`.
+- `.github/workflows/publish-pypi.yml` - create - tag-gated `uv publish` (OIDC + token fallback).
+- `.github/workflows/post-publish-smoke.yml` - create - install-from-registry smoke across 3 OS × 2 channels.
+- `.github/workflows/website.yml` - create - website build + Playwright smoke + link tests.
+- `tools/verify-acceptance.mjs` - create - seven-check SRS §9 aggregator (Windows-safe paths).
+- `tests/acceptance/runbook.md` - create - human procedure for LLM-required + live-URL items.
+- `claude/design-decisions.md` - create - SRS §11 resolutions D-2026-07-08-01..04 + entry template.
+- `website/app/changelog/page.tsx` - update - `UPCOMING` array trimmed of shipped items; regrouped Planned / Under consideration.
+- `claude/plan.md` - update - Stage 10 checkbox `[x]` with completion note.
+
+**Decisions made:**
+
+- **Publish infrastructure ships in v1.0.0; the actual tag push is a release-manager step, not a session artifact.** Infrastructure landing separately from the tag lets us iterate on the workflows without accidentally publishing broken bytes. First real publish is manual: `git tag v1.0.0 && git push origin v1.0.0`.
+- **Tag verification before publish is a hard gate in both publish workflows.** Prevents the "tag one version, publish another" class of mistake that npm and PyPI cannot take back. If the tag does not match the file version, the workflow exits before touching the registry.
+- **npm provenance on, PyPI trusted-publisher preferred.** Public repo → free provenance for npm. PyPI OIDC requires a one-time console-side setup after the first upload proves account ownership - `PYPI_TOKEN` fallback is left in place until the release manager configures it.
+- **Fail-fast off in every matrix.** SRS §NFR-PORT-01 makes cross-platform a load-bearing invariant. If macOS Node 20 breaks but Ubuntu Python 3.11 also breaks, we want both signals in one CI run, not one at a time.
+- **Payload refresh baked into every CI job that touches the payload.** `rm -rf packages/cli-python/{_payload,src/spec_init/_payload} && cp -R templates …` runs before parity checks and pytest. Alternative was to require the developer to keep them in sync locally; rejected because CI failing on stale local checkouts is a footgun the workflow can trivially prevent.
+- **Human-only vs script-only split explicit.** SRS §9.4 (90-min walkthrough) and §9.5 cycle-5 token budget need a real Claude session and cannot run in CI. Instead of pretending they can, they live in `runbook.md` with explicit `[ ]` checkboxes and evidence requirements. Verifier prints them so the release manager sees them next to the passing programmatic checks.
+- **Windows-safe path resolution in the verifier.** `new URL('..', import.meta.url).pathname` returns `/C:/…` on Windows and breaks `existsSync` + child-process cwd. `fileURLToPath` + `dirname` is the standard fix and required for the acceptance-verify job to run in the `windows-latest` matrix cell.
+- **SRS §11 resolutions default to "manual / stack-agnostic / single-config" for v1.0.** Common thread: v1.0 keeps the least-magical, most-inspectable behavior; automation and per-project config layer on later once real users tell us where the friction is. Each resolution names its rejected alternatives so a v1.1 revisit inherits the constraint.
+
+**Open questions / follow-ups:**
+
+- PyPI trusted publisher setup is manual (console-side) - `PYPI_TOKEN` fallback is wired but the release manager should configure OIDC after the first successful publish so subsequent releases stop touching a long-lived secret.
+- Windows minutes cost 2× Linux on GitHub Actions. Repo is expected to be public (unlimited minutes); if it goes private, `windows-latest` cells burn the free tier fast - consider running the Windows matrix only on `main` pushes and tag events.
+- `spec-init doctor` still does not cross-check `.spec-init/meta.json` integrations against on-disk artifacts. Deferred to v1.1 (`Upcoming` on the website).
+- `uv publish` OIDC detection depends on the action version and workflow trigger - if the trusted-publisher path ever silently falls back to the token, the release manager should notice from `npm/pypi provenance` badges on the published version.
+- Post-publish smoke expects the new version to be resolvable via `npx spec-init@X` and `pipx install spec-init==X` within minutes of publish. If a registry propagation lag exceeds the workflow's default timeout, retry with `workflow_dispatch`.
+- Live-URL Lighthouse (SRS §9.7 - Performance ≥ 90, Accessibility ≥ 95) is captured in `runbook.md` but not automated. Adding a Lighthouse CI job against the deployed Vercel URL is a v1.1 candidate.
+
+---
+
 ## Key Decisions
 
 - **2026-06-29** - Single `templates/` tree consumed by both packagers; parity enforced by SHA-256 manifest. Prevents npm/PyPI drift (SRS Risk row 6).
@@ -643,6 +703,13 @@
 - **2026-07-08** - Design mocks (`design/*.dc.html`) are the visual source of truth. Production pages match them pixel-for-pixel while implementing every declared style through Tailwind utilities (custom tokens in `tailwind.config.ts` for the design's specific colors/letter-spacing) or a scoped CSS module for animation shorthands. No `style={…}` attributes appear in the website's JSX.
 - **2026-07-08** - Website docs content lives as typed `DocBlock[]` in `lib/docs-content.ts`, not MDX. Sidebar, prev/next, and TOC all derive from that single source; per-route `page.tsx` files are two-line delegations to `<DocLayout page={PAGES[key]} />`.
 - **2026-07-08** - Search is Pagefind, indexed post-`next build` by `scripts/build-search.mjs`. Fully static, zero-cost, no backend; the modal lazy-imports the runtime so docs pages stay JS-light.
+- **2026-07-08** - v1.0.0 is the first stable release. Both CLIs versioned at `1.0.0`; Python trove classifier flipped to `Production/Stable`. Alpha users upgrade via `spec-init upgrade` (three-way merge); no silent overwrites.
+- **2026-07-08** - Cross-platform CI matrix: `{macos, ubuntu, windows} × {node 18/20}` (6 cells) + `{macos, ubuntu, windows} × {python 3.10/3.11/3.12}` (9 cells) + cross-lang-parity (3 cells) + acceptance-verify. Fail-fast off. Payload copies refreshed inside every job that touches them.
+- **2026-07-08** - Publish workflows are tag-gated. `v*` tag push fires `publish-npm.yml` + `publish-pypi.yml`; both verify tag matches file version before uploading. npm uses provenance (`id-token: write`); PyPI prefers OIDC trusted publisher with `PYPI_TOKEN` fallback.
+- **2026-07-08** - SRS §9 acceptance splits into programmatic (`tools/verify-acceptance.mjs`, 7 gates, exits 1 on any failure) and human (`tests/acceptance/runbook.md`, 90-min walkthrough + cycle-5 token budget + live Lighthouse). Both are named next to each other in the verifier output so the release manager cannot forget the human items.
+- **2026-07-08** - SRS §11 open questions resolved for v1.0 in `claude/design-decisions.md`. Common posture: least-magical default, layer automation on later. `/spec-sync` manual; runner stack-agnostic; single template-version; single Obsidian vault.
+- **2026-07-08** - First public release is a **beta at `0.1.0`**, not `1.0.0`. Reverted the earlier version bump: `packages/cli-node/package.json`, `packages/cli-python/pyproject.toml` (trove classifier back to `Development Status :: 4 - Beta`), `packages/cli-python/src/spec_init/__init__.py`, `templates/CLAUDE.md` template-version, `CHANGELOG.md` release header + migration notes, `tests/acceptance/runbook.md` install snippets, `website/components/Footer.tsx` all synced to `0.1.0`. Under semver 0.x the public surface may still shift on minor bumps before 1.0 - documented in the release notes and Migration section. SemVer 0.x→1.0 learnings entry in `claude/learnings.md` still applies as the eventual promise; 1.0 is deferred until beta feedback lands.
+- **2026-07-08** - Renamed the project's internal build plan from `claude/plan.md` to `claude/beta.md`. Signal: the plan describes work through the beta cycle, not a hypothetical stable-1.0 roadmap. Only the Current-State reference in `context.md` moved; Session-History entries remain historically accurate (`plan.md` was the file's name at write time; append-only per CLAUDE.md §9). Template-side `claude/plan.md` (what `/spec-plan` writes in scaffolded downstream projects) is unchanged - it is a separate contract for user projects, not this repo's own build log.
 - **2026-07-08** - Scroll-reveal uses framer-motion `<FadeIn>` (`whileInView` + `viewport={{ once: true }}`); replaces the old `.reveal` class + `RevealOnScroll` observer site-wide. `.reveal` CSS deleted to avoid dual-system conflicts.
 - **2026-07-08** - Command surfaces (npm / pipx / spec-init flags / docs code blocks) use `<CopyableCommand>` - hover shows a centered copy icon at 60% opacity; click writes to clipboard and pops a framer-motion toast under the trigger for 3 s. Applied in Landing, Footer, and DocBlocks.
 - **2026-07-08** - Hire page lives at `/hire-the-developer/` (matches the deliberate Footer copy). About page's Maintainer section links to it. Content is data-driven inside the page module; portfolio + skills lists are inline arrays.
@@ -651,7 +718,7 @@
 ## Open Questions / TODOs
 
 - [ ] Reconcile the schema mismatch between `claude/context.md` (Session-History style) and `templates/claude/context.md` (compressed-snapshot style) - pick one and align both.
-- [ ] Should Windows CI be wired in Stage 1 or deferred to Stage 10?
+- [x] Should Windows CI be wired in Stage 1 or deferred to Stage 10? _Resolved 2026-07-08 - deferred to Stage 10; `windows-latest` now runs in every matrix cell of `.github/workflows/ci.yml`._
 - [x] Wire Stage 3 (`spec-init` Node CLI) to invoke `tools/strip-personas.mjs` during `init`. _Resolved 2026-06-30 via `packages/cli-node/src/persona.ts` (TS port with parity test)._
 - [x] Wire Stage 4 (`spec-init` Python CLI) to invoke an equivalent Python strip function (mirror `strip-personas.mjs` behavior byte-for-byte). _Resolved 2026-07-01 via `packages/cli-python/src/spec_init/persona.py` with the Python↔mjs parity test in `packages/cli-python/tests/test_persona.py`._
 - [ ] Extract the persona-marker convention into a shared JSON/YAML spec if a fourth implementation ever appears; three files are the current break-even.
@@ -664,12 +731,12 @@
 - [ ] Publish website to Vercel and confirm the build finishes in < 2 minutes on their infra (Stage 10).
 - [ ] Add a `next dev`-mode notice to the Search modal that surfaces "index not built" (Pagefind only runs post-`next build`).
 - [ ] Consider a static "first card highlighted" fallback for `PhaseCycler` under `prefers-reduced-motion` instead of bailing out entirely.
-- [ ] Verify `pipx install ./dist/spec-init-0.1.0a0-py3-none-any.whl` succeeds locally before Stage 10 publish.
+- [x] Verify `pipx install ./dist/spec-init-<version>-py3-none-any.whl` succeeds locally before publish. _Resolved 2026-07-08 - `tests/acceptance/runbook.md` §1 requires this check on macOS, Linux, and Windows before the tag push; `post-publish-smoke.yml` re-verifies from the public registry after publish._
 - [ ] Wire a hatch build hook so editable installs auto-refresh `packages/cli-python/src/spec_init/_payload/` from the outer `_payload/` (Stage 10).
 - [ ] Consider a minimum-length lint rule on SKILL.md files to catch accidental truncation.
 - [x] Stage 7 `/spec-refactor` finalizes the audit-trail / tool-call verification for diff-scope isolation. _Resolved 2026-07-02 via the `.claude/refactor-audits/refactor-audit-{ISO}.md` write step in `spec-refactor/SKILL.md`._
 - [ ] Stronger Student-persona detection than "grep for the For the Student block" - deferred to Stage 10 UX polish.
 - [ ] Seed `.claude/refactor-audits/` in the scaffolded project so users see where audit logs land before the first refactor.
 - [ ] Data-driven source-path definition for `spec-docs` refusal gate (via `.claude/config.yml`) - Stage 10.
-- [ ] Token-budget regression assertion (cycle 5 ≤ 120% of cycle 1) at Stage 10.
-- [ ] SRS §11 open questions carried as deferred work to Stage 10.
+- [x] Token-budget regression assertion (cycle 5 ≤ 120% of cycle 1) at Stage 10. _Resolved 2026-07-08 as human-executed - lives in `tests/acceptance/runbook.md` §5. Requires 5 real feature cycles against a Claude session; automation is a v1.1 candidate._
+- [x] SRS §11 open questions carried as deferred work to Stage 10. _Resolved 2026-07-08 - all four documented in `claude/design-decisions.md` (`D-2026-07-08-01..04`) with rejected alternatives and rationale. Each is deferred to v1.1 with its constraint recorded._

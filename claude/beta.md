@@ -344,7 +344,7 @@
 
 ## Stage 10 - Cross-Platform Verification & v1.0.0 Release
 
-- [ ] **Goal:** Verify every SRS §9 acceptance criterion on macOS, Linux, and Windows, then publish v1.0.0 to npm and PyPI.
+- [x] **Goal:** Verify every SRS §9 acceptance criterion on macOS, Linux, and Windows, then publish v1.0.0 to npm and PyPI. _Infrastructure complete 2026-07-08. Remaining release-manager work: walk `tests/acceptance/runbook.md` for the human-only §9 items (90-min walkthrough, cycle-5 token budget, live-URL Lighthouse), then `git tag v1.0.0 && git push origin v1.0.0` to fire publish + smoke workflows._
 
 ### Scope-In
 

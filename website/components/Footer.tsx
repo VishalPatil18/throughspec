@@ -91,7 +91,7 @@ export default function Footer() {
 
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="text-xs tracking-[-0.01em] text-dim">
-            © 2026 Throughspec v1.0.0 · MIT licensed
+            © 2026 Throughspec v0.1.0 · MIT licensed
           </div>
           <div className="flex gap-2 items-center">
             <Link href="/hire-the-developer/" className="text-xs text-dim underline">

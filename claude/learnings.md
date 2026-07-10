@@ -403,3 +403,55 @@ The trade-off is that **the index is only accurate as of the last build**. Add a
 The lazy-load matters for Lighthouse. Pagefind's runtime is ~30 KB gzipped — enough to notice on First Contentful Paint if it loads on every docs page. The Throughspec `Search.tsx` component uses `dynamic import` — the runtime only downloads when the user actually opens the modal (either by clicking or by pressing `⌘K`). Between page load and the first query, the docs page ships zero search JS.
 
 The generalizable rule: **when the content is static, the index can be static too.** Search is not intrinsically a server workload; it becomes one when the content is dynamic. Match the search tier to the content tier — dynamic sites need query engines, static sites need static indexes — and the ops bill collapses.
+
+### Cross-platform CI matrices: fail-fast off, no shared runners, path escapes
+
+> Why is the Throughspec CI matrix designed the way it is, and why does every job re-copy the payload before running tests?
+
+A cross-platform CI matrix is not just "run the same tests on more computers." Every dimension it adds — OS, runtime version, package channel — introduces a distinct failure mode. A well-designed matrix acknowledges that up front.
+
+Three design rules earned from Stage 10:
+
+1. **`fail-fast: false` on every strategy.** GitHub Actions' default is to cancel the whole matrix when one cell fails. That is the wrong default when the goal is discovery. If macOS Node 18 breaks *and* Ubuntu Python 3.11 breaks, cancelling after macOS means the second bug hides until the first is fixed. Multiply by three OSes and multiple runtime versions and you end up debugging one flake per push for a week. Turning fail-fast off costs nothing but a few CI minutes per bad push and delivers a full picture of what is broken.
+2. **Payload copies refreshed inside every job that touches them.** The Python CLI ships its template payload as a directory copy alongside its source. Locally, that copy can drift from `templates/`. In CI it can drift when the checkout preserves a symlink or a caching layer serves a stale copy. The workflow avoids all of it by running `rm -rf packages/cli-python/{_payload, src/spec_init/_payload} && cp -R templates …` as the first step of every job that runs parity or pytest. Alternative was "require developers to keep them synced" — rejected because CI failing on stale local checkouts is a footgun the workflow can trivially prevent.
+3. **Windows path escapes silently break tools that "should be portable."** `new URL('..', import.meta.url).pathname` returns `/C:/Users/…` on Windows. That is not a valid path for `fs.existsSync` or `child_process.spawn` cwd. `path.resolve(dirname(fileURLToPath(import.meta.url)), '..')` is the canonical fix and required to run `tools/verify-acceptance.mjs` in the `windows-latest` cell. Every cross-platform script needs to be audited for the same class of bug — anywhere a URL is being coerced to a path via string manipulation is a Windows landmine.
+
+Two secondary observations:
+
+- **Cross-runtime jobs deserve their own dimension.** When two runtimes need to agree on an output (Throughspec's Node ↔ Python init parity), running each half of the test in its own matrix cell means one half can pass while the other fails. Instead, dedicate a `cross-lang-parity` job that installs *both* runtimes on one runner and runs the comparison end-to-end. Losing the OS × runtime combinatorics is fine for the comparison — you already covered them in the single-runtime jobs.
+- **The final "gate" job depends on the matrix jobs, not the matrix itself.** `acceptance-verify` runs `needs: [node-tests, python-tests, cross-lang-parity]`. That is a single job depending on three matrix groups; GitHub Actions treats "all cells green" as the group succeeding. This gives you a single required-check name to attach to branch protection — you do not have to enumerate 15 matrix cells.
+
+The wider point: **CI is not a rubber stamp; it is the machine that surfaces the failure modes you did not anticipate.** Design it to spend the extra minutes discovering all of them per push, not to fail as fast as possible and hide the rest.
+
+### npm provenance and PyPI trusted publishing: OIDC beats long-lived tokens
+
+> Both publish workflows need registry credentials. Why is OIDC preferred over storing an npm/PyPI token as a repository secret?
+
+Traditional publish flows store a long-lived registry token (`NPM_TOKEN`, `PYPI_TOKEN`) as a repository secret. The workflow reads it, calls `npm publish` or `twine upload`, and moves on. The token has no expiry, has full publish rights to your package, and lives in a place any workflow file in the repo can access. Rotate it and every fork that inherited a copy still has the old value.
+
+OpenID Connect (OIDC) inverts the model. GitHub Actions produces a short-lived JSON Web Token (JWT) attesting to the workflow run: this repo, this workflow file, this commit SHA, this branch, this job. The registry (npm, PyPI) trusts GitHub's OIDC identity provider directly and verifies the JWT against a policy the maintainer configured — "allow publish only from `vishalpatil18/throughspec`, workflow `publish-npm.yml`, on the `main` branch or a `v*` tag". No long-lived token exists. Every publish carries a cryptographically verifiable receipt of what built it.
+
+**npm provenance** goes one step further. With `--provenance` and `id-token: write`, `npm publish` embeds a Sigstore-style attestation into the published tarball's manifest. Consumers can run `npm audit signatures` (or the registry UI can show a "Verified" badge) and see the exact commit SHA that built this artifact. The pre-cursor is not just "someone with the token published this" but "this exact source ran through the CI configuration named in the workflow and produced this exact tarball." Supply-chain attackers who compromise the token no longer win; they would have to compromise the OIDC provider too.
+
+**PyPI's trusted publisher** is the same shape. Configure it once on the PyPI project settings page ("this repo, this workflow, this environment"), and `uv publish` under `id-token: write` reaches back to GitHub for a fresh JWT on every run. The `PYPI_TOKEN` becomes a fallback for pre-configuration bootstrap only.
+
+There is one operational subtlety: **trusted publishing requires the account to prove ownership of the package name first.** First upload of a new project still uses a token (or the PyPI web upload) because the registry needs to establish "this GitHub identity is authorized to publish under this name." From release two onward, the token can be revoked and OIDC takes over. Throughspec's `publish-pypi.yml` keeps the `UV_PUBLISH_TOKEN` env var as a fallback for the same reason.
+
+The generalizable rule: **short-lived, scoped, verifiable credentials beat long-lived tokens for every high-stakes action.** Publishing to a public registry is high-stakes because the artifact goes to millions of downstream installers. Deploy tokens, service accounts, cloud credentials all follow the same pattern once OIDC is available: prefer identity from the runner to secrets on the runner.
+
+### SemVer 0.x → 1.0: the version bump that ends the negotiating window
+
+> Why does bumping from `0.1.0-alpha.0` to `1.0.0` matter beyond the changelog entry, and what does the "alpha" trove classifier actually change?
+
+Under semantic versioning, `0.x.y` is a public statement that anything might change tomorrow. Minor bumps within `0.x` can be breaking. Consumers pin to `~0.1.0` or `==0.1.*` because they cannot trust the next minor. Tools that expect stability (Renovate, Dependabot, `pipx install --python`) treat `0.x` as "hold my hand."
+
+`1.0.0` is the version where the maintainer accepts a constraint: no breaking change in the public API before `2.0.0`. Bumping to 1.0 is not just a marketing move — it is the promise that the shape of `spec-init init`, the location of the memory files, the schema of `CLAUDE.md`, and the semantics of every slash command will not shift out from under someone who wrote automation on top of them. That promise is why 1.0 releases require a spec-first, drift-proof foundation to stand on. Ship it too early and the promise is fiction.
+
+Two consequences at the tool level:
+
+1. **Trove classifiers.** PyPI's `Development Status` classifier is a filter dimension for search and discovery. `3 - Alpha` filters the package out of a lot of tooling queries and warns users at install time. `5 - Production/Stable` opens it up to production users, corporate installer allowlists, and the "Featured" tab. Flipping the classifier without meaning to keep the SemVer promise is a way to burn user trust in a way that no changelog entry recovers.
+2. **Distributive stability.** Registry mirrors, corporate proxies, and package caches use the version number to decide what to cache and how long. Yanking a `1.0.0` — even for a genuine bug — is expensive because caches propagate. A pre-1.0 alpha can be yanked, patched, and re-released with fewer downstream headaches; a stable release requires a `1.0.1` and the SemVer contract to hold.
+
+The prep work Throughspec did before flipping the version bit is the whole point of the ten-stage build plan. Every stage produced a "standalone, testable, runnable" deliverable. The 1.0 tag is not "we shipped a lot of features" — it is "we can prove each of these features runs to spec on every platform we support, and we will not break them without cutting a major version." SemVer major bumps exist so users can trust patch and minor bumps. Never flip to 1.0 until the CI matrix that would catch a regression is actually in place.
+
+The generalizable rule: **version numbers are contracts with your users, not decorations on the release notes.** `0.x` says "changing our mind is free." `1.x` says "changing our mind costs a major version." Bump to 1.0 when the machinery that enforces the promise is standing under it — not before, not after.

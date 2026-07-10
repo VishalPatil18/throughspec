@@ -9,21 +9,14 @@ export const metadata = {
 
 const UPCOMING = [
   {
-    kind: 'In development',
-    items: [
-      'Cross-platform CI matrix (macOS / Linux / Windows × Node 18/20 × Python 3.10/3.11/3.12).',
-      'v1.0.0 publish to npm + PyPI with tagged release and shared-payload SHA-256 in the release notes.',
-      'End-to-end acceptance run: fresh scaffold → initiation cycle → one feature cycle in under 90 minutes.',
-    ],
-  },
-  {
     kind: 'Planned - v1.1',
     items: [
-      'Stronger Student-persona detection than "grep for the For the Student block".',
+      'Stronger Student-persona detection than the "For the Student" block grep.',
       '`.claude/config.yml` for data-driven source-path definition (consumed by /spec-docs).',
       'Cross-language parity coverage for customize and upgrade outputs (currently only init).',
       'Auto-refresh hook so editable Python installs stay in sync with the outer _payload/.',
       '`spec-init doctor` cross-check of meta.json integrations against on-disk artifacts.',
+      'Independent versioning for skills separate from the template payload.',
     ],
   },
   {
@@ -31,7 +24,6 @@ const UPCOMING = [
     items: [
       'Automatic `/spec-sync` on a Stop hook vs. manual invocation.',
       'Default test-runner per stack, vs. staying stack-agnostic.',
-      'Independent versioning for skills separate from the template payload.',
       'Student persona `learnings.md` as a separate Obsidian vault.',
     ],
   },
