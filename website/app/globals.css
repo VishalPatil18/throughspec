@@ -1,0 +1,79 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Design-token CSS variables so the Tailwind `font-serif` / `font-mono`
+ * families resolve to the self-hosted @fontsource families. */
+:root {
+  --font-serif: 'Source Serif 4', serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+html,
+body {
+  background: #f6f3f1;
+  color: #000;
+  margin: 0;
+  font-family: var(--font-serif);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+details > summary {
+  list-style: none;
+  cursor: pointer;
+}
+
+details > summary::-webkit-details-marker {
+  display: none;
+}
+
+details[open] [data-pm] {
+  transform: rotate(45deg);
+}
+
+[data-pm] {
+  transition: transform 0.25s ease;
+}
+
+/* Scroll-reveal animations moved to framer-motion (<FadeIn>).
+ * Landing-page SVG keyframes moved into components/landing/landing.module.css
+ * so CSS Modules scopes classes AND keyframes together (otherwise the
+ * animation-name reference silently misses). */
+
+/* 404-page rise-in stagger. Not-found composes it via delay classes. */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.rise { animation: rise 0.75s ease both; }
+.rise.r-1 { animation-delay: 0.06s; }
+.rise.r-2 { animation-delay: 0.1s; }
+.rise.r-3 { animation-delay: 0.16s; }
+.rise.r-4 { animation-delay: 0.22s; }
+.rise.r-5 { animation-delay: 0.28s; }
+
+/* Pagefind excerpt highlights - dangerouslySetInnerHTML inserts <mark> tags
+ * around matched terms. Style them to stand out on the warm background. */
+.pagefind-excerpt mark,
+.search-result mark {
+  background: #a7fccd;
+  color: #000;
+  padding: 0 2px;
+  border-radius: 2px;
+}

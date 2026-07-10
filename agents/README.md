@@ -1,17 +1,14 @@
 # agents/
 
-Source-of-truth definitions for Throughspec's pre-configured Claude Code sub-agents.
+**Note:** the canonical source-of-truth for Throughspec agents lives at [`templates/.claude/agents/`](../templates/.claude/agents/), not here.
 
-Stage 1 leaves this directory empty. Agent definitions land in Stage 6 of [`claude/plan.md`](../claude/plan.md):
+Agents are Claude Code sub-agent definitions - single-file `.md` documents with YAML frontmatter (`name`, `description`, `tools`) followed by the agent's system prompt. Claude Code auto-discovers them from `.claude/agents/` at project open time. Placing them inside `templates/` means every scaffolded project gets them via the existing payload pipeline (source → parity check → both CLIs → scaffolded `.claude/agents/`) with no build-time merge.
 
-| Agent               | Role                                                       |
-| ------------------- | ---------------------------------------------------------- |
-| `spec-interrogator` | Cross-questioning rounds; produces requirements diffs      |
-| `spec-architect`    | Proposes architecture options with tradeoffs               |
-| `spec-planner`      | Decomposes scope into 8–10 testable stages                 |
-| `spec-coder`        | Implements a single stage end-to-end                       |
-| `spec-refactorer`   | Cleans only the diff Claude just produced                  |
-| `spec-doc-writer`   | Updates the memory layer after every cycle                 |
-| `spec-bug-hunter`   | Isolates, reproduces, and patches bugs without scope creep |
+This directory is intentionally left empty. It exists only to prevent confusion for readers who look here first.
 
-See SRS §2.2.4 for tool-allowlist constraints per agent.
+| Stage | Agents                                                                                                                            |
+| ----- | --------------------------------------------------------------------------------------------------------------------------------- |
+| 6     | `spec-interrogator`, `spec-architect`, `spec-planner`, `spec-coder`, `spec-refactorer`, `spec-doc-writer`                          |
+| 7     | `spec-bug-hunter`                                                                                                                 |
+
+See SRS §2.2.4 for the tool-allowlist per agent - enforced by `tests/agents.test.ts`.

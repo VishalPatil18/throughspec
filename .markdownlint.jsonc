@@ -1,0 +1,33 @@
+// Throughspec markdownlint config.
+// Rules are lenient because template files contain intentional placeholder
+// syntax (_<value>_, HTML persona-marker comments) and are consumed as-is.
+{
+  "default": true,
+  // Line length: templates include long headings and table rows.
+  "MD013": false,
+  // Inline HTML: persona markers (<!-- persona:X -->) and template comments.
+  "MD033": false,
+  // First-line-h1 is fine but some templates start with a comment before the H1.
+  "MD041": false,
+  // Emphasis-as-heading: templates use _<placeholder>_ under sub-sections.
+  "MD036": false,
+  // Bare URLs are allowed in template README examples.
+  "MD034": false,
+  // Duplicate headings across template docs are expected (multiple Feature entries).
+  "MD024": false,
+  // Table pipe style differences between docs.
+  "MD055": false,
+  // Compact table alignment (templates use tight tables intentionally).
+  "MD060": false,
+  // Emphasis style: templates use underscore, which prettier preserves.
+  "MD049": { "style": "underscore" },
+  // Heading style: templates use atx (`##`) throughout, but the
+  // integration:obsidian front-matter fence line right below `tags:` gets
+  // misread as a setext heading. Turn the rule off to avoid the false
+  // positive; atx style is enforced by convention in the templates.
+  "MD003": false,
+  // Blank-lines-around-headings would flag the `---` fence line right below
+  // the `tags:` line of an obsidian front-matter block. Templates use
+  // prettier-ignore around these fences and the scaffold strips them cleanly.
+  "MD022": false
+}

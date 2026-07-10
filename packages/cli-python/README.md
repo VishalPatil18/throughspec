@@ -48,9 +48,37 @@ uv build
 
 ---
 
-## Stage 1 Status
+## Commands
 
-This package currently ships a stub that prints the version and exits. Real command surface lands in Stage 4 of [`claude/plan.md`](../../claude/plan.md).
+Command surface and flags are identical to the [Node CLI](../cli-node/README.md#commands). The two channels produce byte-identical scaffolded trees for every persona/integration combination - enforced by the cross-language parity test at `tests/cli-parity.test.ts`.
+
+| Command | Purpose |
+|---------|---------|
+| `spec-init init <name>` | Scaffold a new project into `<name>/` |
+| `spec-init customize --add / --remove <graphify\|obsidian>` | Toggle an integration in an existing project |
+| `spec-init customize --persona <name>` | Swap the CLAUDE.md persona block |
+| `spec-init add-skill <name>` | Copy a skill from the payload's `skills/` catalog (populated in Stage 5) |
+| `spec-init upgrade` | Three-way-merge a newer template payload into an existing project |
+| `spec-init doctor` | Verify a scaffolded project's shape |
+
+### Flags
+
+- `--persona vibe|student|engineer|team`
+- `--integrations graphify,obsidian`
+- `--force` / `--dry-run` / `-h` / `-v`
+
+### The `.spec-init/base/` snapshot
+
+`init` writes a pristine copy of the payload into `<project>/.spec-init/base/`. `upgrade` uses that snapshot as the common ancestor for its three-way merge. `doctor` checks it exists.
+
+---
+
+## Tests
+
+```bash
+cd packages/cli-python
+uv run pytest tests/
+```
 
 ---
 

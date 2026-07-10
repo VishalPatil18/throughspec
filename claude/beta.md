@@ -75,7 +75,7 @@
 
 ## Stage 2 - Canonical Project Payload
 
-- [ ] **Goal:** Produce the versioned template files that a fresh `spec-init` run will copy (SRS §6 tree), each pre-seeded with the structure and front-matter the Kit's skills depend on.
+- [x] **Goal:** Produce the versioned template files that a fresh `spec-init` run will copy (SRS §6 tree), each pre-seeded with the structure and front-matter the Kit's skills depend on. _Completed 2026-06-30._
 
 ### Scope-In
 
@@ -109,7 +109,7 @@
 
 ## Stage 3 - Node.js Scaffolding CLI (`spec-init`)
 
-- [ ] **Goal:** Ship the Node-based CLI that produces the §6 tree, supports `init / customize / add-skill / upgrade / doctor`, and refuses to overwrite without `--force` (FR-INIT-01..06, NFR-PERF-01).
+- [x] **Goal:** Ship the Node-based CLI that produces the §6 tree, supports `init / customize / add-skill / upgrade / doctor`, and refuses to overwrite without `--force` (FR-INIT-01..06, NFR-PERF-01). _Completed 2026-06-30._
 
 ### Scope-In
 
@@ -147,7 +147,7 @@
 
 ## Stage 4 - Python Scaffolding CLI (`spec-init`)
 
-- [ ] **Goal:** Mirror the Node CLI in Python so npm and PyPI users get an identical first experience (SRS §2.3).
+- [x] **Goal:** Mirror the Node CLI in Python so npm and PyPI users get an identical first experience (SRS §2.3). _Completed 2026-07-01._
 
 ### Scope-In
 
@@ -179,7 +179,7 @@
 
 ## Stage 5 - Initiation Skills (`/spec-requirements`, `/spec-design`, `/spec-plan`)
 
-- [ ] **Goal:** Ship the three skills that produce `claude/srs.md`, `design/design.md`, and `claude/plan.md` via cross-questioning, enforcing all FR-REQ, FR-DESIGN, and FR-PLAN gates.
+- [x] **Goal:** Ship the three skills that produce `claude/srs.md`, `design/design.md`, and `claude/plan.md` via cross-questioning, enforcing all FR-REQ, FR-DESIGN, and FR-PLAN gates. _Completed 2026-07-01._
 
 ### Scope-In
 
@@ -213,7 +213,7 @@
 
 ## Stage 6 - 6-Phase Feature Cycle (`/spec-feature` + Agents)
 
-- [ ] **Goal:** Implement the full 6-phase cycle (SRS §3.5, §5.2) and the agents that support it, then prove it by shipping one real feature inside a sample project.
+- [x] **Goal:** Implement the full 6-phase cycle (SRS §3.5, §5.2) and the agents that support it, then prove it by shipping one real feature inside a sample project. _Completed 2026-07-01 (skill/agent definitions + structural tests; end-to-end feature-cycle verification via a real LLM run is deferred to Stage 10 acceptance)._
 
 ### Scope-In
 
@@ -247,7 +247,7 @@
 
 ## Stage 7 - Maintenance Skills (`/spec-refactor`, `/spec-bug`, `/spec-docs`, `/spec-sync`)
 
-- [ ] **Goal:** Ship the four maintenance skills that keep the project honest after the initial build (FR-BUG, FR-DOCS, FR-CODE-04, §5.3, §5.4, §5.5).
+- [x] **Goal:** Ship the four maintenance skills that keep the project honest after the initial build (FR-BUG, FR-DOCS, FR-CODE-04, §5.3, §5.4, §5.5). _Completed 2026-07-02._
 
 ### Scope-In
 
@@ -280,7 +280,7 @@
 
 ## Stage 8 - Integrations (Graphify, Obsidian)
 
-- [ ] **Goal:** Ship the two optional integrations as fully toggleable add-ons (FR-INTEGRATE-01..03).
+- [x] **Goal:** Ship the two optional integrations as fully toggleable add-ons (FR-INTEGRATE-01..03). _Completed 2026-07-08._
 
 ### Scope-In
 
@@ -310,7 +310,7 @@
 
 ## Stage 9 - Companion Website
 
-- [ ] **Goal:** Stand up the static documentation/distribution site with every section enumerated in SRS §7.3.
+- [x] **Goal:** Stand up the static documentation/distribution site with every section enumerated in SRS §7.3. _Completed 2026-07-08. Deployed Lighthouse verification deferred to Stage 10._
 
 ### Scope-In
 
@@ -344,7 +344,7 @@
 
 ## Stage 10 - Cross-Platform Verification & v1.0.0 Release
 
-- [ ] **Goal:** Verify every SRS §9 acceptance criterion on macOS, Linux, and Windows, then publish v1.0.0 to npm and PyPI.
+- [x] **Goal:** Verify every SRS §9 acceptance criterion on macOS, Linux, and Windows, then publish v1.0.0 to npm and PyPI. _Infrastructure complete 2026-07-08. Remaining release-manager work: walk `tests/acceptance/runbook.md` for the human-only §9 items (90-min walkthrough, cycle-5 token budget, live-URL Lighthouse), then `git tag v1.0.0 && git push origin v1.0.0` to fire publish + smoke workflows._
 
 ### Scope-In
 

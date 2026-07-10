@@ -11,7 +11,7 @@ import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
-const REPO_ROOT = resolve(__dirname, '..', '..');
+const REPO_ROOT = resolve(__dirname, '..');
 const PARITY_SCRIPT = resolve(REPO_ROOT, 'tools/check-payload-parity.mjs');
 const NODE_PAYLOAD = resolve(REPO_ROOT, 'packages/cli-node/dist/templates');
 const PY_PAYLOAD = resolve(REPO_ROOT, 'packages/cli-python/_payload');

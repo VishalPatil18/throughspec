@@ -1,0 +1,220 @@
+/* Landing-page animation classes AND their keyframes. Keyframes live here
+ * (not in globals.css) so CSS Modules scopes both together. If keyframes
+ * lived globally and classes lived here, CSS Modules would rewrite the
+ * animation-name to a local scoped identifier that would not match the
+ * global keyframe - the animation would silently die. */
+
+@keyframes flow {
+  to {
+    stroke-dashoffset: -120;
+  }
+}
+
+@keyframes glowPulse {
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 0.78;
+  }
+}
+
+@keyframes tick {
+  0%,
+  100% {
+    opacity: 0.22;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes floatY {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-7px);
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes spinRev {
+  to {
+    transform: rotate(-360deg);
+  }
+}
+
+@keyframes needleSwing {
+  0%,
+  100% {
+    transform: rotate(-30deg);
+  }
+  50% {
+    transform: rotate(32deg);
+  }
+}
+
+@keyframes scanY {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(34px);
+  }
+}
+
+@keyframes pistonY {
+  0%,
+  40% {
+    transform: translateY(0);
+  }
+  60%,
+  68% {
+    transform: translateY(10px);
+  }
+  88%,
+  100% {
+    transform: translateY(0);
+  }
+}
+
+@keyframes pistonX {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(-6px);
+  }
+}
+
+@keyframes steamUp {
+  0% {
+    opacity: 0;
+    transform: translateY(0) scale(0.6);
+  }
+  30% {
+    opacity: 0.4;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-20px) scale(1.3);
+  }
+}
+
+@keyframes eject {
+  0% {
+    transform: translateX(0);
+    opacity: 0;
+  }
+  12% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(34px);
+    opacity: 0;
+  }
+}
+
+@keyframes tokenRun {
+  0% {
+    transform: translateX(0);
+    opacity: 0;
+  }
+  6% {
+    opacity: 1;
+  }
+  94% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(452px);
+    opacity: 0;
+  }
+}
+
+@keyframes sparkle {
+  0%,
+  100% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.flow30 { animation: flow 3s linear infinite; }
+.flow26 { animation: flow 2.6s linear infinite; }
+.flow33 { animation: flow 3.3s linear infinite; }
+.flow28 { animation: flow 2.8s linear infinite; }
+.flow35 { animation: flow 3.5s linear infinite; }
+.flow31 { animation: flow 3.1s linear infinite; }
+.flow27 { animation: flow 2.7s linear infinite; }
+.flow34 { animation: flow 3.4s linear infinite; }
+.flow29 { animation: flow 2.9s linear infinite; }
+.flow36 { animation: flow 3.6s linear infinite; }
+.flow24 { animation: flow 2.4s linear infinite; }
+
+.glowPulse {
+  animation: glowPulse 4s ease-in-out infinite;
+  transform-origin: 588px 214px;
+}
+
+.spin32 { animation: spin 3.2s linear infinite; transform-box: fill-box; transform-origin: center; }
+.spinRev32 { animation: spinRev 3.2s linear infinite; transform-box: fill-box; transform-origin: center; }
+.spin7 { animation: spin 7s linear infinite; transform-box: fill-box; transform-origin: center; }
+.spinRev46 { animation: spinRev 4.6s linear infinite; transform-box: fill-box; transform-origin: center; }
+.spin33 { animation: spin 3.3s linear infinite; transform-box: fill-box; transform-origin: center; }
+.spin36 { animation: spin 3.6s linear infinite; transform-box: fill-box; transform-origin: center; }
+.spin44 { animation: spin 4.4s linear infinite; transform-box: fill-box; transform-origin: center; }
+.spinRev3 { animation: spinRev 3s linear infinite; transform-box: fill-box; transform-origin: center; }
+.spin26 { animation: spin 2.6s linear infinite; transform-box: fill-box; transform-origin: center; }
+.spin22 { animation: spin 2.2s linear infinite; transform-box: fill-box; transform-origin: center; }
+.spin26slow { animation: spin 26s linear infinite; }
+
+.needle {
+  animation: needleSwing 2.6s ease-in-out infinite;
+  transform-box: fill-box;
+  transform-origin: center bottom;
+}
+
+.steam0 { animation: steamUp 2.4s ease-out infinite; }
+.steam1 { animation: steamUp 2.4s ease-out infinite 1.2s; }
+.steam18 { animation: steamUp 1.8s ease-out infinite; }
+
+.tick0 { animation: tick 1.2s ease-in-out infinite; }
+.tick1 { animation: tick 1.2s ease-in-out infinite 0.4s; }
+.tick2 { animation: tick 1.2s ease-in-out infinite 0.8s; }
+
+.scan { animation: scanY 2.2s ease-in-out infinite; }
+.piston { animation: pistonY 1.8s ease-in-out infinite; }
+.pistonX { animation: pistonX 1.1s ease-in-out infinite; }
+
+.eject0 { animation: eject 2.2s ease-in infinite; }
+.eject1 { animation: eject 2.2s ease-in infinite 1.1s; }
+
+.token0 { animation: tokenRun 3.4s linear infinite; }
+.token1 { animation: tokenRun 3.4s linear infinite 1.1s; }
+.token2 { animation: tokenRun 3.4s linear infinite 2.2s; }
+
+.sparkle0 { animation: sparkle 1s ease-in-out infinite; }
+.sparkle1 { animation: sparkle 1s ease-in-out infinite 0.5s; }
+
+.floatSlow { animation: floatY 6s ease-in-out infinite; }
+.floatMed { animation: floatY 5s ease-in-out infinite 0.8s; }
+
+/* Memory-layer artwork gradient (accent bg). */
+.memoryArt {
+  background: linear-gradient(150deg, rgba(255, 148, 115, 0.85) 4%, rgba(160, 181, 235, 0.85) 60%, rgba(167, 252, 205, 0.85) 100%);
+}
