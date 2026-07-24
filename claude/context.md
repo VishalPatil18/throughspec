@@ -671,8 +671,43 @@
 
 ---
 
+## 2026-07-24 - Caveman integration + interactive integration picker
+
+**Prompt / trigger:** `/feature-dev` then `/caveman` - add Caveman (https://github.com/JuliusBrussee/caveman) as a token-saving integration users can opt into at install time; then generalize the interactive offer so graphify/obsidian/caveman all get an in-terminal picker.
+
+**What was done:**
+
+- Added `caveman` as a third integration alongside `graphify`/`obsidian`. Because Caveman is an externally-installed agent skill (`npx skills add JuliusBrussee/caveman`), not a config file the project owns, its payload is one guidance doc plus marker blocks and a post-init install nudge - **no vendoring** of Caveman's code (honors §7 zero-cost and avoids version drift).
+- Added an interactive integration picker to `init`: when run on a TTY with no explicit `--integrations`, it prompts `Integrations to include? 1) all 2) let me select 3) none`. "let me select" prints a numbered list; space/comma-separated numbers + Enter submit the subset. Gated off for dry-run, non-TTY (CI/tests), and explicit `--integrations`, so the existing spawn-based suite is unaffected. Chose a dependency-free numbered picker over a raw-mode checkbox TUI (would need ~150 lines/language, fragile cross-platform) - deliberate simplification.
+- Prompt logic factored behind injectable deps (`isTty`/`ask`) so gating + selection parsing is unit-tested without a pty; the raw stdin read is thin glue.
+
+**Files touched:**
+
+- `packages/cli-node/src/args.ts`, `packages/cli-node/src/integrations.ts`, `tools/strip-integrations.mjs`, `packages/cli-python/src/spec_init/args.py`, `packages/cli-python/src/spec_init/integrations.py` - update - add `caveman` to every integration-name list / Literal / help text (the 5-spot parity surface).
+- `templates/CLAUDE.md`, `templates/README.md` - update - new `<!-- integration:caveman -->` marker blocks (§8 + Integrations section).
+- `templates/_integrations/caveman/claude/caveman.md` - create - guidance doc (install command, `/caveman` modes, session note); copied only when caveman active.
+- `packages/cli-node/src/checklist.ts`, `packages/cli-python/src/spec_init/checklist.py` - update - accept `integrations`, print Caveman install nudge when active.
+- `packages/cli-node/src/commands/init.ts`, `packages/cli-python/src/spec_init/commands/init.py` - update - `promptIntegrations`/`prompt_integrations` picker; effective (post-prompt) set drives strip/apply, `meta.json`, and checklist.
+- `tests/integrations-parity.test.ts`, `tests/integrations.test.ts`, `packages/cli-python/tests/test_integrations.py`, `packages/cli-python/tests/test_init.py` - update - caveman parity sets, add/remove roundtrip, README-host assertion, picker gating tests.
+- `tests/__snapshots__/personas.test.ts.snap` - update - CLAUDE.md gained the caveman block (regenerated via `vitest -u`).
+
+**Decisions made:**
+
+- Picker is numbered-list, dependency-free, synchronous - rejected raw-mode checkbox TUI and pulling `@inquirer`/`questionary` (§7 zero-cost, no-new-dep).
+- Caveman is opt-in (off unless selected/named); not vendored - install nudged via checklist + README.
+- Prompt gated on TTY + empty `--integrations` + not dry-run; explicit flags always win, keeping scripted/CI runs prompt-free.
+
+**Open questions / follow-ups:**
+
+- pytest not run in this environment (`uv` absent, system python 3.9 without pytest); Python verified via direct runtime import checks mirroring the pytest assertions. Run `uv run pytest` before merge.
+- `spec-init doctor` cross-check of `meta.json` integrations vs on-disk artifacts should include `claude/caveman.md` (folds into the existing Stage 10 doctor TODO).
+- If a real arrow/space checkbox TUI is later wanted, it needs a raw-mode helper per language - revisit the dependency tradeoff then.
+
+---
+
 ## Key Decisions
 
+- **2026-07-24** - Interactive integration picker in `init` is a dependency-free numbered list (all / let me select / none), gated on TTY + no explicit `--integrations`. Rejected raw-mode checkbox TUI and inquirer/questionary deps (zero-cost, no-new-dep). Caveman added as a non-vendored, opt-in integration (install nudged, not bundled).
 - **2026-06-29** - Single `templates/` tree consumed by both packagers; parity enforced by SHA-256 manifest. Prevents npm/PyPI drift (SRS Risk row 6).
 - **2026-06-29** - npm workspaces + uv as the two package managers.
 - **2026-06-29** - MIT license.

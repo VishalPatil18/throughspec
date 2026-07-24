@@ -1,10 +1,14 @@
 // Post-init checklist (FR-INIT-04, NFR-USE-01).
 // Prints a single-screen "what to do next" summary after scaffolding.
 
-import type { Persona } from './args.js';
+import type { Integration, Persona } from './args.js';
 
 /** Return the post-init checklist as a string. `outDir` is the scaffold path. */
-export function postInitChecklist(outDir: string, persona: Persona | null): string {
+export function postInitChecklist(
+  outDir: string,
+  persona: Persona | null,
+  integrations: readonly Integration[] = [],
+): string {
   const lines = [
     '',
     `[OK] Scaffolded ${outDir}`,
@@ -18,6 +22,12 @@ export function postInitChecklist(outDir: string, persona: Persona | null): stri
   ];
   if (persona === 'student') {
     lines.push('Student mode: after each phase, ask Claude "Why this step?" and append to claude/learnings.md.');
+    lines.push('');
+  }
+  if (integrations.includes('caveman')) {
+    lines.push('Caveman enabled - install the skill once (free, local, no account):');
+    lines.push('  npx skills add JuliusBrussee/caveman');
+    lines.push('Then use /caveman in Claude Code. See claude/caveman.md.');
     lines.push('');
   }
   return lines.join('\n');

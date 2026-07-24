@@ -23,7 +23,7 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { argv, exit, stdout } from 'node:process';
 
-export const INTEGRATION_NAMES = ['graphify', 'obsidian'];
+export const INTEGRATION_NAMES = ['graphify', 'obsidian', 'caveman'];
 const VALID = new Set(INTEGRATION_NAMES);
 
 function parseArgs(args) {

@@ -15,7 +15,13 @@ const FIXTURES = [
   resolve(__dirname, '..', 'templates/design/design.md'),
 ];
 
-const ACTIVE_SETS = [[], ['graphify'], ['obsidian'], ['graphify', 'obsidian']] as const;
+const ACTIVE_SETS = [
+  [],
+  ['graphify'],
+  ['obsidian'],
+  ['caveman'],
+  ['graphify', 'obsidian', 'caveman'],
+] as const;
 
 describe('integration-strip parity', () => {
   for (const path of FIXTURES) {

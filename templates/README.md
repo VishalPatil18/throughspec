@@ -102,6 +102,20 @@ Open the project folder in Obsidian to navigate the markdown graph visually.
 
 <!-- /integration:obsidian -->
 
+<!-- integration:caveman -->
+
+### Caveman
+
+This project is wired for [Caveman](https://github.com/JuliusBrussee/caveman) - a token-compression skill that makes the agent reply in terse "caveman" prose, cutting output tokens ~65% while keeping code, commands, and errors byte-exact. It also manages the compression mode across a session (`/caveman-stats` reports savings). Install it once (free, local, no account):
+
+```sh
+npx skills add JuliusBrussee/caveman
+```
+
+See `claude/caveman.md` for modes and usage.
+
+<!-- /integration:caveman -->
+
 ---
 
 ## Contributing

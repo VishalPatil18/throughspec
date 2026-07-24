@@ -6,7 +6,7 @@
 export const PERSONAS = ['vibe', 'student', 'engineer', 'team'] as const;
 export type Persona = (typeof PERSONAS)[number];
 
-export const INTEGRATIONS = ['graphify', 'obsidian'] as const;
+export const INTEGRATIONS = ['graphify', 'obsidian', 'caveman'] as const;
 export type Integration = (typeof INTEGRATIONS)[number];
 
 export const COMMANDS = ['init', 'customize', 'add-skill', 'upgrade', 'doctor'] as const;
@@ -124,7 +124,7 @@ COMMANDS
 
 FLAGS
   --persona <name>              vibe | student | engineer | team
-  --integrations <a,b>          graphify,obsidian (comma-separated, no spaces)
+  --integrations <a,b>          graphify,obsidian,caveman (comma-separated, no spaces)
   --add <name>                  used with customize
   --remove <name>               used with customize
   --force                       overwrite existing files during init
@@ -135,6 +135,7 @@ FLAGS
 EXAMPLES
   spec-init init my-project --persona student
   spec-init init my-project --persona engineer --integrations graphify,obsidian
+  spec-init init my-project --integrations caveman
   spec-init customize --add obsidian
   spec-init upgrade
   spec-init doctor

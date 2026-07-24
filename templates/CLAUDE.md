@@ -107,6 +107,12 @@ When invoked via `/spec-docs`:
 
 <!-- /integration:obsidian -->
 
+<!-- integration:caveman -->
+
+- [x] **Caveman** - _token-lean session mode; see `claude/caveman.md`_. Speak in caveman mode to cut output tokens (~65%) while keeping code and commands byte-exact. Activate with `/caveman`; check savings with `/caveman-stats`.
+
+<!-- /integration:caveman -->
+
 ---
 
 ## 9. Quick links
