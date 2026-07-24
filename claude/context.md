@@ -705,8 +705,35 @@
 
 ---
 
+## 2026-07-24 - Kit default: suggest a commit message each turn
+
+**Prompt / trigger:** `/feature-dev` - add an instruction to the kit's CLAUDE.md so scaffolded projects get a short commit-message suggestion at the end of file-changing responses by default.
+
+**What was done:**
+
+- Added invariant **6. Suggest a commit.** to §2 of `templates/CLAUDE.md`: end any response that changed files with a Conventional Commits message (`<type>: <description>`, imperative subject <= 50 chars, `type` from the same set as CONTRIBUTING.md). Placed in §2 (the standing contract, unmarked prose) rather than §7 (reserved for the user's own rules) so it survives every persona strip and applies by default.
+- No section renumbering - a new invariant inside the existing §2 list keeps `## 9. Quick links` (asserted by `tests/personas.test.ts`) and all section numbers stable.
+
+**Files touched:**
+
+- `templates/CLAUDE.md` - update - new §2 invariant 6.
+- `tests/__snapshots__/personas.test.ts.snap` - update - all four persona snapshots gain the invariant line (regenerated via `vitest -u`).
+
+**Decisions made:**
+
+- Scoped to responses that changed files (not every turn) - a commit suggestion with nothing to commit is noise.
+- Aligned wording to `templates/CONTRIBUTING.md` §Commit Messages so the kit stays internally consistent; references it instead of duplicating the full spec.
+
+**Open questions / follow-ups:**
+
+- If users want a suggestion on every turn regardless of file changes, widen the invariant wording - trivial one-line change.
+- Consider whether `/spec-feature` and `/spec-bug` skills should emit the commit suggestion themselves (belt-and-suspenders) or rely solely on the CLAUDE.md contract.
+
+---
+
 ## Key Decisions
 
+- **2026-07-24** - Kit CLAUDE.md defaults to suggesting a Conventional Commits message at the end of file-changing responses (§2 invariant 6). Placed in the standing-contract section, not the user-overrides section, so it is persona-agnostic and on by default.
 - **2026-07-24** - Interactive integration picker in `init` is a dependency-free numbered list (all / let me select / none), gated on TTY + no explicit `--integrations`. Rejected raw-mode checkbox TUI and inquirer/questionary deps (zero-cost, no-new-dep). Caveman added as a non-vendored, opt-in integration (install nudged, not bundled).
 - **2026-06-29** - Single `templates/` tree consumed by both packagers; parity enforced by SHA-256 manifest. Prevents npm/PyPI drift (SRS Risk row 6).
 - **2026-06-29** - npm workspaces + uv as the two package managers.

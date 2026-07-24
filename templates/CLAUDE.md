@@ -28,6 +28,7 @@ This project follows the **Spec-Driven Development** SDLC. You MUST honor these 
 3. **Spec before code.** Never write production code until the relevant feature's Tech Specs phase is complete.
 4. **Diff-scoped refactor.** When `/spec-refactor` runs, touch only files changed in the current cycle.
 5. **Memory is sacred.** After every feature cycle, update `claude/context.md`, `claude/features.md`, `claude/design-decisions.md`, `claude/learnings.md`, and `CHANGELOG.md` - in that order.
+6. **Suggest a commit.** End any response that changed files with a suggested Conventional Commits message (`<type>: <description>`, imperative subject <= 50 chars; `type` one of `feat`, `fix`, `refactor`, `docs`, `test`, `chore`, `perf`, `ci`). See `CONTRIBUTING.md`.
 
 ---
 
