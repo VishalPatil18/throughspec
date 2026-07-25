@@ -26,6 +26,14 @@ Closes #
 - [ ] `CHANGELOG.md` is updated under the correct section.
 - [ ] `claude/learnings.md` updated (if student-mode is active).
 
+## Risk & Impact
+
+<!-- Help reviewers focus on architecture, not line counts. Keep it to what matters. -->
+
+- **What changed:** _<the areas/modules this PR touches>_
+- **Could break:** _<blast radius - callers, data, migrations that depend on this>_
+- **Security notes:** _<authz, input validation, secrets/PII, new external calls - or "none">_
+
 ## Tests
 
 - [ ] New tests added for new behavior.

@@ -30,6 +30,9 @@ This project follows the **Spec-Driven Development** SDLC. You MUST honor these 
 5. **Memory is sacred.** After every feature cycle, update `claude/context.md`, `claude/features.md`, `claude/design-decisions.md`, `claude/learnings.md`, and `CHANGELOG.md` - in that order.
 6. **Suggest a commit.** End any response that changed files with a suggested Conventional Commits message (`<type>: <description>`, imperative subject <= 50 chars; `type` one of `feat`, `fix`, `refactor`, `docs`, `test`, `chore`, `perf`, `ci`). See `CONTRIBUTING.md`.
 7. **Honor project config.** At the start of a session, read `spec.config.js` if it exists and respect its `skills`, `workflow`, and `settings` (its `customInstructions` bind exactly like section 7's). It is the user's customization layer; when it conflicts with a default here it wins, except the mandatory invariants above (spec before code, memory is sacred) always hold.
+8. **Write specs token-lean.** Keep narrative prose in Markdown, but render structured data - config, and schemas nested deeper than three levels - as flat fenced ` ```yaml ` blocks. YAML parses more reliably and costs fewer tokens than deep JSON/prose, so specs stay cheap to read and act on.
+9. **Pin and verify versions.** Every library named in a spec or plan MUST carry an explicit version. Verify versions against current documentation before use - do not trust model training knowledge, which is stale by definition and will suggest outdated releases.
+10. **Keep specs and prompts clean.** Never hardcode secrets, personal data, or live URLs into specs, prompts, or the memory files. Reference an env var or config key instead; an agent will otherwise reuse whatever literal strings it finds in context.
 
 ---
 

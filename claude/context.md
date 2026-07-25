@@ -924,8 +924,40 @@
 
 ---
 
+## 2026-07-25 - Spec-format, BDD, review, and guardrail conventions
+
+**Prompt / trigger:** `/feature-dev` - tighten the kit toward faster, more token-efficient, more rigorously spec-driven output.
+
+**What was done:**
+
+- **Token-lean spec format (CLAUDE.md invariant 8):** narrative stays Markdown, but structured data - config and schemas nested > 3 levels - is rendered as flat fenced YAML. YAML parses more reliably and costs fewer tokens than deep JSON/prose, so specs are cheaper for Claude to read and act on every turn.
+- **BDD acceptance scenarios:** `/spec-requirements` and the `srs.md` template now capture Given/When/Then (State -> Action -> Outcome) scenarios for each load-bearing FR, each requiring at least one edge/failure scenario, not just the happy path. These become the acceptance criteria `/spec-plan` stages against and the failing tests `/spec-feature` and `/spec-bug` write first. New `srs.md` section 5 "Acceptance Scenarios" (renumbered 5->10).
+- **Guardrails (CLAUDE.md invariants 9-10):** pin every library version and verify against current docs (model version knowledge is stale by definition); never hardcode secrets/PII/live URLs into specs, prompts, or memory - reference env/config so an agent cannot reuse stray literals.
+- **PR Risk & Impact section:** the PR template now asks for what changed / could break / security notes, so human review targets architecture and blast radius rather than line counts.
+
+**Files touched:**
+
+- `templates/CLAUDE.md` - update - §2 invariants 8, 9, 10 (persona snapshot regen).
+- `templates/.claude/skills/spec-requirements/SKILL.md` - update - Acceptance Scenarios step + YAML-schema note + canonical section list (now 10; the 8 names `skills.test.ts` checks are unchanged).
+- `templates/claude/srs.md` - update - new §5 Acceptance Scenarios (Gherkin) + YAML note under FRs; §5-9 renumbered to §6-10.
+- `templates/.github/pull_request_template.md` - update - Risk & Impact block.
+
+**Decisions made:**
+
+- Kept all changes as scaffolded-project **conventions** (templates/skills/contract), not runtime code. Explicitly did **not** build policy servers, sandboxes, eval services, or MCP-server code - those are application runtime infrastructure, out of scope for a zero-cost scaffolding kit and against the simplicity/zero-cost constraints.
+- Invariants added inside §2 (no new top-level section) so the `## 9 Quick links` snapshot anchor holds.
+- SRS section renumber is safe: no test asserts section numbers; `skills.test.ts` matches section names.
+
+**Open questions / follow-ups:**
+
+- `/spec-plan` and `/spec-feature` could explicitly stage against the new Acceptance Scenarios (they reference them in prose now; a hard gate is a future option).
+- The YAML-for-deep-nesting convention is guidance, not enforced; a lint that flags deep prose-nested config in specs could enforce it later.
+
+---
+
 ## Key Decisions
 
+- **2026-07-25** - Kit conventions bias toward token-lean specs (Markdown narrative + flat YAML for deep structure), BDD Given/When/Then acceptance scenarios with mandatory edge cases, version-pinning + verification, no hardcoded secrets/PII in specs, and a PR Risk & Impact section. All as templates/skills conventions - no runtime infra (policy server/sandbox/eval/MCP-server explicitly out of scope for a scaffolding kit).
 - **2026-07-25** - Bare `spec-init` on a TTY launches a `@clack/prompts` welcome (Node-only); TTY-gated so non-interactive behavior is unchanged. The TUI reuses `runInit`/`runReinit` via a new `quiet` mode; `@clack` is dynamic-imported only on the interactive path.
 - **2026-07-24** - `spec.config.js` is an advisory, Claude-read project config (skills/workflow/settings), honored via CLAUDE.md §2 invariant 7. The CLI never parses it (keeps `.js`, avoids the dual-CLI JS-parse problem); persona/integrations stay CLI-owned in meta.json - no duplication.
 - **2026-07-24** - `reinit` adopts Throughspec into existing projects in place, non-destructive by default (keep existing spec files; `--force`/prompt to replace), writing `.spec-init/base` so `upgrade` works after. Reuses init helpers via exports; keep/replace is a global binary.

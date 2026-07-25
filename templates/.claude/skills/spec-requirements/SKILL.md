@@ -48,14 +48,38 @@ Once all five categories are filled, write the file with **exactly these section
 1. **Overview** - one paragraph: what problem this solves and for whom.
 2. **Personas** - one row per target user with profile and primary need.
 3. **Jobs To Be Done** - bullet list of the verbs the user hires this product to perform.
-4. **Functional Requirements** - `FR-XX` IDed table of must-have behaviors.
-5. **Non-Functional Requirements** - `NFR-XX` IDed table (performance, security, usability at minimum).
-6. **Hard Constraints** - what cannot change.
-7. **Explicit Non-Goals** - what is deliberately not in v1.
-8. **Success Metric** - one sentence answering "how do we know it worked?"
-9. **Open Questions** - checklist form (see below).
+4. **Functional Requirements** - `FR-XX` IDed table of must-have behaviors. Render any data schema or structured config inline as a fenced ` ```yaml ` block, not prose - it is cheaper to parse and to tokenise.
+5. **Acceptance Scenarios** - Given/When/Then scenarios that make each load-bearing FR testable (see below).
+6. **Non-Functional Requirements** - `NFR-XX` IDed table (performance, security, usability at minimum).
+7. **Hard Constraints** - what cannot change.
+8. **Explicit Non-Goals** - what is deliberately not in v1.
+9. **Success Metric** - one sentence answering "how do we know it worked?"
+10. **Open Questions** - checklist form (see below).
 
 Use the existing header block at the top of `templates/claude/srs.md` (project name, version, status, last-updated) as the skeleton. The skill's job is to fill it in.
+
+---
+
+## Acceptance Scenarios (BDD)
+
+A flat list of functional requirements is not testable on its own - "the app has login" says nothing about what correct behavior is. For every load-bearing FR, write at least one **acceptance scenario** in Given/When/Then form. This forces the requirement into a **State -> Action -> Outcome** shape, which is what makes failure conditions explicit before any code exists.
+
+Write each scenario as a fenced ` ```gherkin ` block:
+
+```gherkin
+Scenario: reject an expired session token
+  Given a token issued more than 24 hours ago
+  When the user requests GET /profile
+  Then the API responds 401 with error code TOKEN_EXPIRED
+```
+
+Rules:
+
+- **Cover the edge, not just the happy path.** Every FR gets its success scenario **and** at least one failure/edge scenario (empty input, unauthorized, boundary value, downstream failure). The edge scenarios are the point - they are where unspecified behavior turns into bugs.
+- **One observable outcome per Then.** If a scenario needs three unrelated `Then`s, it is three scenarios.
+- **Reference the FR id** the scenario proves (e.g. `Scenario: [FR-03] ...`) so downstream skills can trace coverage.
+
+These scenarios become the acceptance criteria `/spec-plan` stages against and the failing tests `/spec-feature` and `/spec-bug` write first.
 
 ---
 
