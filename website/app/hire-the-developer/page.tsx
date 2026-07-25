@@ -17,7 +17,7 @@ const SKILLS = [
 ];
 
 const LINKS = [
-  { label: 'About me!', href: 'https://v-ai.org/', kind: 'primary' as const },
+  { label: 'About me', href: 'https://v-ai.org/', kind: 'primary' as const },
   { label: 'LinkedIn', href: 'https://www.linkedin.com/in/vishalrameshpatil/', kind: 'primary' as const },
   { label: 'GitHub', href: 'https://github.com/vishalpatil18', kind: 'primary' as const },
   { label: 'Email', href: 'mailto:hire.vishalpatil@gmail.com', kind: 'primary' as const },

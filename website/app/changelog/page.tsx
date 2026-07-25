@@ -1,4 +1,5 @@
 import FadeIn from '@/components/motion/FadeIn';
+import InlineMarkdown from '@/components/InlineMarkdown';
 import { loadChangelog } from '@/lib/changelog';
 
 export const metadata = {
@@ -64,7 +65,9 @@ export default function ChangelogPage() {
                       className="flex items-start gap-[11px] text-sm leading-[1.55] tracking-tighter2 text-[#3d3d3d]"
                     >
                       <span className="mt-[7px] h-[5px] w-[5px] flex-none rounded-pill bg-ink" />
-                      <span>{it}</span>
+                      <span>
+                        <InlineMarkdown text={it} />
+                      </span>
                     </div>
                   ))}
                 </div>
@@ -114,7 +117,9 @@ export default function ChangelogPage() {
                           className="flex items-start gap-[11px] text-sm leading-[1.55] tracking-tighter2 text-[#3d3d3d]"
                         >
                           <span className="mt-[7px] h-[5px] w-[5px] flex-none rounded-pill bg-ink" />
-                          <span>{it}</span>
+                          <span>
+                            <InlineMarkdown text={it} />
+                          </span>
                         </div>
                       ))}
                     </div>

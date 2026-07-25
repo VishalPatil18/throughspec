@@ -3,8 +3,8 @@
 // Docs code block: pre on the left, permanent copy button in the top-right.
 // Distinct from the marketing site's <CopyableCommand> (which hovers).
 // Docs users copy commands frequently, so the affordance is always visible.
+// The button shows a "Copy" tooltip on hover and "Copied" for ~1.8s on click.
 
-import { AnimatePresence, motion } from 'framer-motion';
 import { useCallback, useState } from 'react';
 
 export default function DocCodeBlock({ text }: { text: string }) {
@@ -22,7 +22,7 @@ export default function DocCodeBlock({ text }: { text: string }) {
       document.body.removeChild(ta);
     }
     setCopied(true);
-    window.setTimeout(() => setCopied(false), 3000);
+    window.setTimeout(() => setCopied(false), 1800);
   }, [text]);
 
   return (
@@ -35,26 +35,23 @@ export default function DocCodeBlock({ text }: { text: string }) {
       <button
         type="button"
         onClick={onCopy}
-        aria-label={`Copy: ${text}`}
-        title="Copy to clipboard"
-        className="absolute right-2 top-2 flex h-[35px] w-[35px] items-center justify-center text-dim hover:text-ink"
+        aria-label={copied ? 'Copied' : `Copy: ${text}`}
+        className="group absolute right-2 top-2 flex h-[35px] w-[35px] items-center justify-center text-dim hover:text-ink"
       >
         <CopyIcon />
+        <span
+          aria-hidden="true"
+          className={
+            'pointer-events-none absolute right-full top-1/2 mr-1.5 -translate-y-1/2 whitespace-nowrap rounded-md bg-ink px-2 py-1 text-[11px] font-medium text-warm shadow-lg transition-opacity duration-150 ' +
+            (copied ? 'opacity-100' : 'opacity-0 group-hover:opacity-100')
+          }
+        >
+          {copied ? 'Copied' : 'Copy'}
+        </span>
       </button>
-      <AnimatePresence>
-        {copied && (
-          <motion.span
-            initial={{ opacity: 0, y: -4 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -4 }}
-            transition={{ duration: 0.18 }}
-            role="status"
-            className="absolute right-2 top-11 z-40 whitespace-nowrap rounded-md bg-ink px-3 py-1.5 text-[11px] font-medium text-warm shadow-lg"
-          >
-            Copied to clipboard
-          </motion.span>
-        )}
-      </AnimatePresence>
+      <span className="sr-only" role="status">
+        {copied ? 'Copied to clipboard' : ''}
+      </span>
     </div>
   );
 }

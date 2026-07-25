@@ -986,8 +986,38 @@
 
 ---
 
+## 2026-07-25 - Website: markdown changelog notes + copy-button tooltip
+
+**Prompt / trigger:** `/feature-dev` - two UI updates: render changelog notes with markdown styling, and replace the copy button's click toast with a hover "Copy" / click "Copied" tooltip.
+
+**What was done:**
+
+- **Inline markdown in the changelog.** Changelog item strings were rendered as literal text (`<span>{it}</span>`), so `**bold**`, `` `code` ``, `_italic_`, `[text](url)` showed raw. Added a zero-dependency inline tokenizer + renderer and wired it into both the Upcoming and Shipped lists. No markdown lib was added - the site ships none by design, and a one-line-snippet tokenizer is far lighter than remark/rehype.
+- **Copy-button tooltip.** Both copy components (`CopyableCommand` marketing hover-copy, `DocCodeBlock` docs button) showed a "Copied to clipboard" toast on click. Replaced it with a tooltip reading **Copy** on hover and **Copied** for ~1.8s after click, plus an `sr-only` `role="status"` live region and a dynamic `aria-label` for accessibility. Dropped the now-unused `framer-motion` import from both files (the dep stays; used elsewhere).
+
+**Files touched:**
+
+- `website/lib/inline-markdown.ts` - create - pure `parseInline(text): InlineToken[]` (code/link/bold/italic, matched in that priority).
+- `website/components/InlineMarkdown.tsx` - create - server-safe renderer of the tokens to `<code>/<a>/<strong>/<em>`.
+- `website/app/changelog/page.tsx` - update - render Upcoming + release items via `<InlineMarkdown>`.
+- `website/components/CopyableCommand.tsx`, `website/components/docs/DocCodeBlock.tsx` - update - Copy/Copied tooltip; removed toast + framer-motion + native `title`.
+
+**Decisions made:**
+
+- Zero-dep inline tokenizer over a markdown library - consistent with the site's dep-light rendering and cheaper for short strings. Scope: inline `code`/bold/italic/links (the markdown CHANGELOG bullets actually use); fenced blocks are not used in bullets.
+- Updated **both** copy components for consistent UX (they shared the same toast).
+- Tooltip parser lives in `lib/` as a pure function (unit-checkable) separate from the JSX component.
+
+**Open questions / follow-ups:**
+
+- Playwright e2e could not run here (needs `chromium`); validated via `tsc`, a node sanity check of the tokenizer, and a successful `next build` (changelog renders server-side, components compile). The existing e2e only checks page load + heading, both unaffected.
+- If changelog bullets ever need fenced code blocks or nested markdown, the tokenizer would need extending (currently single-level inline).
+
+---
+
 ## Key Decisions
 
+- **2026-07-25** - Changelog notes render inline markdown via a zero-dependency tokenizer (`website/lib/inline-markdown.ts`), not a markdown library - consistent with the site's dep-light approach. Copy buttons use a hover "Copy" / click "Copied" tooltip (with an `sr-only` status) instead of a click toast.
 - **2026-07-25** - Open Code Review added as the 7th opt-in integration (CLI/CI code reviewer, complements `/spec-review`); key `opencodereview` (hyphenless for the `[a-z]+` marker regex). At 7 integrations the `--integrations` help line points to the README instead of inlining the list.
 - **2026-07-25** - Kit conventions bias toward token-lean specs (Markdown narrative + flat YAML for deep structure), BDD Given/When/Then acceptance scenarios with mandatory edge cases, version-pinning + verification, no hardcoded secrets/PII in specs, and a PR Risk & Impact section. All as templates/skills conventions - no runtime infra (policy server/sandbox/eval/MCP-server explicitly out of scope for a scaffolding kit).
 - **2026-07-25** - Bare `spec-init` on a TTY launches a `@clack/prompts` welcome (Node-only); TTY-gated so non-interactive behavior is unchanged. The TUI reuses `runInit`/`runReinit` via a new `quiet` mode; `@clack` is dynamic-imported only on the interactive path.
