@@ -391,8 +391,17 @@ export const PAGES: Record<string, DocPage> = {
     label: 'Customization Recipes',
     title: 'Customization Recipes',
     intro:
-      'Everything you can change without editing skill sources. Personas, integrations, and skill drop-ins all live behind spec-init customize.',
+      'Everything you can change without editing skill sources. Persona and integrations live behind spec-init customize; day-to-day preferences live in spec.config.js.',
     blocks: [
+      { t: 'h2', id: 'spec-config', text: 'Edit spec.config.js' },
+      { t: 'p', text: 'spec.config.js is the friendly front door to your project preferences. Claude reads it at the start of every session (see CLAUDE.md section 2) and honors it - no build step, and the CLI never parses it, so an edit can never break your scaffold. Use it to disable skills you do not want, tune the workflow, or add project-wide instructions.' },
+      { t: 'code', text: "module.exports = {\n  skills: { disabled: ['spec-market-research'] },\n  workflow: { phases: ['requirements','design','plan','feature'], allowSkip: false },\n  settings: {\n    commitSuggestions: true,\n    customInstructions: ['Prefer Drizzle over Prisma'],\n  },\n};" },
+      {
+        t: 'callout',
+        variant: 'note',
+        label: 'Config vs customize',
+        text: 'spec.config.js holds advisory preferences Claude honors. Persona and integrations are machine-managed state - change those with spec-init customize, not in the config file.',
+      },
       { t: 'h2', id: 'swap-persona', text: 'Swap the persona' },
       { t: 'p', text: 'Persona drives CLAUDE.md verbosity and the "Why this step?" annotations. Swap safely - customize re-derives CLAUDE.md from the pristine .spec-init/base/ snapshot.' },
       { t: 'code', text: '# switch from engineer to student\nspec-init customize --persona student' },

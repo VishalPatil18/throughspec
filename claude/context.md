@@ -858,8 +858,42 @@
 
 ---
 
+## 2026-07-24 - spec.config.js (advisory, Claude-read project config)
+
+**Prompt / trigger:** `/feature-dev` - add a `spec.config.js` in the scaffolded project holding all Throughspec config (skills, workflow, settings), easy to read and modify.
+
+**What was done:**
+
+- Added `templates/spec.config.js` - a top-level, comment-rich `module.exports` object with `skills.disabled[]`, `workflow.{phases, allowSkip}`, and `settings.{commitSuggestions, customInstructions[]}`. Ships in every scaffold (init/reinit copy it automatically; no CLI change needed).
+- Added CLAUDE.md §2 invariant 7: read `spec.config.js` if present and honor it; the mandatory invariants (spec before code, memory sacred) still win. This makes **Claude the consumer** - the config is real in a Claude-driven kit without the CLI parsing it.
+- Deliberately **advisory + Claude-read**, chosen over a CLI-consumed machine config: keeps the `.js` extension, avoids the dual-CLI parity problem (the Python CLI can't execute JS), and does not duplicate CLI-owned state. Persona/integrations stay in `.spec-init/meta.json` + CLAUDE.md §8, managed by `spec-init customize`; spec.config holds the user-facing knobs only.
+
+**Files touched:**
+
+- `templates/spec.config.js` - create - the config file.
+- `templates/CLAUDE.md` §2 - update - invariant 7 (persona snapshot regen).
+- `tests/init.test.ts` - update - `spec.config.js` in `REQUIRED` + a `require()` well-formedness test (exports skills/workflow/settings).
+- `packages/cli-python/tests/test_init.py` - update - `spec.config.js` in `REQUIRED`.
+- `tests/__snapshots__/personas.test.ts.snap` - update.
+- `claude/srs-beta.md` §6.1 canonical tree, `README.md` (scaffold tree + note), `website/lib/docs-content.ts` (customization-recipes "Edit spec.config.js" section) - update.
+
+**Decisions made:**
+
+- Advisory `.js` read by Claude, not a CLI-parsed config - the CLI never touches it, so it cannot break a scaffold and stays cross-language safe. It is functional because CLAUDE.md instructs Claude to honor it every session.
+- Not a `doctor` REQUIRED_FILE: it is advisory, and a project runs fine without it (Claude falls back to defaults), so health should not fail on its absence. init tests still assert init ships it.
+- No duplication of persona/integrations - avoids a second source of truth that would drift from meta.json.
+
+**Open questions / follow-ups:**
+
+- `module.exports` is CJS; in a scaffolded project whose package.json is `"type":"module"`, the file is technically ESM-mismatched - but it is never executed (Claude reads it as text; the CLI never parses it), so this is cosmetic. The require-based test validates well-formedness in the no-package.json scaffold context.
+- If users later want mechanical enforcement (e.g. actually removing disabled skills from `.claude/skills/`), that would need a CLI-consumed config in a cross-parseable format - a separate, larger change.
+- pytest still not runnable locally (no `uv`); Python `REQUIRED` addition is covered by parity (both payloads ship spec.config.js -> 53 files) and the Node init test.
+
+---
+
 ## Key Decisions
 
+- **2026-07-24** - `spec.config.js` is an advisory, Claude-read project config (skills/workflow/settings), honored via CLAUDE.md §2 invariant 7. The CLI never parses it (keeps `.js`, avoids the dual-CLI JS-parse problem); persona/integrations stay CLI-owned in meta.json - no duplication.
 - **2026-07-24** - `reinit` adopts Throughspec into existing projects in place, non-destructive by default (keep existing spec files; `--force`/prompt to replace), writing `.spec-init/base` so `upgrade` works after. Reuses init helpers via exports; keep/replace is a global binary.
 - **2026-07-24** - ponytail added as the 6th opt-in integration (code-minimalism discipline), same external-tool pattern; described honestly as minimalism, not orchestration.
 - **2026-07-24** - agentmemory + openwiki added as opt-in integrations following the caveman pattern (external tool -> doc + marker blocks + name-lists, no vendoring). openwiki's root-CLAUDE.md overwrite is mitigated by documentation, not code.

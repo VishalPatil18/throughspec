@@ -53,9 +53,12 @@ my-project/
 │   └── learnings.md          # append-only learning trail (Student persona)
 ├── design/
 │   └── design.md             # tokens, components, do's and don'ts
+├── spec.config.js           # advisory config Claude reads: skills, workflow, settings
 ├── README.md, CHANGELOG.md, SECURITY.md, CONTRIBUTING.md
 └── .github/                  # issue and PR templates
 ```
+
+Edit `spec.config.js` to customize your experience - disable skills, tune the workflow, add project-wide instructions. Claude reads it every session; there is no build step. (Persona and integrations are managed by `spec-init customize`.)
 
 Then in Claude Code:
 

@@ -500,6 +500,7 @@ Both packages share the same template payload (a single `templates/` tree shippe
 │   └── preview/              # generated HTML/CSS/JS (optional)
 ├── CHANGELOG.md
 ├── CLAUDE.md                 # router + behavior contract, read before every prompt
+├── spec.config.js           # advisory project config Claude reads (skills/workflow/settings)
 ├── README.md
 ├── SECURITY.md
 └── CONTRIBUTING.md

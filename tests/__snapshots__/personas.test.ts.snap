@@ -32,6 +32,7 @@ This project follows the **Spec-Driven Development** SDLC. You MUST honor these 
 4. **Diff-scoped refactor.** When \`/spec-refactor\` runs, touch only files changed in the current cycle.
 5. **Memory is sacred.** After every feature cycle, update \`claude/context.md\`, \`claude/features.md\`, \`claude/design-decisions.md\`, \`claude/learnings.md\`, and \`CHANGELOG.md\` - in that order.
 6. **Suggest a commit.** End any response that changed files with a suggested Conventional Commits message (\`<type>: <description>\`, imperative subject <= 50 chars; \`type\` one of \`feat\`, \`fix\`, \`refactor\`, \`docs\`, \`test\`, \`chore\`, \`perf\`, \`ci\`). See \`CONTRIBUTING.md\`.
+7. **Honor project config.** At the start of a session, read \`spec.config.js\` if it exists and respect its \`skills\`, \`workflow\`, and \`settings\` (its \`customInstructions\` bind exactly like section 7's). It is the user's customization layer; when it conflicts with a default here it wins, except the mandatory invariants above (spec before code, memory is sacred) always hold.
 
 ---
 
@@ -199,6 +200,7 @@ This project follows the **Spec-Driven Development** SDLC. You MUST honor these 
 4. **Diff-scoped refactor.** When \`/spec-refactor\` runs, touch only files changed in the current cycle.
 5. **Memory is sacred.** After every feature cycle, update \`claude/context.md\`, \`claude/features.md\`, \`claude/design-decisions.md\`, \`claude/learnings.md\`, and \`CHANGELOG.md\` - in that order.
 6. **Suggest a commit.** End any response that changed files with a suggested Conventional Commits message (\`<type>: <description>\`, imperative subject <= 50 chars; \`type\` one of \`feat\`, \`fix\`, \`refactor\`, \`docs\`, \`test\`, \`chore\`, \`perf\`, \`ci\`). See \`CONTRIBUTING.md\`.
+7. **Honor project config.** At the start of a session, read \`spec.config.js\` if it exists and respect its \`skills\`, \`workflow\`, and \`settings\` (its \`customInstructions\` bind exactly like section 7's). It is the user's customization layer; when it conflicts with a default here it wins, except the mandatory invariants above (spec before code, memory is sacred) always hold.
 
 ---
 
@@ -368,6 +370,7 @@ This project follows the **Spec-Driven Development** SDLC. You MUST honor these 
 4. **Diff-scoped refactor.** When \`/spec-refactor\` runs, touch only files changed in the current cycle.
 5. **Memory is sacred.** After every feature cycle, update \`claude/context.md\`, \`claude/features.md\`, \`claude/design-decisions.md\`, \`claude/learnings.md\`, and \`CHANGELOG.md\` - in that order.
 6. **Suggest a commit.** End any response that changed files with a suggested Conventional Commits message (\`<type>: <description>\`, imperative subject <= 50 chars; \`type\` one of \`feat\`, \`fix\`, \`refactor\`, \`docs\`, \`test\`, \`chore\`, \`perf\`, \`ci\`). See \`CONTRIBUTING.md\`.
+7. **Honor project config.** At the start of a session, read \`spec.config.js\` if it exists and respect its \`skills\`, \`workflow\`, and \`settings\` (its \`customInstructions\` bind exactly like section 7's). It is the user's customization layer; when it conflicts with a default here it wins, except the mandatory invariants above (spec before code, memory is sacred) always hold.
 
 ---
 
@@ -535,6 +538,7 @@ This project follows the **Spec-Driven Development** SDLC. You MUST honor these 
 4. **Diff-scoped refactor.** When \`/spec-refactor\` runs, touch only files changed in the current cycle.
 5. **Memory is sacred.** After every feature cycle, update \`claude/context.md\`, \`claude/features.md\`, \`claude/design-decisions.md\`, \`claude/learnings.md\`, and \`CHANGELOG.md\` - in that order.
 6. **Suggest a commit.** End any response that changed files with a suggested Conventional Commits message (\`<type>: <description>\`, imperative subject <= 50 chars; \`type\` one of \`feat\`, \`fix\`, \`refactor\`, \`docs\`, \`test\`, \`chore\`, \`perf\`, \`ci\`). See \`CONTRIBUTING.md\`.
+7. **Honor project config.** At the start of a session, read \`spec.config.js\` if it exists and respect its \`skills\`, \`workflow\`, and \`settings\` (its \`customInstructions\` bind exactly like section 7's). It is the user's customization layer; when it conflicts with a default here it wins, except the mandatory invariants above (spec before code, memory is sacred) always hold.
 
 ---
 
