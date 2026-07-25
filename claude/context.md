@@ -731,8 +731,42 @@
 
 ---
 
+## 2026-07-24 - Supporting-skills catalog (15 new skills) + spec/docs wiring
+
+**Prompt / trigger:** `/feature-dev` - add ~22 requested skills to the kit (inspired by uploaded reference skills, not cloned), spec-driven and token-lean; user chose all-at-once, consolidate overlaps, and wire spec+docs.
+
+**What was done:**
+
+- Added **15 new supporting skills** under `templates/.claude/skills/`, consolidating the 22 requests: review family (code/pr/frontend/backend/comments) merged into `spec-review` (modes); db-review folded into `spec-db-design`; simplify folded into `spec-code-quality`; knowledge+market merged into `spec-research` (modes). Full list: spec-architect, spec-db-design, spec-review, spec-code-quality, spec-security, spec-performance, spec-test, spec-ux, spec-cicd, spec-launch, spec-git, spec-brainstorm, spec-suggest, spec-research, spec-resume.
+- Each skill written in the kit's tight, FR-anchored voice (~90-140 dense lines): trigger-phrase frontmatter, "read first" from the memory layer, numbered workflow, refusal/guardrail clauses, writes findings/decisions back to memory, checklist, red flags. `spec-resume` uses an AliceBot-inspired file-based **resumption brief** at `claude/resume.md` (no DB - zero-cost).
+- Wired the catalog: SRS §2.2.3, `templates/README.md` skills table, `templates/CLAUDE.md` §3 supporting-skills sub-table (inside §3, no renumber so the `## 9` snapshot anchor holds), and the website (`features/page.tsx` commands grid + a full "Supporting Skills" docs page/group in `lib/docs-content.ts`).
+
+**Files touched:**
+
+- `templates/.claude/skills/<15 names>/SKILL.md` - create - the new skills.
+- `claude/srs-beta.md` - update - §2.2.3 supporting-skills table.
+- `templates/README.md`, `templates/CLAUDE.md` - update - skill listings (CLAUDE.md §3 sub-table -> persona snapshot regen).
+- `website/app/features/page.tsx` - update - 15 commands added to the grid.
+- `website/lib/docs-content.ts` - update - new `supporting-skills` DocGroup + DocPage (full narrative).
+- `tests/__snapshots__/personas.test.ts.snap` - update - CLAUDE.md §3 sub-table (regenerated).
+
+**Decisions made:**
+
+- Consolidated 22 -> 15 to avoid near-duplicate review skills; overlap-heavy requests became modes of one skill (`spec-review`, `spec-research`).
+- New skills cite the memory layer and SDD principles but **not** invented FR-IDs (dangling refs would be dishonest); `skills.test.ts` validates only the named legacy skills, so new skills only had to pass markdownlint + prettier + parity.
+- `spec-architect` is a skill distinct from the pre-existing `spec-architect` **agent** (agent proposes options in a dispatch; skill drives the interactive design + ADRs).
+
+**Open questions / follow-ups:**
+
+- SRS acceptance line "All 9 skills in §2.2.3" is now historical; the catalog is larger. Reconcile the acceptance count in a future SRS pass.
+- No automated test asserts the new skills' shape - consider a generic "every skill dir has valid frontmatter + required sections" validator so future skills stay consistent.
+- pytest still unrun locally (`uv` absent) - unaffected here (no Python source changed), but note it stays a standing gap.
+
+---
+
 ## Key Decisions
 
+- **2026-07-24** - Kit ships a 15-skill supporting catalog (design/review/delivery/ideation/continuity) consolidating overlapping requests into moded skills (`spec-review`, `spec-research`). Skills are self-contained memory-integrated prompts; they do not invent FR-IDs. `spec-resume` persists a file-based resumption brief (`claude/resume.md`), no database.
 - **2026-07-24** - Kit CLAUDE.md defaults to suggesting a Conventional Commits message at the end of file-changing responses (§2 invariant 6). Placed in the standing-contract section, not the user-overrides section, so it is persona-agnostic and on by default.
 - **2026-07-24** - Interactive integration picker in `init` is a dependency-free numbered list (all / let me select / none), gated on TTY + no explicit `--integrations`. Rejected raw-mode checkbox TUI and inquirer/questionary deps (zero-cost, no-new-dep). Caveman added as a non-vendored, opt-in integration (install nudged, not bundled).
 - **2026-06-29** - Single `templates/` tree consumed by both packagers; parity enforced by SHA-256 manifest. Prevents npm/PyPI drift (SRS Risk row 6).

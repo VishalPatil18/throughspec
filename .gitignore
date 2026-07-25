@@ -14,7 +14,11 @@ __pycache__/
 build/
 *.whl
 *.tar.gz
-.claude/
+
+# Repo-root Claude working dir only. Anchored with a leading slash so it does
+# NOT match templates/.claude/ - the shipped skills/agents payload must be
+# tracked and packaged into npm/PyPI.
+/.claude/
 
 # Editor / OS
 .DS_Store

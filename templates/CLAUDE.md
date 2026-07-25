@@ -43,6 +43,16 @@ This project follows the **Spec-Driven Development** SDLC. You MUST honor these 
 
 The Feature Cycle itself runs six sub-phases in order: Requirements → Architecting → Product Specs → Tech Specs → Planning → Writing Code. Do not skip phases without an explicit user override logged in `claude/design-decisions.md`.
 
+**Supporting skills** (invoke as needed; each reads the memory layer first and writes findings/decisions back):
+
+| Group      | Skills                                                                                                |
+| ---------- | ----------------------------------------------------------------------------------------------------- |
+| Design     | `/spec-architect`, `/spec-db-design`                                                                  |
+| Review     | `/spec-review`, `/spec-code-quality`, `/spec-security`, `/spec-performance`, `/spec-test`, `/spec-ux` |
+| Delivery   | `/spec-cicd`, `/spec-launch`, `/spec-git`                                                             |
+| Ideation   | `/spec-brainstorm`, `/spec-suggest`, `/spec-research`                                                 |
+| Continuity | `/spec-resume` (restores from `claude/resume.md`)                                                     |
+
 ---
 
 ## 4. Bug resolution phases (mandatory)

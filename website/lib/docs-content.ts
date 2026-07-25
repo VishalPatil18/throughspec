@@ -29,6 +29,7 @@ export interface DocGroup {
 export const GROUPS: DocGroup[] = [
   { title: 'Get Started', slugs: ['', 'install', 'quickstart'] },
   { title: 'Workflows', slugs: ['workflows'] },
+  { title: 'Supporting Skills', slugs: ['supporting-skills'] },
   {
     title: 'Recipes',
     slugs: ['design-prompt-library', 'learning-map', 'customization-recipes'],
@@ -200,6 +201,79 @@ export const PAGES: Record<string, DocPage> = {
           { term: '/spec-refactor', desc: 'Diff-scoped cleanup. Only files in the current cycle’s changed list.' },
           { term: '/spec-sync', desc: 'Reconciles context.md drift and compresses any memory file past 1,500 lines with a compressed-from audit trail.' },
         ],
+      },
+    ],
+  },
+
+  'supporting-skills': {
+    slug: 'supporting-skills',
+    group: 'Supporting Skills',
+    label: 'Supporting Skills',
+    title: 'Supporting skills',
+    intro:
+      'Beyond the initiation, feature, and maintenance cycles, the Kit ships fifteen supporting skills - invoked as needed across design, review, delivery, ideation, and continuity. Each one reads the memory layer first and writes its findings or decisions back, so nothing drifts.',
+    blocks: [
+      {
+        t: 'callout',
+        variant: 'note',
+        label: 'Spec-driven, not free-floating',
+        text: 'Every supporting skill anchors in claude/srs.md and claude/context.md before it acts, and records outcomes in the memory layer (design-decisions.md, context.md, or CHANGELOG.md). They extend the SDLC; they never bypass it.',
+      },
+      { t: 'h2', id: 'design', text: 'Design' },
+      { t: 'p', text: 'Shape the structure before code is written. These decide what is allowed to know about what.' },
+      {
+        t: 'defs',
+        items: [
+          { term: '/spec-architect', desc: 'Designs module, service, and layer boundaries from the forces most likely to change. Defaults to a modular monolith until measured evidence earns a split, and records every non-obvious choice as a 5-line ADR in design-decisions.md.' },
+          { term: '/spec-db-design', desc: 'Designs and reviews the database schema - keys, foreign keys, constraints, and indexes for the real query shapes. Enforces invariants in the schema, not the app, and keeps every migration reversible and additive.' },
+        ],
+      },
+      { t: 'h2', id: 'review', text: 'Review' },
+      { t: 'p', text: 'Six lenses on a change, each labelling findings by severity and reviewing only the diff.' },
+      {
+        t: 'defs',
+        items: [
+          { term: '/spec-review', desc: 'Multi-axis review across correctness, readability, architecture, security, and performance. Modes: code, pr, frontend, backend, and comments (which also rewrites drifted or verbose comments).' },
+          { term: '/spec-code-quality', desc: 'Raises quality on code you write and runs a simplification pass - hierarchy of correct → honest → changeable → consistent, then small. Reports defects as input → wrong behavior → consequence.' },
+          { term: '/spec-security', desc: 'Threat-models each trust boundary with STRIDE, then verifies the always-do controls. Gates new auth, data, or integration changes behind explicit human approval.' },
+          { term: '/spec-performance', desc: 'Measurement-first: no optimization without a number, no “faster now” without a second number. Checks the database first, where the time usually is.' },
+          { term: '/spec-test', desc: 'Judges tests by whether they would catch a regression, not by coverage percent. Flags missing edge and error cases and treats flakiness as a defect.' },
+          { term: '/spec-ux', desc: 'Reviews usability and WCAG 2.1 AA accessibility against the SRS users and jobs-to-be-done - including the four states (empty, loading, error, populated) every data view needs.' },
+        ],
+      },
+      { t: 'h2', id: 'delivery', text: 'Delivery' },
+      { t: 'p', text: 'Move verified change safely from a branch to production.' },
+      {
+        t: 'defs',
+        items: [
+          { term: '/spec-cicd', desc: 'Reviews and sets up the quality-gate pipeline - lint, types, tests, build, audit - wired to the project’s real commands. No gate is skippable.' },
+          { term: '/spec-launch', desc: 'Promotes across dev → staging → production behind feature flags, with staged-rollout thresholds and a written rollback plan. Every launch is reversible, observable, and incremental.' },
+          { term: '/spec-git', desc: 'Atomic commits, short-lived branches, and semantic-version releases where the tag is the source of truth. Scans for secrets before every commit.' },
+        ],
+      },
+      { t: 'h2', id: 'ideation', text: 'Ideation' },
+      { t: 'p', text: 'Widen the option space and bring the outside world in - before committing.' },
+      {
+        t: 'defs',
+        items: [
+          { term: '/spec-brainstorm', desc: 'Diverges to 3-6 genuinely different approaches, then converges on a recommendation scored by fit, cost, risk, and reversibility. Never silently picks one.' },
+          { term: '/spec-suggest', desc: 'Surfaces evidence-backed improvements ranked by leverage (impact vs effort), split into Now / Soon / Later. Advisory only - the owning skill does the work.' },
+          { term: '/spec-research', desc: 'Gathers external knowledge or market intelligence with a cite-or-flag rule: every claim is either sourced or explicitly marked inference. Modes: knowledge and market.' },
+        ],
+      },
+      { t: 'h2', id: 'continuity', text: 'Continuity' },
+      { t: 'p', text: 'Survive an interruption without losing the thread.' },
+      {
+        t: 'defs',
+        items: [
+          { term: '/spec-resume', desc: 'Restores work stopped by a crash, dropped connection, lost context, or usage limits from a resumption brief in claude/resume.md - leading with the next action and never redoing verified work.' },
+        ],
+      },
+      {
+        t: 'callout',
+        variant: 'tip',
+        label: 'Modes',
+        text: 'Skills with modes take the mode as an argument, e.g. /spec-review frontend or /spec-research market. Omit it to get the default (code review, knowledge research).',
       },
     ],
   },

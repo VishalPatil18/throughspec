@@ -161,6 +161,26 @@ Throughspec installs the following user-invocable skills (slash commands) into t
 | `/spec-docs`         | Maintenance | Run the isolated Documentation Rewrite workflow                     |
 | `/spec-sync`         | Maintenance | Reconcile `context.md` against actual repo state                    |
 
+Throughspec also installs the following **supporting skills** - invoked as needed across the SDLC (design, review, delivery, ideation, continuity), each reading the memory layer first and writing findings/decisions back to it:
+
+| Skill               | Group      | Purpose                                                                     |
+| ------------------- | ---------- | --------------------------------------------------------------------------- |
+| `/spec-architect`   | Design     | Design module/service/layer boundaries; record ADRs in `design-decisions.md`|
+| `/spec-db-design`   | Design     | Design and review DB schema, constraints, indexes, and reversible migrations|
+| `/spec-review`      | Review     | Multi-axis review; modes: `code` / `pr` / `frontend` / `backend` / `comments`|
+| `/spec-code-quality`| Review     | Raise code quality and run a simplification pass                            |
+| `/spec-security`    | Review     | Threat-model and harden; gate high-risk changes behind approval             |
+| `/spec-performance` | Review     | Measurement-first performance work with before/after numbers                |
+| `/spec-test`        | Review     | Review test coverage/quality by whether tests catch regressions             |
+| `/spec-ux`          | Review     | Review usability and WCAG accessibility against the SRS users               |
+| `/spec-cicd`        | Delivery   | Review/set up CI quality gates and deployment automation                    |
+| `/spec-launch`      | Delivery   | Promote across environments with staged rollout and a rollback plan         |
+| `/spec-git`         | Delivery   | Git operations and semantic-version releases                                |
+| `/spec-brainstorm`  | Ideation   | Diverge/converge option generation with explicit tradeoffs                  |
+| `/spec-suggest`     | Ideation   | Leverage-ranked, evidence-backed improvement suggestions                    |
+| `/spec-research`    | Ideation   | External knowledge/market research; modes: `knowledge` / `market`           |
+| `/spec-resume`      | Continuity | Resume interrupted work from a `claude/resume.md` resumption brief          |
+
 #### 2.2.4 Agents Catalog
 
 Pre-configured agents (delegated tasks Claude can dispatch in parallel):

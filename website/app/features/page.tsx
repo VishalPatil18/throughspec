@@ -57,6 +57,21 @@ const SKILLS = [
   { cmd: '/spec-bug', desc: 'Isolated bug resolution: reproduce, test, smallest fix.' },
   { cmd: '/spec-docs', desc: 'Reconcile docs against reality - never touches source.' },
   { cmd: '/spec-sync', desc: 'Reconcile context.md against actual repo state.' },
+  { cmd: '/spec-architect', desc: 'Design module/service/layer boundaries and record ADRs.' },
+  { cmd: '/spec-db-design', desc: 'Design and review schema, constraints, and migrations.' },
+  { cmd: '/spec-review', desc: 'Multi-axis review: code, PR, frontend, backend, comments.' },
+  { cmd: '/spec-code-quality', desc: 'Raise code quality and run a simplification pass.' },
+  { cmd: '/spec-security', desc: 'Threat-model and harden against vulnerabilities.' },
+  { cmd: '/spec-performance', desc: 'Measurement-first optimization with before/after numbers.' },
+  { cmd: '/spec-test', desc: 'Review coverage by whether tests catch regressions.' },
+  { cmd: '/spec-ux', desc: 'Review usability and WCAG accessibility.' },
+  { cmd: '/spec-cicd', desc: 'Review or set up CI/CD quality gates.' },
+  { cmd: '/spec-launch', desc: 'Staged rollout across environments with a rollback plan.' },
+  { cmd: '/spec-git', desc: 'Commit, branch, merge, rebase, tag, and release.' },
+  { cmd: '/spec-brainstorm', desc: 'Generate options with explicit tradeoffs.' },
+  { cmd: '/spec-suggest', desc: 'Leverage-ranked, evidence-backed suggestions.' },
+  { cmd: '/spec-research', desc: 'External knowledge or market research, cited.' },
+  { cmd: '/spec-resume', desc: 'Resume interrupted work from a resumption brief.' },
 ];
 
 const GUARANTEES = [

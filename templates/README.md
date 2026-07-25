@@ -74,6 +74,26 @@ Invoke any phase via Claude Code:
 | `/spec-docs`         | Isolated documentation rewrite            |
 | `/spec-sync`         | Reconcile memory files against repo state |
 
+Supporting skills, invoked as needed:
+
+| Skill                | Purpose                                               |
+| -------------------- | ----------------------------------------------------- |
+| `/spec-architect`    | Design module/service/layer boundaries + ADRs         |
+| `/spec-db-design`    | Design and review the database schema                 |
+| `/spec-review`       | Multi-axis review (code/pr/frontend/backend/comments) |
+| `/spec-code-quality` | Improve code quality and simplify                     |
+| `/spec-security`     | Threat-model and harden                               |
+| `/spec-performance`  | Measurement-first performance work                    |
+| `/spec-test`         | Review test coverage and quality                      |
+| `/spec-ux`           | Review usability and accessibility                    |
+| `/spec-cicd`         | Review or set up CI/CD quality gates                  |
+| `/spec-launch`       | Staged rollout across environments with rollback      |
+| `/spec-git`          | Git operations and semantic-version releases          |
+| `/spec-brainstorm`   | Generate options with explicit tradeoffs              |
+| `/spec-suggest`      | Leverage-ranked improvement suggestions               |
+| `/spec-research`     | External knowledge or market research                 |
+| `/spec-resume`       | Resume interrupted work from a resumption brief       |
+
 ---
 
 ## Integrations

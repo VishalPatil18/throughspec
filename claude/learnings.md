@@ -495,3 +495,34 @@ A second, mechanical reason reinforced the choice here: this CLAUDE.md is proces
 > Why add invariant #6 to an existing list instead of a cleaner new top-level section?
 
 A test asserted that `## 9. Quick links` survives every persona strip, and the whole stripped file is snapshotted. Introducing a *new numbered section* would either renumber everything after it (breaking the `## 9` anchor and producing a huge, noisy snapshot diff) or wedge an out-of-order number into the sequence. Appending an item to an *existing* numbered list (§2's invariants, 5 → 6) leaves every section heading and number untouched, so the only snapshot delta is the single added line. The general rule when editing structured documents under snapshot/anchor tests: **prefer the edit that changes the fewest structural landmarks.** A smaller structural blast radius means a smaller diff to review, a cleaner snapshot update, and no collateral breakage of tests that pin specific headings — the same "shortest working diff" instinct that applies to code applies to load-bearing docs.
+
+### Anatomy of an effective agent skill (and why terse beats verbose)
+
+> The request asked for skills that are "very detailed" yet "low token cost". Those pull in opposite directions. How do you satisfy both?
+
+An agent skill is a prompt the model reads *every time the skill fires* - so its length is a recurring tax, not a one-time cost. "Very detailed" and "low token" reconcile once you separate **information density** from **word count**. A verbose skill pads with pleasantries, restated context, and three examples where one would do; a dense skill makes every line load-bearing. The reference skills that inspired this batch ran 300-400 lines each; the kit versions deliver the same operative content in ~90-140 by cutting the padding, not the substance.
+
+The structure that carries the most signal per token, learned from the kit's existing skills:
+
+1. **Frontmatter description = the router.** The model decides *whether* to load a skill from its `description` alone. So the description must pack the trigger phrases ("review this", "is this secure"), the slash-command name, and the one-line behavior contract. A vague description means the skill never fires when it should, or fires when it should not - the most expensive failure, because it wastes a whole load.
+2. **"Read first" front-loads context discipline.** Naming exactly which memory files to open (and telling the model *not* to scan the repo) is what makes a skill token-lean in practice: the skill's own words are a fixed cost, but the reading it triggers is the variable cost, and that is where budgets actually blow.
+3. **Numbered workflow + refusal clauses + red flags.** Steps give the model an order to follow; refusal clauses ("cannot proceed without X") are the highest-value lines because they stop expensive wrong work before it starts; red flags let the model self-check its own output.
+4. **Guardrails as blockquotes, checklists as `- [ ]`.** These are machine-scannable shapes the model reliably re-reads, worth their tokens.
+
+The generalizable rule: **a skill is a function the model calls repeatedly, so optimize it like hot-path code** - every line justified, context reads minimized, the decision-to-load encoded in the signature (the description). Detail lives in precision of instruction, not volume of prose.
+
+### Consolidating overlapping capabilities into modes instead of separate skills
+
+> Six of the requested skills were all "review X" (code, PR, frontend, backend, DB, comments). Why collapse them into one `spec-review` with modes rather than ship six files?
+
+When several requested capabilities share ~80% of their content (here, the five-axis review method) and differ only in a facet (which checklist applies), six separate files create the exact defect a good review skill warns against: near-duplicate logic that drifts apart. Fix the five-axis method once and you would have to edit it in six places; miss one and the frontend reviewer silently diverges from the backend reviewer. Collapsing them into `spec-review <mode>` keeps the shared spine in one place and lets each mode add only its delta (the frontend checklist, the comments-rewrite behavior). Same for `spec-research knowledge|market` - one cite-or-flag discipline, two domains.
+
+The counter-force is discoverability: a user who thinks "I want a PR review" may look for `/spec-pr-review` and not find it. The resolution is to make the modes first-class in the description and docs (so the router still fires on "review the PR") while keeping one implementation. The principle: **consolidate when the variants share the method and differ in a parameter; keep separate when they share only a theme.** `spec-security` and `spec-performance` stayed standalone precisely because they are deep, distinct methods - not facets of a common one. The test is not "are these related?" but "would a single change to the core need to touch all of them?" - if yes, they are one skill with modes.
+
+### Extending a spec-driven kit without lying to the spec
+
+> Adding 15 skills to a project whose SRS pins a "9 skills" catalog and whose validator tests cite FR-IDs. What keeps the addition honest?
+
+A spec-driven project has two truth sources that can drift from each other: the running artifact (the skills on disk) and the spec that claims what exists (the SRS, the CLAUDE.md contract, the docs). Adding capability to the artifact without updating the spec creates a silent lie - the SRS says nine, the disk has twenty-four. The discipline here was to wire the spec in the same change: SRS §2.2.3, the CLAUDE.md contract, the README, and the website docs all updated alongside the skills, so no reader is misled about what ships. Where full reconciliation was too large for one change (the SRS acceptance line "All 9 skills"), the drift was *recorded as an open follow-up* rather than left invisible - a named debt beats a hidden one.
+
+The second honesty trap was FR-IDs. The kit's existing skills cite requirements like `FR-BUG-01` that exist in the SRS. It would have been easy to sprinkle `FR-REVIEW-01`-style anchors into the new skills to match the house style - but those requirements do not exist in the SRS, so the citations would be dangling references pointing at nothing. The new skills therefore cite the memory layer and SDD principles by name but invent no FR-IDs. The rule: **a reference is a promise that the target exists; never write one you cannot back.** Matching a surface convention (FR-anchors) is not worth manufacturing fake targets - honesty about what is specified beats cosmetic consistency.
