@@ -168,6 +168,21 @@ Note: openwiki also writes prompting into the repo-root `CLAUDE.md`/`AGENTS.md` 
 
 <!-- /integration:openwiki -->
 
+<!-- integration:ponytail -->
+
+### ponytail
+
+This project is wired for [ponytail](https://github.com/DietrichGebert/ponytail) - an AI-agent minimalism ruleset that makes the agent write the least code necessary (YAGNI ladder, shortest working diff) without cutting corners on understanding, validation, or security. Install it in Claude Code as two separate prompts:
+
+```text
+/plugin marketplace add DietrichGebert/ponytail
+/plugin install ponytail@ponytail
+```
+
+Adjust intensity with `/ponytail [lite|full|ultra|off]`. See `claude/ponytail.md`.
+
+<!-- /integration:ponytail -->
+
 ---
 
 ## Contributing

@@ -2,7 +2,7 @@ ToDo:
 
 1. Open code review for throughspec for code review once a feature is build, works with spec-review skill which calls the code review api from "https://github.com/alibaba/open-code-review":
 
-4. ponytail as integration in throughspec for agent orchestration and workflow management
+4. 
 5. use this knowledge for research and try to include those in the skills and methodology in throughspec:
    """
 

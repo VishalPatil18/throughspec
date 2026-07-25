@@ -7,7 +7,9 @@ from dataclasses import dataclass, field
 from typing import Literal
 
 Persona = Literal["vibe", "student", "engineer", "team"]
-Integration = Literal["graphify", "obsidian", "caveman", "agentmemory", "openwiki"]
+Integration = Literal[
+    "graphify", "obsidian", "caveman", "agentmemory", "openwiki", "ponytail"
+]
 Command = Literal["init", "customize", "add-skill", "upgrade", "doctor"]
 
 PERSONAS: tuple[Persona, ...] = ("vibe", "student", "engineer", "team")
@@ -17,6 +19,7 @@ INTEGRATIONS: tuple[Integration, ...] = (
     "caveman",
     "agentmemory",
     "openwiki",
+    "ponytail",
 )
 COMMANDS: tuple[Command, ...] = ("init", "customize", "add-skill", "upgrade", "doctor")
 
@@ -55,7 +58,7 @@ COMMANDS
 
 FLAGS
   --persona <name>              vibe | student | engineer | team
-  --integrations <a,b>          graphify,obsidian,caveman,agentmemory,openwiki (comma-separated, no spaces)
+  --integrations <a,b>          graphify,obsidian,caveman,agentmemory,openwiki,ponytail (comma-separated)
   --add <name>                  used with customize
   --remove <name>               used with customize
   --force                       overwrite existing files during init

@@ -795,8 +795,38 @@
 
 ---
 
+## 2026-07-24 - ponytail integration (code-minimalism)
+
+**Prompt / trigger:** `/feature-dev` - add ponytail (DietrichGebert/ponytail) as an integration for agent minimalism / workflow discipline.
+
+**What was done:**
+
+- Added `ponytail` as the 6th integration via the established external-tool pattern (name in 5 lists + CLAUDE.md/README blocks + guidance doc; no vendoring). ponytail is a Claude Code plugin installed via `/plugin marketplace add DietrichGebert/ponytail` then `/plugin install ponytail@ponytail` (two separate prompts).
+- Framed it honestly as a **code-minimalism discipline** (YAGNI ladder, shortest working diff, "lazy about the solution, never about reading"), not literal orchestration. Doc positions it as the code-generation-time complement to `/spec-refactor`, `/spec-code-quality`, `/spec-simplify`, and notes the SRS wins when scope and minimalism disagree.
+
+**Files touched:**
+
+- `packages/cli-node/src/args.ts`, `packages/cli-node/src/integrations.ts`, `tools/strip-integrations.mjs`, `packages/cli-python/src/spec_init/args.py`, `packages/cli-python/src/spec_init/integrations.py` - update - add `ponytail` to every list/Literal/help text.
+- `templates/CLAUDE.md` §8, `templates/README.md` - update - integration marker blocks (CLAUDE.md -> persona snapshot regen).
+- `templates/_integrations/ponytail/claude/ponytail.md` - create - guidance doc.
+- `tests/integrations-parity.test.ts`, `tests/integrations.test.ts`, `packages/cli-python/tests/test_integrations.py` - update - parity sets, marker map + roundtrip params, add/remove roundtrip, README-host assertion, and the Node `all`-picker test (hardcoded set -> now 6).
+- `tests/__snapshots__/personas.test.ts.snap` - update.
+
+**Decisions made:**
+
+- Same caveman-pattern scope; picker + Python prompt tests untouched (dynamic over `INTEGRATIONS`). The only hardcoded spot remains the Node `all`-picker assertion (now 6).
+- Kept the `--integrations` help line inline at 6 names but shortened the trailing hint to `(comma-separated)` to keep it readable; the "point to docs" idea stays a follow-up for a 7th.
+
+**Open questions / follow-ups:**
+
+- 6 integrations now: the earlier follow-up to move the help-text list to a docs pointer is now due if a 7th lands.
+- Integrations catalog (graphify, obsidian, caveman, agentmemory, openwiki, ponytail) is not enumerated in SRS/website docs; if a per-integration catalog page is ever wanted, that is a separate docs task.
+
+---
+
 ## Key Decisions
 
+- **2026-07-24** - ponytail added as the 6th opt-in integration (code-minimalism discipline), same external-tool pattern; described honestly as minimalism, not orchestration.
 - **2026-07-24** - agentmemory + openwiki added as opt-in integrations following the caveman pattern (external tool -> doc + marker blocks + name-lists, no vendoring). openwiki's root-CLAUDE.md overwrite is mitigated by documentation, not code.
 - **2026-07-24** - Kit ships a 15-skill supporting catalog (design/review/delivery/ideation/continuity) consolidating overlapping requests into moded skills (`spec-review`, `spec-research`). Skills are self-contained memory-integrated prompts; they do not invent FR-IDs. `spec-resume` persists a file-based resumption brief (`claude/resume.md`), no database.
 - **2026-07-24** - Kit CLAUDE.md defaults to suggesting a Conventional Commits message at the end of file-changing responses (§2 invariant 6). Placed in the standing-contract section, not the user-overrides section, so it is persona-agnostic and on by default.

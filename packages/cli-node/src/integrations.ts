@@ -9,6 +9,7 @@ export const INTEGRATION_NAMES: readonly Integration[] = [
   'caveman',
   'agentmemory',
   'openwiki',
+  'ponytail',
 ];
 const VALID = new Set<string>(INTEGRATION_NAMES);
 

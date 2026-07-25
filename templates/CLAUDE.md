@@ -136,6 +136,12 @@ When invoked via `/spec-docs`:
 
 <!-- /integration:openwiki -->
 
+<!-- integration:ponytail -->
+
+- [x] **ponytail** - _code-minimalism discipline; see `claude/ponytail.md`_. Run the YAGNI ladder before writing code (does it need to exist? reuse? stdlib? one line?) and prefer the shortest working diff. Never lazy about understanding, validation, or security. Adjust with `/ponytail [lite|full|ultra|off]`.
+
+<!-- /integration:ponytail -->
+
 ---
 
 ## 9. Quick links
