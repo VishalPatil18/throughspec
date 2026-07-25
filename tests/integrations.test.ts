@@ -123,6 +123,7 @@ describe('Stage 8 - integration toggle roundtrip', () => {
     ['agentmemory', 'claude/agentmemory.md'],
     ['openwiki', 'claude/openwiki.md'],
     ['ponytail', 'claude/ponytail.md'],
+    ['opencodereview', 'claude/opencodereview.md'],
   ])('add %s then remove %s leaves zero residual files', (name, marker) => {
     const project = scaffold();
     const before = fingerprint(project);
@@ -142,7 +143,15 @@ describe('Stage 8 - integration toggle roundtrip', () => {
 
   it('README external links resolve to known integration hosts', () => {
     const project = scaffold();
-    for (const name of ['graphify', 'obsidian', 'caveman', 'agentmemory', 'openwiki', 'ponytail']) {
+    for (const name of [
+      'graphify',
+      'obsidian',
+      'caveman',
+      'agentmemory',
+      'openwiki',
+      'ponytail',
+      'opencodereview',
+    ]) {
       spawnSync('node', [CLI, 'customize', '--add', name], { cwd: project, encoding: 'utf8' });
     }
     const readme = readFileSync(join(project, 'README.md'), 'utf8');
@@ -152,6 +161,7 @@ describe('Stage 8 - integration toggle roundtrip', () => {
     expect(readme).toContain('https://github.com/rohitg00/agentmemory');
     expect(readme).toContain('https://github.com/langchain-ai/openwiki');
     expect(readme).toContain('https://github.com/DietrichGebert/ponytail');
+    expect(readme).toContain('https://github.com/alibaba/open-code-review');
   });
 });
 
@@ -176,7 +186,15 @@ describe('promptIntegrations gating', () => {
   };
 
   it('all selects every integration', () => {
-    const everything = ['graphify', 'obsidian', 'caveman', 'agentmemory', 'openwiki', 'ponytail'];
+    const everything = [
+      'graphify',
+      'obsidian',
+      'caveman',
+      'agentmemory',
+      'openwiki',
+      'ponytail',
+      'opencodereview',
+    ];
     expect(promptIntegrations(base, { isTty: true, ask: () => '1' })).toEqual(everything);
     expect(promptIntegrations(base, { isTty: true, ask: () => 'all' })).toEqual(everything);
   });

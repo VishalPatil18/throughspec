@@ -8,7 +8,13 @@ from typing import Literal
 
 Persona = Literal["vibe", "student", "engineer", "team"]
 Integration = Literal[
-    "graphify", "obsidian", "caveman", "agentmemory", "openwiki", "ponytail"
+    "graphify",
+    "obsidian",
+    "caveman",
+    "agentmemory",
+    "openwiki",
+    "ponytail",
+    "opencodereview",
 ]
 Command = Literal["init", "reinit", "customize", "add-skill", "upgrade", "doctor"]
 
@@ -20,6 +26,7 @@ INTEGRATIONS: tuple[Integration, ...] = (
     "agentmemory",
     "openwiki",
     "ponytail",
+    "opencodereview",
 )
 COMMANDS: tuple[Command, ...] = (
     "init",
@@ -66,7 +73,7 @@ COMMANDS
 
 FLAGS
   --persona <name>              vibe | student | engineer | team
-  --integrations <a,b>          graphify,obsidian,caveman,agentmemory,openwiki,ponytail (comma-separated)
+  --integrations <a,b>          comma-separated integration names (see README for the full list)
   --add <name>                  used with customize
   --remove <name>               used with customize
   --force                       overwrite existing files during init

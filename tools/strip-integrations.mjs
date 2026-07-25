@@ -30,6 +30,7 @@ export const INTEGRATION_NAMES = [
   'agentmemory',
   'openwiki',
   'ponytail',
+  'opencodereview',
 ];
 const VALID = new Set(INTEGRATION_NAMES);
 

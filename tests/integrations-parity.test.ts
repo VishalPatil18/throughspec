@@ -23,7 +23,8 @@ const ACTIVE_SETS = [
   ['agentmemory'],
   ['openwiki'],
   ['ponytail'],
-  ['graphify', 'obsidian', 'caveman', 'agentmemory', 'openwiki', 'ponytail'],
+  ['opencodereview'],
+  ['graphify', 'obsidian', 'caveman', 'agentmemory', 'openwiki', 'ponytail', 'opencodereview'],
 ] as const;
 
 describe('integration-strip parity', () => {

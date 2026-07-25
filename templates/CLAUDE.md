@@ -146,6 +146,12 @@ When invoked via `/spec-docs`:
 
 <!-- /integration:ponytail -->
 
+<!-- integration:opencodereview -->
+
+- [x] **Open Code Review** - _AI code-review CLI (`ocr`); see `claude/opencodereview.md`_. Run `ocr review` on a diff or `ocr scan` on files for line-level findings before pushing. Complements the in-session `/spec-review` skill; use it for CI and pre-push checks.
+
+<!-- /integration:opencodereview -->
+
 ---
 
 ## 9. Quick links

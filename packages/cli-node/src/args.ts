@@ -13,6 +13,7 @@ export const INTEGRATIONS = [
   'agentmemory',
   'openwiki',
   'ponytail',
+  'opencodereview',
 ] as const;
 export type Integration = (typeof INTEGRATIONS)[number];
 
@@ -132,7 +133,7 @@ COMMANDS
 
 FLAGS
   --persona <name>              vibe | student | engineer | team
-  --integrations <a,b>          graphify,obsidian,caveman,agentmemory,openwiki,ponytail (comma-separated)
+  --integrations <a,b>          comma-separated integration names (see README for the full list)
   --add <name>                  used with customize
   --remove <name>               used with customize
   --force                       overwrite existing files during init

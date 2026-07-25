@@ -18,6 +18,7 @@ INTEGRATION_NAMES: tuple[Integration, ...] = (
     "agentmemory",
     "openwiki",
     "ponytail",
+    "opencodereview",
 )
 _VALID = frozenset(INTEGRATION_NAMES)
 _BLOCK_RE = re.compile(

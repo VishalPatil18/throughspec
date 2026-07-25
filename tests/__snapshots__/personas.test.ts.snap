@@ -149,6 +149,12 @@ When invoked via \`/spec-docs\`:
 
 <!-- /integration:ponytail -->
 
+<!-- integration:opencodereview -->
+
+- [x] **Open Code Review** - _AI code-review CLI (\`ocr\`); see \`claude/opencodereview.md\`_. Run \`ocr review\` on a diff or \`ocr scan\` on files for line-level findings before pushing. Complements the in-session \`/spec-review\` skill; use it for CI and pre-push checks.
+
+<!-- /integration:opencodereview -->
+
 ---
 
 ## 9. Quick links
@@ -319,6 +325,12 @@ When invoked via \`/spec-docs\`:
 - [x] **ponytail** - _code-minimalism discipline; see \`claude/ponytail.md\`_. Run the YAGNI ladder before writing code (does it need to exist? reuse? stdlib? one line?) and prefer the shortest working diff. Never lazy about understanding, validation, or security. Adjust with \`/ponytail [lite|full|ultra|off]\`.
 
 <!-- /integration:ponytail -->
+
+<!-- integration:opencodereview -->
+
+- [x] **Open Code Review** - _AI code-review CLI (\`ocr\`); see \`claude/opencodereview.md\`_. Run \`ocr review\` on a diff or \`ocr scan\` on files for line-level findings before pushing. Complements the in-session \`/spec-review\` skill; use it for CI and pre-push checks.
+
+<!-- /integration:opencodereview -->
 
 ---
 
@@ -493,6 +505,12 @@ When invoked via \`/spec-docs\`:
 
 <!-- /integration:ponytail -->
 
+<!-- integration:opencodereview -->
+
+- [x] **Open Code Review** - _AI code-review CLI (\`ocr\`); see \`claude/opencodereview.md\`_. Run \`ocr review\` on a diff or \`ocr scan\` on files for line-level findings before pushing. Complements the in-session \`/spec-review\` skill; use it for CI and pre-push checks.
+
+<!-- /integration:opencodereview -->
+
 ---
 
 ## 9. Quick links
@@ -663,6 +681,12 @@ When invoked via \`/spec-docs\`:
 - [x] **ponytail** - _code-minimalism discipline; see \`claude/ponytail.md\`_. Run the YAGNI ladder before writing code (does it need to exist? reuse? stdlib? one line?) and prefer the shortest working diff. Never lazy about understanding, validation, or security. Adjust with \`/ponytail [lite|full|ultra|off]\`.
 
 <!-- /integration:ponytail -->
+
+<!-- integration:opencodereview -->
+
+- [x] **Open Code Review** - _AI code-review CLI (\`ocr\`); see \`claude/opencodereview.md\`_. Run \`ocr review\` on a diff or \`ocr scan\` on files for line-level findings before pushing. Complements the in-session \`/spec-review\` skill; use it for CI and pre-push checks.
+
+<!-- /integration:opencodereview -->
 
 ---
 

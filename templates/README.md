@@ -183,6 +183,22 @@ Adjust intensity with `/ponytail [lite|full|ultra|off]`. See `claude/ponytail.md
 
 <!-- /integration:ponytail -->
 
+<!-- integration:opencodereview -->
+
+### Open Code Review
+
+This project is wired for [Open Code Review](https://github.com/alibaba/open-code-review) - an AI-powered code-review CLI (`ocr`) that reviews Git diffs and files with line-level findings (requires Git >= 2.41). Install and configure:
+
+```sh
+npm install -g @alibaba-group/open-code-review
+ocr config provider   # pick an OpenAI/Anthropic-compatible provider
+ocr review            # review staged + unstaged changes
+```
+
+Zero-cost path: `ocr delegate preview` reuses your existing coding-agent LLM instead of a separate API key. See `claude/opencodereview.md`.
+
+<!-- /integration:opencodereview -->
+
 ---
 
 ## Contributing

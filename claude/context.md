@@ -955,8 +955,40 @@
 
 ---
 
+## 2026-07-25 - Open Code Review integration (7th)
+
+**Prompt / trigger:** `/feature-dev` - add alibaba/open-code-review as an integration.
+
+**What was done:**
+
+- Added `opencodereview` as the 7th integration via the established external-tool pattern (name in 5 lists + CLAUDE.md/README blocks + guidance doc; no vendoring). It is Alibaba's AI code-review CLI (`ocr`, Apache-2.0): `npm install -g @alibaba-group/open-code-review`, then `ocr review` / `ocr scan`. Positioned as the CLI/CI complement to the in-session `/spec-review` skill.
+- **Naming:** the repo is `open-code-review` (hyphens), but integration keys must match the strip regex `[a-z]+`, so the key is `opencodereview` (display name "Open Code Review", CLI `ocr`).
+- **Help text:** at 7 integrations, the `--integrations` help line no longer inlines the full CSV list (it grew unwieldy) - it now says "comma-separated integration names (see README for the full list)". The dynamic validation error still lists valid values, and the README/CLAUDE.md blocks enumerate them.
+- **Zero-cost note:** doc + README highlight `ocr delegate preview`, which reuses the existing coding-agent LLM instead of a separate paid API key.
+
+**Files touched:**
+
+- `packages/cli-node/src/args.ts` (+ shortened HELP), `packages/cli-node/src/integrations.ts`, `tools/strip-integrations.mjs`, `packages/cli-python/src/spec_init/args.py` (+ shortened help), `packages/cli-python/src/spec_init/integrations.py` - update - add `opencodereview`.
+- `templates/CLAUDE.md` §8, `templates/README.md` - update - integration blocks (CLAUDE.md -> persona snapshot regen).
+- `templates/_integrations/opencodereview/claude/opencodereview.md` - create - guidance doc.
+- `tests/integrations-parity.test.ts`, `tests/integrations.test.ts`, `packages/cli-python/tests/test_integrations.py` - update - parity sets, marker map + roundtrip params, add/remove roundtrip, README-host assertion, Node `all`-picker (now 7).
+- `tests/__snapshots__/personas.test.ts.snap` - update.
+
+**Decisions made:**
+
+- Hyphenless key `opencodereview` to satisfy the `[a-z]+` marker regex without touching the strip parity surface.
+- Shortened the `--integrations` help to a README pointer now that the list has grown; the follow-up flagged at 6 integrations is now resolved.
+
+**Open questions / follow-ups:**
+
+- Integration count is 7; the picker/welcome/prompt tests remain dynamic over `INTEGRATIONS` (only the Node `all`-picker assertion is hardcoded).
+- If a per-integration catalog page is ever wanted in the website docs, that stays a separate task (integrations are not enumerated there).
+
+---
+
 ## Key Decisions
 
+- **2026-07-25** - Open Code Review added as the 7th opt-in integration (CLI/CI code reviewer, complements `/spec-review`); key `opencodereview` (hyphenless for the `[a-z]+` marker regex). At 7 integrations the `--integrations` help line points to the README instead of inlining the list.
 - **2026-07-25** - Kit conventions bias toward token-lean specs (Markdown narrative + flat YAML for deep structure), BDD Given/When/Then acceptance scenarios with mandatory edge cases, version-pinning + verification, no hardcoded secrets/PII in specs, and a PR Risk & Impact section. All as templates/skills conventions - no runtime infra (policy server/sandbox/eval/MCP-server explicitly out of scope for a scaffolding kit).
 - **2026-07-25** - Bare `spec-init` on a TTY launches a `@clack/prompts` welcome (Node-only); TTY-gated so non-interactive behavior is unchanged. The TUI reuses `runInit`/`runReinit` via a new `quiet` mode; `@clack` is dynamic-imported only on the interactive path.
 - **2026-07-24** - `spec.config.js` is an advisory, Claude-read project config (skills/workflow/settings), honored via CLAUDE.md §2 invariant 7. The CLI never parses it (keeps `.js`, avoids the dual-CLI JS-parse problem); persona/integrations stay CLI-owned in meta.json - no duplication.
