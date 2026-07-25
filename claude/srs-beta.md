@@ -125,10 +125,10 @@ Throughspec is built on three load-bearing beliefs:
 | Property     | Specification                                                                                                                                                      |
 | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | Entry points | `spec-init` (npm bin), `spec-init` (pip console script)                                                                                                            |
-| Commands     | `init`, `customize`, `add-skill`, `upgrade`, `doctor`                                                                                                              |
+| Commands     | `init`, `reinit`, `customize`, `add-skill`, `upgrade`, `doctor`                                                                                                    |
 | Inputs       | Project name, target stack hints (optional), persona (student / engineer / non-dev), integration toggles (Graphify, Obsidian)                                      |
 | Outputs      | A populated project directory matching the canonical structure in §6                                                                                               |
-| Idempotency  | `init` refuses to overwrite an existing project unless `--force` is passed; `upgrade` merges new template versions while preserving user edits via three-way merge |
+| Idempotency  | `init` refuses to overwrite an existing project unless `--force` is passed; `reinit` adopts Throughspec into an existing project in place, keeping existing spec files unless `--force`; `upgrade` merges new template versions while preserving user edits via three-way merge |
 
 #### 2.2.2 Claude Memory Layer
 

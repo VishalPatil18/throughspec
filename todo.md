@@ -58,7 +58,7 @@ Engineers who thrive with automated systems design the constraints that make the
 7. use thisf or more inspiration and insights: "https://github.com/github/spec-kit"
 8. check this out for skills: https://github.com/sickn33/agentic-awesome-skills/tree/main/skills
 9. terminal ui for the application like claude that starts with spec-init command to setup the library in a project
-10. for already existing projects, add a spec-reinit command that checks for existing spec files and prompts the user to either use them or create new ones.
+10. 
 11. a spec.config.js file in the users project that contains all the configuration for the throughspec library, including the skills to be used, the workflow to be followed, and any other relevant settings. This file should be easy to read and modify, allowing users to customize their experience with throughspec.
 12. UI Updates:
     - changelog notes should me markdown styled, bold, code block, italics etc.

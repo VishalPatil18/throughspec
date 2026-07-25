@@ -824,8 +824,43 @@
 
 ---
 
+## 2026-07-24 - spec-init reinit (adopt Throughspec in an existing project)
+
+**Prompt / trigger:** `/feature-dev` - add a `reinit` command for installing Throughspec into an already-existing project; it checks for existing spec files and lets the user keep them or create new ones.
+
+**What was done:**
+
+- Added `reinit` as a 6th CLI subcommand (`spec-init reinit [dir]`, default `.`). It adopts Throughspec **in place** in a brownfield repo: writes only the missing payload/spec files, **keeps** existing spec files by default (non-destructive), and writes the `.spec-init/base/` snapshot + `meta.json` so `upgrade` works afterward. Never touches non-template (source) files.
+- Existing-file handling = a global binary: **keep** (default, safe) vs **replace**. `--force` = replace without asking; on a TTY with existing spec files it prompts `keep/replace`; non-interactive/dry-run defaults to keep. Guard: if `.spec-init/base` already exists, it refuses and points to `upgrade`/`customize`.
+- Reused init's helpers rather than duplicating: exported `walkPayload`, `maybeTransform`, `readLineSync` from init.ts (and imported `_walk_payload`, `_maybe_transform`, `integration_files_for`, `prompt_integrations` in Python). Added a `verb` param to `postInitChecklist`/`post_init_checklist` so reinit reuses the whole next-steps/persona/caveman output with an "Initialized" header.
+
+**Files touched:**
+
+- `packages/cli-node/src/args.ts`, `packages/cli-python/src/spec_init/args.py` - update - `reinit` in `COMMANDS`/Literal + HELP_TEXT.
+- `packages/cli-node/src/checklist.ts`, `packages/cli-python/src/spec_init/checklist.py` - update - optional `verb` param (default `Scaffolded`).
+- `packages/cli-node/src/commands/init.ts` - update - export `walkPayload`, `maybeTransform`, `readLineSync` (no logic change).
+- `packages/cli-node/src/commands/reinit.ts`, `packages/cli-python/src/spec_init/commands/reinit.py` - create - `run_reinit` + `resolve_reinit_mode`.
+- `packages/cli-node/src/index.ts`, `packages/cli-python/src/spec_init/cli.py` - update - dispatch `reinit`.
+- `tests/reinit.test.ts`, `packages/cli-python/tests/test_reinit.py` - create; `tests/cli.test.ts` - update (help-command loop).
+- `claude/srs-beta.md` §2.2.1 (Commands + Idempotency rows), `README.md` ("Already have a project?"), `website/lib/docs-content.ts` (quickstart "Already have a project?" section).
+
+**Decisions made:**
+
+- Keep vs replace is a **global binary** (not per-file) - matches the user's "use them or create new ones" and stays simple; per-file granularity is a possible follow-up.
+- `reinit` is a CLI subcommand (scaffolding is the CLI's job), not a Claude skill; positional `dir` is optional (`.`), unlike `init`'s required name.
+- Reused init helpers via targeted exports instead of refactoring init or duplicating the walk/transform logic.
+
+**Open questions / follow-ups:**
+
+- pytest still not runnable locally (no `uv`; the CLI import chain needs `merge3`). Verified via Node vitest + calling `run_reinit`/`resolve_reinit_mode` directly under system Python 3.9. Run `uv run pytest` before merge.
+- reinit keep-mode sets `.spec-init/base` = pristine payload while a kept file differs, so the first `upgrade` treats kept files as user edits (three-way merge, possible conflicts) - inherent to brownfield adoption; documented behavior, not a bug.
+- Per-file keep/replace selection could be added later if the global binary proves too coarse.
+
+---
+
 ## Key Decisions
 
+- **2026-07-24** - `reinit` adopts Throughspec into existing projects in place, non-destructive by default (keep existing spec files; `--force`/prompt to replace), writing `.spec-init/base` so `upgrade` works after. Reuses init helpers via exports; keep/replace is a global binary.
 - **2026-07-24** - ponytail added as the 6th opt-in integration (code-minimalism discipline), same external-tool pattern; described honestly as minimalism, not orchestration.
 - **2026-07-24** - agentmemory + openwiki added as opt-in integrations following the caveman pattern (external tool -> doc + marker blocks + name-lists, no vendoring). openwiki's root-CLAUDE.md overwrite is mitigated by documentation, not code.
 - **2026-07-24** - Kit ships a 15-skill supporting catalog (design/review/delivery/ideation/continuity) consolidating overlapping requests into moded skills (`spec-review`, `spec-research`). Skills are self-contained memory-integrated prompts; they do not invent FR-IDs. `spec-resume` persists a file-based resumption brief (`claude/resume.md`), no database.

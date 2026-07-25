@@ -9,11 +9,12 @@ def post_init_checklist(
     out_dir: str,
     persona: Persona | None,
     integrations: tuple[Integration, ...] = (),
+    verb: str = "Scaffolded",
 ) -> str:
     """Return the post-init checklist as a string."""
     lines = [
         "",
-        f"[OK] Scaffolded {out_dir}",
+        f"[OK] {verb} {out_dir}",
         "",
         "Next steps:",
         f"  1. cd {out_dir}",

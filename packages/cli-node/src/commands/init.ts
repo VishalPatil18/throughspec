@@ -95,7 +95,7 @@ export function runInit(opts: CliOptions): InitResult {
 }
 
 /** Recursively list files under `root` as forward-slash relative paths. */
-function walkPayload(root: string): string[] {
+export function walkPayload(root: string): string[] {
   const out: string[] = [];
   const stack: string[] = [root];
   while (stack.length > 0) {
@@ -113,7 +113,7 @@ function walkPayload(root: string): string[] {
 }
 
 /** Apply persona and integration strips to `.md` files; other files untouched. */
-function maybeTransform(
+export function maybeTransform(
   relPath: string,
   content: string,
   persona: Persona | null,
@@ -168,7 +168,7 @@ export interface PromptDeps {
 }
 
 /** Read one line synchronously from stdin (fd 0). Returns '' on EOF/error. */
-function readLineSync(): string {
+export function readLineSync(): string {
   const buf = Buffer.alloc(1);
   let out = '';
   for (;;) {

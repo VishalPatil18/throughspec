@@ -15,7 +15,7 @@ describe('spec-init CLI', () => {
   it('--help prints every command and flag', () => {
     const { status, stdout } = run(['--help']);
     expect(status).toBe(0);
-    for (const cmd of ['init', 'customize', 'add-skill', 'upgrade', 'doctor']) {
+    for (const cmd of ['init', 'reinit', 'customize', 'add-skill', 'upgrade', 'doctor']) {
       expect(stdout).toContain(cmd);
     }
     for (const flag of ['--persona', '--integrations', '--force', '--dry-run']) {

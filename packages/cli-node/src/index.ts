@@ -6,6 +6,7 @@
 import { HELP_TEXT, parseArgs, UsageError } from './args.js';
 import type { CliOptions } from './args.js';
 import { runInit } from './commands/init.js';
+import { runReinit } from './commands/reinit.js';
 import { runCustomize } from './commands/customize.js';
 import { runAddSkill } from './commands/add-skill.js';
 import { runUpgrade } from './commands/upgrade.js';
@@ -26,6 +27,9 @@ export function dispatch(opts: CliOptions): number {
   switch (opts.command) {
     case 'init':
       runInit(opts);
+      return 0;
+    case 'reinit':
+      runReinit(opts);
       return 0;
     case 'customize':
       runCustomize(opts);

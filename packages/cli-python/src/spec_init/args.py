@@ -10,7 +10,7 @@ Persona = Literal["vibe", "student", "engineer", "team"]
 Integration = Literal[
     "graphify", "obsidian", "caveman", "agentmemory", "openwiki", "ponytail"
 ]
-Command = Literal["init", "customize", "add-skill", "upgrade", "doctor"]
+Command = Literal["init", "reinit", "customize", "add-skill", "upgrade", "doctor"]
 
 PERSONAS: tuple[Persona, ...] = ("vibe", "student", "engineer", "team")
 INTEGRATIONS: tuple[Integration, ...] = (
@@ -21,7 +21,14 @@ INTEGRATIONS: tuple[Integration, ...] = (
     "openwiki",
     "ponytail",
 )
-COMMANDS: tuple[Command, ...] = ("init", "customize", "add-skill", "upgrade", "doctor")
+COMMANDS: tuple[Command, ...] = (
+    "init",
+    "reinit",
+    "customize",
+    "add-skill",
+    "upgrade",
+    "doctor",
+)
 
 
 class UsageError(Exception):
@@ -51,6 +58,7 @@ USAGE
 
 COMMANDS
   init <name>         Scaffold a new project into <name>/
+  reinit [dir]        Adopt Throughspec in an existing project (in place; keeps your files)
   customize           Toggle integrations or swap the persona for an existing project
   add-skill <name>    Copy a skill from the payload's skills/ catalog into the project
   upgrade             Merge a newer template payload into an existing project (three-way)
@@ -70,6 +78,7 @@ EXAMPLES
   spec-init init my-project --persona student
   spec-init init my-project --persona engineer --integrations graphify,obsidian
   spec-init init my-project --integrations caveman
+  spec-init reinit --persona engineer
   spec-init customize --add obsidian
   spec-init upgrade
   spec-init doctor

@@ -16,7 +16,7 @@ export const INTEGRATIONS = [
 ] as const;
 export type Integration = (typeof INTEGRATIONS)[number];
 
-export const COMMANDS = ['init', 'customize', 'add-skill', 'upgrade', 'doctor'] as const;
+export const COMMANDS = ['init', 'reinit', 'customize', 'add-skill', 'upgrade', 'doctor'] as const;
 export type Command = (typeof COMMANDS)[number];
 
 export interface CliOptions {
@@ -124,6 +124,7 @@ USAGE
 
 COMMANDS
   init <name>         Scaffold a new project into <name>/
+  reinit [dir]        Adopt Throughspec in an existing project (in place; keeps your files)
   customize           Toggle integrations or swap the persona for an existing project
   add-skill <name>    Copy a skill from the payload's skills/ catalog into the project
   upgrade             Merge a newer template payload into an existing project (three-way)
@@ -143,6 +144,7 @@ EXAMPLES
   spec-init init my-project --persona student
   spec-init init my-project --persona engineer --integrations graphify,obsidian
   spec-init init my-project --integrations caveman
+  spec-init reinit --persona engineer
   spec-init customize --add obsidian
   spec-init upgrade
   spec-init doctor

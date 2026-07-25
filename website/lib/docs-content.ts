@@ -131,6 +131,15 @@ export const PAGES: Record<string, DocPage> = {
         label: 'Python channel?',
         text: 'Prefer the Python channel? pipx install spec-init, then spec-init my-app. Both channels ship the same template payload, verified byte-for-byte on every release.',
       },
+      { t: 'h2', id: 'existing-project', text: 'Already have a project?' },
+      { t: 'p', text: 'Adopt Throughspec in an existing repo with reinit. It writes only the missing spec and memory files, keeps everything you already have, and never touches your source code. It also lays down the .spec-init/base/ snapshot so upgrade works from then on.' },
+      { t: 'code', text: 'cd my-existing-project\nnpx spec-init reinit          # keeps existing files\nnpx spec-init reinit --force  # replace existing spec files with fresh templates' },
+      {
+        t: 'callout',
+        variant: 'note',
+        label: 'Non-destructive by default',
+        text: 'reinit keeps any spec file that already exists (interactively it asks keep or replace). Pass --force to overwrite them. Already Throughspec-managed? Use upgrade instead - reinit will point you there.',
+      },
       { t: 'h2', id: 'cycle', text: 'Run the initiation cycle' },
       { t: 'p', text: 'Open Claude Code in the new directory and run these skills in order. Each gates the next - you cannot plan before the spec is frozen, and you cannot build before the plan is written.' },
       {

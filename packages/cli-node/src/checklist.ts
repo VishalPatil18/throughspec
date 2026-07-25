@@ -8,10 +8,11 @@ export function postInitChecklist(
   outDir: string,
   persona: Persona | null,
   integrations: readonly Integration[] = [],
+  verb = 'Scaffolded',
 ): string {
   const lines = [
     '',
-    `[OK] Scaffolded ${outDir}`,
+    `[OK] ${verb} ${outDir}`,
     '',
     'Next steps:',
     `  1. cd ${outDir}`,

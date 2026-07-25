@@ -119,6 +119,17 @@ cd my-project
 
 The kit prints the next step after each command so you never have to remember what comes next.
 
+### Already have a project?
+
+Adopt Throughspec in place - it writes only the missing spec/memory files and keeps everything you already have:
+
+```bash
+cd my-existing-project
+npx spec-init reinit          # keeps existing files; add --force to replace them
+```
+
+`reinit` never touches your source code, and it writes the `.spec-init/base/` snapshot so `spec-init upgrade` works from then on.
+
 ## Built spec-first
 
 This repository builds Throughspec the same way Throughspec builds your project. You can read the contract:
