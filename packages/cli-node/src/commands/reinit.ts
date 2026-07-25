@@ -32,8 +32,8 @@ interface ReinitResult {
   dryRun: boolean;
 }
 
-/** Run `reinit`. Adopts Throughspec into an existing project in place. */
-export function runReinit(opts: CliOptions): ReinitResult {
+/** Run `reinit`. Adopts Throughspec into an existing project in place. Quiet skips prompts + summary (caller owns I/O). */
+export function runReinit(opts: CliOptions, quiet = false): ReinitResult {
   const [dirArg] = opts.positional;
   const dir = resolve(process.cwd(), dirArg ?? '.');
   const payloadDir = resolvePayloadDir();
@@ -45,15 +45,19 @@ export function runReinit(opts: CliOptions): ReinitResult {
     );
   }
 
-  // Offer the integration picker interactively (same rules as init).
-  const integrations = promptIntegrations(opts);
+  // Offer the integration picker interactively (same rules as init). Quiet
+  // callers (the welcome TUI) pass the set in and own all prompting.
+  const integrations = quiet ? [...opts.integrations] : promptIntegrations(opts);
 
   const baseFiles = walkPayload(payloadDir).filter((rel) => !rel.startsWith(INTEGRATIONS_PREFIX));
   const integrationRel = integrationFilesFor(payloadDir, integrations);
   const existing = new Set(
     [...baseFiles, ...integrationRel].filter((rel) => existsSync(join(dir, rel))),
   );
-  const mode = resolveReinitMode(opts, existing.size);
+  // Quiet mode never prompts for keep/replace: honor --force, else keep (safe).
+  const mode = quiet
+    ? resolveReinitMode(opts, existing.size, { isTty: false, ask: () => '' })
+    : resolveReinitMode(opts, existing.size);
 
   if (opts.dryRun) {
     printPlan(relative(process.cwd(), dir) || '.', baseFiles, integrationRel, existing, mode);
@@ -70,7 +74,12 @@ export function runReinit(opts: CliOptions): ReinitResult {
       continue;
     }
     mkdirSync(dirname(dest), { recursive: true });
-    const content = maybeTransform(rel, readFileSync(join(payloadDir, rel), 'utf8'), opts.persona, integrations);
+    const content = maybeTransform(
+      rel,
+      readFileSync(join(payloadDir, rel), 'utf8'),
+      opts.persona,
+      integrations,
+    );
     writeFileSync(dest, content);
     written += 1;
   }
@@ -101,8 +110,10 @@ export function runReinit(opts: CliOptions): ReinitResult {
   );
 
   const relDir = relative(process.cwd(), dir) || '.';
-  process.stdout.write(`\nAdopted Throughspec in ${relDir}: ${written} written, ${kept} kept.\n`);
-  process.stdout.write(postInitChecklist(relDir, opts.persona, integrations, 'Initialized'));
+  if (!quiet) {
+    process.stdout.write(`\nAdopted Throughspec in ${relDir}: ${written} written, ${kept} kept.\n`);
+    process.stdout.write(postInitChecklist(relDir, opts.persona, integrations, 'Initialized'));
+  }
   return { dir, written, kept, dryRun: false };
 }
 

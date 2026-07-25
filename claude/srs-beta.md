@@ -129,6 +129,7 @@ Throughspec is built on three load-bearing beliefs:
 | Inputs       | Project name, target stack hints (optional), persona (student / engineer / non-dev), integration toggles (Graphify, Obsidian)                                      |
 | Outputs      | A populated project directory matching the canonical structure in §6                                                                                               |
 | Idempotency  | `init` refuses to overwrite an existing project unless `--force` is passed; `reinit` adopts Throughspec into an existing project in place, keeping existing spec files unless `--force`; `upgrade` merges new template versions while preserving user edits via three-way merge |
+| Interactive  | Bare `spec-init` on a TTY (Node channel) launches a guided welcome (new-vs-existing, persona, integrations) built on `@clack/prompts`, then delegates to `init`/`reinit`. In a non-TTY shell it prints help and exits 2, so scripts and CI are unaffected. |
 
 #### 2.2.2 Claude Memory Layer
 

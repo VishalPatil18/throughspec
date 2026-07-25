@@ -48,10 +48,20 @@ export function dispatch(opts: CliOptions): number {
   }
 }
 
+/** True when a bare `spec-init` should open the interactive welcome (TTY only). */
+export function shouldLaunchWelcome(opts: CliOptions, isTty: boolean): boolean {
+  return opts.command === null && !opts.help && !opts.version && isTty;
+}
+
 /** Bin entry. Catches UsageError and prints its message; rethrows unknown errors. */
-export function main(argv: readonly string[]): number {
+export async function main(argv: readonly string[]): Promise<number> {
   try {
     const opts = parseArgs(argv);
+    if (shouldLaunchWelcome(opts, Boolean(process.stdin.isTTY))) {
+      // Load the TUI (and @clack) only on the interactive path.
+      const { runWelcome } = await import('./commands/welcome.js');
+      return await runWelcome();
+    }
     return dispatch(opts);
   } catch (error: unknown) {
     if (error instanceof UsageError) {
@@ -65,5 +75,5 @@ export function main(argv: readonly string[]): number {
 // Only invoke main when run as the bin, not when imported by tests.
 const invokedDirectly = import.meta.url === `file://${process.argv[1]}`;
 if (invokedDirectly) {
-  process.exit(main(process.argv.slice(2)));
+  main(process.argv.slice(2)).then((code) => process.exit(code));
 }

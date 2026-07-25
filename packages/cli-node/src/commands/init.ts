@@ -32,8 +32,8 @@ interface InitResult {
   dryRun: boolean;
 }
 
-/** Run `init`. Throws UsageError on user-facing errors. */
-export function runInit(opts: CliOptions): InitResult {
+/** Run `init`. Throws UsageError on user-facing errors. Quiet skips prompts + summary (caller owns I/O). */
+export function runInit(opts: CliOptions, quiet = false): InitResult {
   const [name] = opts.positional;
   if (!name) throw new UsageError('init requires a project name: spec-init init <name>');
   const outDir = resolve(process.cwd(), name);
@@ -50,8 +50,9 @@ export function runInit(opts: CliOptions): InitResult {
   }
 
   // Offer the integration picker interactively when init ran on a TTY with no
-  // explicit --integrations; otherwise this returns opts.integrations unchanged.
-  const integrations = promptIntegrations(opts);
+  // explicit --integrations; quiet callers (e.g. the welcome TUI) pass the set
+  // in and own all prompting themselves.
+  const integrations = quiet ? [...opts.integrations] : promptIntegrations(opts);
 
   const allFiles = walkPayload(payloadDir);
   // Files under _integrations/ are per-integration payloads. They are copied
@@ -88,9 +89,11 @@ export function runInit(opts: CliOptions): InitResult {
     JSON.stringify({ persona: opts.persona, integrations }, null, 2) + '\n',
   );
 
-  process.stdout.write(
-    postInitChecklist(relative(process.cwd(), outDir) || '.', opts.persona, integrations),
-  );
+  if (!quiet) {
+    process.stdout.write(
+      postInitChecklist(relative(process.cwd(), outDir) || '.', opts.persona, integrations),
+    );
+  }
   return { outDir, filesWritten: written, dryRun: false };
 }
 
@@ -127,10 +130,7 @@ export function maybeTransform(
 }
 
 /** List destination-relative paths that will be written for `active`. */
-export function integrationFilesFor(
-  payloadDir: string,
-  active: readonly Integration[],
-): string[] {
+export function integrationFilesFor(payloadDir: string, active: readonly Integration[]): string[] {
   const out: string[] = [];
   for (const name of active) {
     const root = join(payloadDir, '_integrations', name);

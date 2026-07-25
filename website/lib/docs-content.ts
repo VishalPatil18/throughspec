@@ -128,6 +128,12 @@ export const PAGES: Record<string, DocPage> = {
       {
         t: 'callout',
         variant: 'tip',
+        label: 'Prefer a guided setup?',
+        text: 'Run npx spec-init with no arguments in a terminal for an interactive welcome - arrow-key selects for new-vs-existing, persona, and integrations, then it scaffolds. In a non-interactive shell (CI, pipes) it prints help instead, so scripts are unaffected.',
+      },
+      {
+        t: 'callout',
+        variant: 'tip',
         label: 'Python channel?',
         text: 'Prefer the Python channel? pipx install spec-init, then spec-init my-app. Both channels ship the same template payload, verified byte-for-byte on every release.',
       },

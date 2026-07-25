@@ -891,8 +891,42 @@
 
 ---
 
+## 2026-07-25 - Interactive welcome TUI (bare `spec-init`, @clack/prompts, Node-only)
+
+**Prompt / trigger:** `/feature-dev` - a Claude-style terminal UI shown when you run the tool bare, guiding first-time setup with a neat, non-plain interface.
+
+**What was done:**
+
+- Bare `spec-init` **on a TTY** now launches an interactive welcome built on `@clack/prompts` (rounded intro/outro, arrow-key select, space-toggle multiselect, spinner). Flow: detect already-managed -> else new-vs-current -> project name (new) -> persona -> integrations -> confirm -> scaffold -> next-steps note.
+- **TTY-gated** via a pure `shouldLaunchWelcome(opts, isTty)`: non-TTY (CI, pipes, the test suite) keeps the prior help+exit-2 behavior, so no existing contract broke.
+- The welcome owns all interaction and delegates writing to `runInit`/`runReinit` in a new **quiet** mode (skips their own prompts + summary prints), then renders next-steps via the reused `postInitChecklist` - single source of truth for scaffolding.
+- **Node-only** (the `npx` channel); the Python CLI is unchanged. **One new dependency**: `@clack/prompts`, dynamic-imported only on the interactive path so normal commands never load it.
+
+**Files touched:**
+
+- `packages/cli-node/package.json` - update - add `@clack/prompts`.
+- `packages/cli-node/src/commands/welcome.ts` - create - `runWelcome()` + pure `buildWelcomeOptions()`.
+- `packages/cli-node/src/index.ts` - update - `main` is now async; exported pure `shouldLaunchWelcome`; dynamic-imports welcome on the TTY path; bin wrapper `main(...).then(process.exit)`.
+- `packages/cli-node/src/commands/init.ts`, `reinit.ts` - update - `quiet` param (skip prompts + summary; caller owns I/O).
+- `tests/cli.test.ts` - update - unit tests for `shouldLaunchWelcome` + `buildWelcomeOptions`.
+- `README.md`, `website/lib/docs-content.ts` (quickstart), `claude/srs-beta.md` §2.2.1 (Interactive row) - update - document the welcome.
+
+**Decisions made:**
+
+- Chose `@clack/prompts` over a zero-dep numbered flow (genuine arrow-key polish, matches "not the normal terminal UI") and over Ink (too heavy). Node-only to avoid a second interactive surface drifting in Python.
+- TTY gate is the whole safety mechanism: it preserves every non-interactive test/contract and means scripts/CI are unaffected.
+- `quiet` on runInit/runReinit lets the TUI reuse the exact scaffolding + next-steps code instead of duplicating it; current-directory setup defaults to keep (non-destructive) - replacing stays an explicit `reinit --force`.
+
+**Open questions / follow-ups:**
+
+- The live @clack flow can't be auto-tested without a pseudo-terminal; covered by unit-testing the gate + option mapping and reusing `runInit`/`runReinit` tests. A pty-driven e2e is a future option.
+- No payload/template change -> parity stays 53, no snapshot/token impact. `@clack` is a Node-CLI runtime dep (not payload), so it does not affect the byte-parity guarantee.
+
+---
+
 ## Key Decisions
 
+- **2026-07-25** - Bare `spec-init` on a TTY launches a `@clack/prompts` welcome (Node-only); TTY-gated so non-interactive behavior is unchanged. The TUI reuses `runInit`/`runReinit` via a new `quiet` mode; `@clack` is dynamic-imported only on the interactive path.
 - **2026-07-24** - `spec.config.js` is an advisory, Claude-read project config (skills/workflow/settings), honored via CLAUDE.md §2 invariant 7. The CLI never parses it (keeps `.js`, avoids the dual-CLI JS-parse problem); persona/integrations stay CLI-owned in meta.json - no duplication.
 - **2026-07-24** - `reinit` adopts Throughspec into existing projects in place, non-destructive by default (keep existing spec files; `--force`/prompt to replace), writing `.spec-init/base` so `upgrade` works after. Reuses init helpers via exports; keep/replace is a global binary.
 - **2026-07-24** - ponytail added as the 6th opt-in integration (code-minimalism discipline), same external-tool pattern; described honestly as minimalism, not orchestration.

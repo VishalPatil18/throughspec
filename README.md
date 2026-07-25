@@ -108,6 +108,14 @@ Requires Python ≥ 3.10.
 
 ## Get started
 
+Run `spec-init` with no arguments in a terminal for a guided, interactive setup - it walks you through new-vs-existing, persona, and integrations, then scaffolds:
+
+```bash
+npx spec-init
+```
+
+Or go straight to it with flags:
+
 ```bash
 # 1. scaffold
 npx spec-init my-project
