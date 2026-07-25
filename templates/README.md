@@ -136,6 +136,38 @@ See `claude/caveman.md` for modes and usage.
 
 <!-- /integration:caveman -->
 
+<!-- integration:agentmemory -->
+
+### agentmemory
+
+This project is wired for [agentmemory](https://github.com/rohitg00/agentmemory) - persistent memory for AI coding agents that captures decisions and context across sessions and injects them back at session start (local SQLite, no external database). Set it up once:
+
+```sh
+npx @agentmemory/agentmemory        # starts the memory server on port 3111
+agentmemory connect claude-code     # wires the MCP server into Claude Code
+npx skills add rohitg00/agentmemory -y
+```
+
+For a zero-cost setup, use local embeddings (`EMBEDDING_PROVIDER=local` in `~/.agentmemory/.env`). See `claude/agentmemory.md`.
+
+<!-- /integration:agentmemory -->
+
+<!-- integration:openwiki -->
+
+### openwiki
+
+This project is wired for [openwiki](https://github.com/langchain-ai/openwiki) - a CLI that generates and maintains an agent-facing documentation wiki for the codebase in an `openwiki/` directory. Install and generate:
+
+```sh
+npm install -g openwiki
+openwiki --init      # configure your AI provider
+openwiki --update    # generate the wiki
+```
+
+Note: openwiki also writes prompting into the repo-root `CLAUDE.md`/`AGENTS.md` - review the diff so it does not clobber this project's behavior contract. See `claude/openwiki.md`.
+
+<!-- /integration:openwiki -->
+
 ---
 
 ## Contributing

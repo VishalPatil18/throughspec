@@ -119,15 +119,37 @@ describe('Stage 8 - integration toggle roundtrip', () => {
     assertRoundtripEmpty(before, fingerprint(project));
   });
 
+  it.each([
+    ['agentmemory', 'claude/agentmemory.md'],
+    ['openwiki', 'claude/openwiki.md'],
+  ])('add %s then remove %s leaves zero residual files', (name, marker) => {
+    const project = scaffold();
+    const before = fingerprint(project);
+    const add = spawnSync('node', [CLI, 'customize', '--add', name], {
+      cwd: project,
+      encoding: 'utf8',
+    });
+    expect(add.status).toBe(0);
+    expect(existsSync(join(project, marker))).toBe(true);
+    const rm = spawnSync('node', [CLI, 'customize', '--remove', name], {
+      cwd: project,
+      encoding: 'utf8',
+    });
+    expect(rm.status).toBe(0);
+    assertRoundtripEmpty(before, fingerprint(project));
+  });
+
   it('README external links resolve to known integration hosts', () => {
     const project = scaffold();
-    spawnSync('node', [CLI, 'customize', '--add', 'graphify'], { cwd: project, encoding: 'utf8' });
-    spawnSync('node', [CLI, 'customize', '--add', 'obsidian'], { cwd: project, encoding: 'utf8' });
-    spawnSync('node', [CLI, 'customize', '--add', 'caveman'], { cwd: project, encoding: 'utf8' });
+    for (const name of ['graphify', 'obsidian', 'caveman', 'agentmemory', 'openwiki']) {
+      spawnSync('node', [CLI, 'customize', '--add', name], { cwd: project, encoding: 'utf8' });
+    }
     const readme = readFileSync(join(project, 'README.md'), 'utf8');
     expect(readme).toContain('https://graphify.net/');
     expect(readme).toContain('https://obsidian.md/');
     expect(readme).toContain('https://github.com/JuliusBrussee/caveman');
+    expect(readme).toContain('https://github.com/rohitg00/agentmemory');
+    expect(readme).toContain('https://github.com/langchain-ai/openwiki');
   });
 });
 
@@ -152,16 +174,9 @@ describe('promptIntegrations gating', () => {
   };
 
   it('all selects every integration', () => {
-    expect(promptIntegrations(base, { isTty: true, ask: () => '1' })).toEqual([
-      'graphify',
-      'obsidian',
-      'caveman',
-    ]);
-    expect(promptIntegrations(base, { isTty: true, ask: () => 'all' })).toEqual([
-      'graphify',
-      'obsidian',
-      'caveman',
-    ]);
+    const everything = ['graphify', 'obsidian', 'caveman', 'agentmemory', 'openwiki'];
+    expect(promptIntegrations(base, { isTty: true, ask: () => '1' })).toEqual(everything);
+    expect(promptIntegrations(base, { isTty: true, ask: () => 'all' })).toEqual(everything);
   });
 
   it('none (or empty) selects nothing', () => {

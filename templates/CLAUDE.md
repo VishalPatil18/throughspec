@@ -124,6 +124,18 @@ When invoked via `/spec-docs`:
 
 <!-- /integration:caveman -->
 
+<!-- integration:agentmemory -->
+
+- [x] **agentmemory** - _persistent memory + context; see `claude/agentmemory.md`_. Captures decisions and patterns across sessions and injects relevant context at session start. Prefer recalling from memory before re-reading the repo.
+
+<!-- /integration:agentmemory -->
+
+<!-- integration:openwiki -->
+
+- [x] **openwiki** - _generated codebase wiki; see `claude/openwiki.md`_. Reference the `openwiki/` wiki when searching for context before a broad grep. Regenerate with `openwiki --update` after significant changes.
+
+<!-- /integration:openwiki -->
+
 ---
 
 ## 9. Quick links

@@ -11,7 +11,13 @@ from typing import Iterable
 
 from .args import Integration
 
-INTEGRATION_NAMES: tuple[Integration, ...] = ("graphify", "obsidian", "caveman")
+INTEGRATION_NAMES: tuple[Integration, ...] = (
+    "graphify",
+    "obsidian",
+    "caveman",
+    "agentmemory",
+    "openwiki",
+)
 _VALID = frozenset(INTEGRATION_NAMES)
 _BLOCK_RE = re.compile(
     r"<!--\s*integration:([a-z]+)\s*-->(.*?)<!--\s*/integration:\1\s*-->\n?",

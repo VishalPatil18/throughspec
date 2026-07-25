@@ -764,8 +764,40 @@
 
 ---
 
+## 2026-07-24 - agentmemory + openwiki integrations
+
+**Prompt / trigger:** `/feature-dev` - add agentmemory (memory/context) and openwiki (agent documentation) as opt-in integrations, following the graphify/obsidian/caveman pattern.
+
+**What was done:**
+
+- Added `agentmemory` and `openwiki` as the 4th and 5th integrations. Both are externally-installed CLI tools (like caveman), so each ships a guidance doc + CLAUDE.md/README marker blocks + an entry in the 5 name-lists - no vendoring, no fabricated config file.
+- `agentmemory` (rohitg00): persistent cross-session memory, local SQLite, MCP server on port 3111, installed via `npx @agentmemory/agentmemory` + `agentmemory connect claude-code`. Doc notes the zero-cost path (`EMBEDDING_PROVIDER=local`, reuse existing LLM key) and that it augments - does not replace - the memory-file layer.
+- `openwiki` (langchain-ai): generates an agent-facing wiki into `openwiki/`, installed via `npm install -g openwiki`. Doc flags two gotchas: it writes prompting into the repo-root `CLAUDE.md`/`AGENTS.md` (could clobber the behavior contract - review the diff, commit first) and telemetry is on by default (`OPENWIKI_TELEMETRY_DISABLED=1`).
+
+**Files touched:**
+
+- `packages/cli-node/src/args.ts`, `packages/cli-node/src/integrations.ts`, `tools/strip-integrations.mjs`, `packages/cli-python/src/spec_init/args.py`, `packages/cli-python/src/spec_init/integrations.py` - update - add both names to every list/Literal/help text.
+- `templates/CLAUDE.md` §8, `templates/README.md` - update - integration marker blocks (CLAUDE.md -> persona snapshot regen).
+- `templates/_integrations/agentmemory/claude/agentmemory.md`, `templates/_integrations/openwiki/claude/openwiki.md` - create - guidance docs.
+- `tests/integrations-parity.test.ts`, `tests/integrations.test.ts`, `packages/cli-python/tests/test_integrations.py` - update - parity sets, marker map, roundtrips, README-host assertions, and the Node `all`-picker test (hardcoded set -> now 5).
+- `tests/__snapshots__/personas.test.ts.snap` - update - CLAUDE.md §8 grew.
+
+**Decisions made:**
+
+- Mirrored the caveman scope exactly (name-lists + template blocks + doc + tests); did not touch the interactive picker (enumerates `INTEGRATIONS` dynamically) or the Python prompt tests (reference `INTEGRATIONS` dynamically) - both auto-absorb new integrations. The one hardcoded spot was the Node `all`-picker assertion.
+- Post-init checklist stays caveman-only; install steps for the new two live in the README blocks + docs.
+- openwiki's CLAUDE.md-overwrite conflict is handled by documentation (review-the-diff guidance), not code - the scaffolder cannot police what an external tool writes.
+
+**Open questions / follow-ups:**
+
+- The `--integrations` help line now lists 5 names and is getting long; if a 6th arrives, consider pointing to docs instead of inlining the full list.
+- Consider generalizing the post-init checklist to nudge external installs for any active integration (agentmemory/openwiki also need a one-time install), instead of the caveman special-case.
+
+---
+
 ## Key Decisions
 
+- **2026-07-24** - agentmemory + openwiki added as opt-in integrations following the caveman pattern (external tool -> doc + marker blocks + name-lists, no vendoring). openwiki's root-CLAUDE.md overwrite is mitigated by documentation, not code.
 - **2026-07-24** - Kit ships a 15-skill supporting catalog (design/review/delivery/ideation/continuity) consolidating overlapping requests into moded skills (`spec-review`, `spec-research`). Skills are self-contained memory-integrated prompts; they do not invent FR-IDs. `spec-resume` persists a file-based resumption brief (`claude/resume.md`), no database.
 - **2026-07-24** - Kit CLAUDE.md defaults to suggesting a Conventional Commits message at the end of file-changing responses (§2 invariant 6). Placed in the standing-contract section, not the user-overrides section, so it is persona-agnostic and on by default.
 - **2026-07-24** - Interactive integration picker in `init` is a dependency-free numbered list (all / let me select / none), gated on TTY + no explicit `--integrations`. Rejected raw-mode checkbox TUI and inquirer/questionary deps (zero-cost, no-new-dep). Caveman added as a non-vendored, opt-in integration (install nudged, not bundled).

@@ -3,7 +3,13 @@
 
 import type { Integration } from './args.js';
 
-export const INTEGRATION_NAMES: readonly Integration[] = ['graphify', 'obsidian', 'caveman'];
+export const INTEGRATION_NAMES: readonly Integration[] = [
+  'graphify',
+  'obsidian',
+  'caveman',
+  'agentmemory',
+  'openwiki',
+];
 const VALID = new Set<string>(INTEGRATION_NAMES);
 
 /** Strip integration-gated blocks; keep those whose NAME appears in `active`. */

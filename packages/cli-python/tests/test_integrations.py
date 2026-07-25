@@ -27,7 +27,9 @@ ACTIVE_SETS = (
     ("graphify",),
     ("obsidian",),
     ("caveman",),
-    ("graphify", "obsidian", "caveman"),
+    ("agentmemory",),
+    ("openwiki",),
+    ("graphify", "obsidian", "caveman", "agentmemory", "openwiki"),
 )
 
 # Payload marker file written by each integration, relative to the project root.
@@ -35,6 +37,8 @@ INTEGRATION_MARKER_FILE = {
     "graphify": ".graphify/config.yml",
     "obsidian": ".obsidian/workspace.json",
     "caveman": "claude/caveman.md",
+    "agentmemory": "claude/agentmemory.md",
+    "openwiki": "claude/openwiki.md",
 }
 
 
@@ -99,7 +103,9 @@ def _assert_roundtrip_empty(before: dict[str, str], after: dict[str, str]) -> No
     assert (missing, extra, changed) == ([], [], [])
 
 
-@pytest.mark.parametrize("name", ("graphify", "obsidian", "caveman"))
+@pytest.mark.parametrize(
+    "name", ("graphify", "obsidian", "caveman", "agentmemory", "openwiki")
+)
 def test_toggle_roundtrip_leaves_zero_residual(tmp_path: Path, name: str) -> None:
     r = _run_cli(tmp_path, "init", "p", "--persona", "engineer")
     assert r.returncode == 0, r.stderr
