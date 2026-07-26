@@ -1,6 +1,4 @@
-// Full-page docs shell: sidebar (left), content column (middle), on-page TOC
-// (right). Prev/next navigation is derived from the flattened group order in
-// docs-content.ts so pages don't have to name their siblings by hand.
+// Docs shell: sidebar + content + TOC; prev/next derived from group order.
 
 import Link from 'next/link';
 import { GROUPS, PAGES, type DocPage } from '@/lib/docs-content';
@@ -22,8 +20,7 @@ function prevNext(current: string): { prev?: DocPage; next?: DocPage } {
   };
 }
 
-// Renders one DocPage inside the shared shell. Every /docs route
-// delegates to this component so shell markup stays in one place.
+// Render one DocPage inside the shared shell (all /docs routes delegate here).
 export default function DocLayout({ page }: { page: DocPage }) {
   const { prev, next } = prevNext(page.slug);
   const tocItems = page.blocks.filter((b) => b.t === 'h2') as Extract<DocPage['blocks'][number], { t: 'h2' }>[];

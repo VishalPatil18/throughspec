@@ -1,7 +1,5 @@
 #!/usr/bin/env node
-// Throughspec - spec-init (Node CLI) entry point.
-// Parses argv, dispatches to a command module. All error printing happens here
-// so command modules can throw UsageError with a message and know it lands.
+// spec-init (Node CLI) entry: parse argv, dispatch, and centralize error printing.
 
 import { HELP_TEXT, parseArgs, UsageError } from './args.js';
 import type { CliOptions } from './args.js';

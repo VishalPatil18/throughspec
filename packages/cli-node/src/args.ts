@@ -1,7 +1,4 @@
-// Argv parsing for spec-init.
-//
-// Hand-rolled parser (no commander / yargs) - the surface is small enough
-// that a ~50-line function is simpler than a dependency.
+// Hand-rolled argv parser for spec-init (no commander/yargs dependency).
 
 export const PERSONAS = ['vibe', 'student', 'engineer', 'team'] as const;
 export type Persona = (typeof PERSONAS)[number];

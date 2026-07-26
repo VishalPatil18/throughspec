@@ -1,5 +1,4 @@
-// Post-init checklist (FR-INIT-04, NFR-USE-01).
-// Prints a single-screen "what to do next" summary after scaffolding.
+// Post-init checklist: the "what to do next" summary after scaffolding (FR-INIT-04).
 
 import type { Integration, Persona } from './args.js';
 

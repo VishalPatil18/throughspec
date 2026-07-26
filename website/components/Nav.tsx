@@ -21,8 +21,7 @@ const LINKS: { label: string; href: string; id: Exclude<NavActive, null> }[] = [
   { label: 'Docs', href: '/docs/', id: 'docs' },
 ];
 
-/** Map a pathname to the nav's active-link id. Prefix match so /docs/install
- * highlights the Docs link. */
+/** Map a pathname to the nav's active-link id via prefix match. */
 function activeFor(pathname: string | null): NavActive {
   if (!pathname || pathname === '/') return 'landing';
   if (pathname.startsWith('/docs')) return 'docs';

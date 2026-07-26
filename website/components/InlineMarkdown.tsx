@@ -1,8 +1,7 @@
 import { Fragment } from 'react';
 import { parseInline } from '@/lib/inline-markdown';
 
-// Renders a short markdown string (bold / italic / code / links) as inline
-// React nodes. Server-safe (no hooks), so it works inside RSC pages.
+// Render a short markdown string as inline React nodes (server-safe, no hooks).
 export default function InlineMarkdown({ text }: { text: string }) {
   return (
     <>

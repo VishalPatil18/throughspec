@@ -1,22 +1,11 @@
 #!/usr/bin/env node
-// Token counter for Throughspec templates.
-//
-// Uses js-tiktoken with the cl100k_base encoding (GPT-4 / GPT-3.5-turbo tokenizer,
-// close-enough proxy for Anthropic token counts at this budget's precision).
-//
-// Usage:
-//   node tools/count-tokens.mjs <path> [<path> ...]
-//
-// Prints a per-file count and a total. Exits 0.
+// Token counter for templates using js-tiktoken cl100k_base (close Anthropic proxy).
 
 import { readFileSync } from 'node:fs';
 import { argv, exit, stdout } from 'node:process';
 import { getEncoding } from 'js-tiktoken';
 
-/**
- * Count tokens across the given file paths using the cl100k_base encoding.
- * Exported for tests.
- */
+/** Count tokens across the given file paths (cl100k_base). Exported for tests. */
 export function countTokens(paths) {
   const enc = getEncoding('cl100k_base');
   const perFile = [];

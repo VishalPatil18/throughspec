@@ -1,24 +1,5 @@
 #!/usr/bin/env node
-// Integration-strip utility for Throughspec templates.
-//
-// Reads a markdown file and emits a copy with integration-gated blocks either
-// kept (fences removed, body retained) or stripped verbatim. Blocks are fenced
-// by HTML comments, matching the persona pattern:
-//
-//     <!-- integration:NAME -->
-//     ...content...
-//     <!-- /integration:NAME -->
-//
-// NAME is a single integration id (`graphify` or `obsidian`). A block is kept
-// when NAME appears in the active set; otherwise the block (fences + content)
-// is removed.
-//
-// Unmarked content is always retained.
-//
-// Usage:
-//   node tools/strip-integrations.mjs --active <csv> --in <path> [--out <path>]
-//
-// --active takes a CSV of active integration names (may be empty). Zero-dep.
+// Integration-strip CLI for templates: keep/remove <!-- integration:NAME --> blocks per --active.
 
 import { readFileSync, writeFileSync } from 'node:fs';
 import { argv, exit, stdout } from 'node:process';
@@ -64,11 +45,7 @@ function usage() {
   ].join('\n');
 }
 
-/**
- * Strip integration-gated blocks from `source`. Blocks whose NAME is in the
- * `active` set have their fence markers removed and their body retained;
- * blocks whose NAME is absent are removed entirely. Exported for tests.
- */
+/** Strip integration-gated blocks, keeping those whose NAME is in active. Exported for tests. */
 export function stripIntegrations(source, active) {
   const set = new Set(active);
   for (const name of set) {
@@ -79,15 +56,9 @@ export function stripIntegrations(source, active) {
     if (!VALID.has(name)) throw new Error(`unknown integration in marker: ${name}`);
     return set.has(name) ? body : '';
   });
-  // Templates wrap YAML-front-matter integration blocks in
-  // <!-- prettier-ignore-start --> / <!-- prettier-ignore-end --> to keep
-  // prettier from reformatting the `---` fences. Those helper comments have
-  // no meaning in the scaffolded output; drop them so kept front-matter
-  // still lands on line 1 for Obsidian to detect.
+  // Drop prettier-ignore helper comments so kept front-matter lands on line 1.
   stripped = stripped.replace(/<!--\s*prettier-ignore-(start|end)\s*-->\n?/g, '');
-  // Same whitespace hygiene as strip-personas plus a leading-newline trim so
-  // an integration block at the very top of a file (e.g. Obsidian front-matter)
-  // still lands on line 1 after fence removal.
+  // Whitespace hygiene + leading-newline trim so top-of-file blocks land on line 1.
   return stripped.replace(/\n{3,}/g, '\n\n').replace(/^\n+/, '').replace(/\n+$/, '\n');
 }
 

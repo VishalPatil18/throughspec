@@ -1,9 +1,6 @@
 'use client';
 
-// Docs code block: pre on the left, permanent copy button in the top-right.
-// Distinct from the marketing site's <CopyableCommand> (which hovers).
-// Docs users copy commands frequently, so the affordance is always visible.
-// The button shows a "Copy" tooltip on hover and "Copied" for ~1.8s on click.
+// Docs code block with an always-visible copy button and "Copy"/"Copied" tooltip.
 
 import { useCallback, useState } from 'react';
 

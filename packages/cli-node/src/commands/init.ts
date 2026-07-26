@@ -1,9 +1,4 @@
-// spec-init init <name> [--persona] [--integrations] [--force] [--dry-run]
-//
-// Copies the shipped payload into <name>/, strips persona-gated and
-// integration-gated blocks, layers in files for any active integrations,
-// and stashes a snapshot in <name>/.spec-init/base/ so future `upgrade` runs
-// have a three-way merge base.
+// spec-init init <name>: scaffold the payload into <name>/, then snapshot .spec-init/base/.
 
 import {
   cpSync,
@@ -49,14 +44,11 @@ export function runInit(opts: CliOptions, quiet = false): InitResult {
     }
   }
 
-  // Offer the integration picker interactively when init ran on a TTY with no
-  // explicit --integrations; quiet callers (e.g. the welcome TUI) pass the set
-  // in and own all prompting themselves.
+  // Interactive picker on a TTY; quiet callers pass integrations in and own prompting.
   const integrations = quiet ? [...opts.integrations] : promptIntegrations(opts);
 
   const allFiles = walkPayload(payloadDir);
-  // Files under _integrations/ are per-integration payloads. They are copied
-  // conditionally by applyIntegrations(), never as part of the base tree.
+  // _integrations/ files are copied conditionally by applyIntegrations(), not as base.
   const baseFiles = allFiles.filter((rel) => !rel.startsWith(INTEGRATIONS_PREFIX));
 
   if (opts.dryRun) {
@@ -80,8 +72,7 @@ export function runInit(opts: CliOptions, quiet = false): InitResult {
   }
   written += applyIntegrations(payloadDir, outDir, integrations);
 
-  // Snapshot the raw (untransformed) payload - including _integrations/ - so
-  // future `upgrade` and `customize` runs can re-derive from a pristine base.
+  // Snapshot the pristine payload so upgrade/customize can re-derive later.
   const baseDir = join(outDir, '.spec-init', 'base');
   cpSync(payloadDir, baseDir, { recursive: true });
   writeFileSync(
@@ -186,11 +177,7 @@ export function readLineSync(): string {
   return out;
 }
 
-/**
- * Prompt for integrations when init ran interactively without an explicit
- * --integrations. Returns opts.integrations unchanged when the prompt is not
- * eligible (dry-run, non-TTY such as CI/tests, or integrations already chosen).
- */
+/** Prompt for integrations on an eligible interactive run; else return opts.integrations. */
 export function promptIntegrations(
   opts: CliOptions,
   deps: PromptDeps = { isTty: Boolean(process.stdin.isTTY), ask: readLineSync },

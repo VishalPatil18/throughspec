@@ -1,8 +1,4 @@
-"""spec-init add-skill <name>.
-
-Copies a skill definition from the payload's skills/ catalog into the
-project's .claude/skills/ directory. Stage 5 populates the catalog.
-"""
+"""spec-init add-skill <name>: copy a skill from the payload catalog into .claude/skills/."""
 
 from __future__ import annotations
 

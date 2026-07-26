@@ -1,8 +1,6 @@
 'use client';
 
-// Hoverable copy target for shell commands. Shows a centered copy icon at
-// 60% opacity on hover; clicking writes to clipboard. A small tooltip reads
-// "Copy" on hover and flips to "Copied" for ~1.8s after a click.
+// Hover-to-copy shell command: copy icon on hover, "Copy"/"Copied" tooltip on click.
 
 import { useCallback, useState, type ReactNode } from 'react';
 

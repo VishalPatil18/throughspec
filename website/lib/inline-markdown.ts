@@ -1,8 +1,4 @@
-// Zero-dependency inline-markdown tokenizer for short strings (changelog notes,
-// upcoming items). Handles `code`, **bold**, _italic_, and [text](url) - the
-// markdown the project actually uses in bullets. Pure: returns tokens; the JSX
-// rendering lives in components/InlineMarkdown.tsx. A full markdown lib would be
-// heavy for one-line snippets and the site ships none by design.
+// Zero-dep inline-markdown tokenizer (code/bold/italic/links); JSX render in InlineMarkdown.tsx.
 
 export type InlineToken =
   | { type: 'text'; value: string }
@@ -11,8 +7,7 @@ export type InlineToken =
   | { type: 'italic'; value: string }
   | { type: 'link'; value: string; href: string };
 
-// Order matters: `code` first so markdown inside a code span stays literal;
-// links before bold/italic so bracket/paren syntax wins.
+// Order: code first (keeps its contents literal), links before bold/italic.
 const INLINE_RE = /`([^`]+)`|\[([^\]]+)\]\(([^)]+)\)|\*\*([^*]+)\*\*|_([^_\n]+)_/g;
 
 /** Tokenize a short markdown string into inline tokens. */

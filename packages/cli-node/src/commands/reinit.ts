@@ -1,11 +1,4 @@
-// spec-init reinit [dir] [--persona] [--integrations] [--force] [--dry-run]
-//
-// Adopts Throughspec in an existing project, in place. Writes only the template
-// payload files that are missing; files that already exist are KEPT by default
-// (non-destructive). Pass --force, or answer "replace" at the prompt, to
-// overwrite existing spec files with fresh templates. Writes the
-// .spec-init/base/ snapshot + meta.json so `upgrade` works afterward. Never
-// touches non-template (source) files.
+// spec-init reinit [dir]: adopt Throughspec in place, keeping existing files unless --force.
 
 import { cpSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';
@@ -32,7 +25,7 @@ interface ReinitResult {
   dryRun: boolean;
 }
 
-/** Run `reinit`. Adopts Throughspec into an existing project in place. Quiet skips prompts + summary (caller owns I/O). */
+/** Adopt Throughspec into an existing project in place; quiet skips prompts + output. */
 export function runReinit(opts: CliOptions, quiet = false): ReinitResult {
   const [dirArg] = opts.positional;
   const dir = resolve(process.cwd(), dirArg ?? '.');
@@ -45,8 +38,7 @@ export function runReinit(opts: CliOptions, quiet = false): ReinitResult {
     );
   }
 
-  // Offer the integration picker interactively (same rules as init). Quiet
-  // callers (the welcome TUI) pass the set in and own all prompting.
+  // Interactive picker (same rules as init); quiet callers pass integrations in.
   const integrations = quiet ? [...opts.integrations] : promptIntegrations(opts);
 
   const baseFiles = walkPayload(payloadDir).filter((rel) => !rel.startsWith(INTEGRATIONS_PREFIX));
@@ -84,8 +76,7 @@ export function runReinit(opts: CliOptions, quiet = false): ReinitResult {
     written += 1;
   }
 
-  // Integration payload files are copied raw (no persona/integration strip),
-  // honoring the same keep/replace policy.
+  // Integration files copied raw, honoring the same keep/replace policy.
   for (const name of integrations) {
     const root = join(payloadDir, INTEGRATIONS_PREFIX, name);
     if (!existsSync(root)) continue;

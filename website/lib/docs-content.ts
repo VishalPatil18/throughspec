@@ -1,6 +1,4 @@
-// Docs content model + data. Every /docs/* page pulls its content from here
-// so the sidebar, breadcrumbs, prev/next navigation, and the on-page TOC all
-// stay in sync automatically.
+// Docs content model + data; sidebar, breadcrumbs, prev/next, and TOC derive from it.
 
 export type DocBlock =
   | { t: 'p'; text: string }

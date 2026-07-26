@@ -1,5 +1,4 @@
-// Integration-strip port for the Node CLI. Byte-parity with
-// tools/strip-integrations.mjs is guarded by tests/integrations-parity.test.ts.
+// Integration-strip: byte-parity TS port of tools/strip-integrations.mjs.
 
 import type { Integration } from './args.js';
 

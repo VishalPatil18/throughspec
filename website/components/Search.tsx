@@ -1,8 +1,6 @@
 'use client';
 
-// Lightweight search modal backed by Pagefind. The index is generated at
-// build time by scripts/build-search.mjs and served from /pagefind/. We
-// import Pagefind lazily on first open so the docs shell stays JS-light.
+// Search modal backed by Pagefind (index built by build-search.mjs); loaded lazily.
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 
@@ -53,16 +51,13 @@ export default function Search() {
   const loadPagefind = useCallback(async (): Promise<Pagefind | null> => {
     if (pagefindRef.current) return pagefindRef.current;
     try {
-      // Bypass webpack/turbopack static analysis: bundlers rewrite
-      // `import('/pagefind/pagefind.js')` even with a webpackIgnore comment
-      // in Next.js 15, so we hide the specifier inside a Function ctor.
+      // Hide the specifier in a Function ctor so bundlers don't rewrite the dynamic import.
       const dynamicImport = new Function('return import("/pagefind/pagefind.js")');
       const mod = (await dynamicImport()) as Pagefind;
       pagefindRef.current = mod;
       return mod;
     } catch (err) {
-      // In `next dev` /pagefind/ does not exist (Pagefind runs post-build).
-      // Log so failures do not sit silent behind an empty modal.
+      // /pagefind/ is absent in next dev; log so failures aren't silent.
       console.warn(
         '[Search] Pagefind not available. In dev, run `npm run build` first. In prod, verify /pagefind/pagefind.js is deployed.',
         err,

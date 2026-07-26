@@ -45,13 +45,11 @@ def run_init(opts: CliOptions) -> InitResult:
                 "       Pass --force to proceed, or choose a different name."
             )
 
-    # Offer the integration picker interactively when init ran on a TTY with no
-    # explicit --integrations; otherwise this returns opts.integrations unchanged.
+    # Interactive picker on a TTY; else returns opts.integrations unchanged.
     integrations = prompt_integrations(opts)
 
     all_files = _walk_payload(payload_dir)
-    # Files under _integrations/ are per-integration payloads. They are copied
-    # conditionally by _apply_integrations(), never as part of the base tree.
+    # _integrations/ files are copied conditionally by apply_integrations(), not as base.
     base_files = [rel for rel in all_files if not rel.startswith(INTEGRATIONS_PREFIX)]
 
     if opts.dry_run:
@@ -73,8 +71,7 @@ def run_init(opts: CliOptions) -> InitResult:
         written += 1
     written += apply_integrations(payload_dir, out_dir, integrations)
 
-    # Snapshot the raw payload (including _integrations/) for future
-    # `upgrade` and `customize` re-derives.
+    # Snapshot the pristine payload so upgrade/customize can re-derive later.
     base_dir = out_dir / ".spec-init" / "base"
     shutil.copytree(payload_dir, base_dir, dirs_exist_ok=True)
     meta = out_dir / ".spec-init" / "meta.json"
@@ -160,11 +157,7 @@ def prompt_integrations(
     isatty: Callable[[], bool] | None = None,
     ask: Callable[[str], str] | None = None,
 ) -> tuple[Integration, ...]:
-    """Prompt for integrations when init ran interactively with no explicit --integrations.
-
-    Returns opts.integrations unchanged when the prompt is not eligible (dry-run,
-    non-TTY such as CI/tests, or integrations already chosen).
-    """
+    """Prompt for integrations on an eligible interactive run; else return opts.integrations."""
     if isatty is None:
         isatty = sys.stdin.isatty
     if ask is None:

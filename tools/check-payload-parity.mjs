@@ -1,17 +1,5 @@
 #!/usr/bin/env node
-// Throughspec payload parity check.
-//
-// Confirms the Node CLI's built payload and the Python CLI's built payload
-// contain byte-identical templates. The check is the load-bearing guarantee
-// that npm users and PyPI users get the same scaffold (SRS §2.3, Risk row 6).
-//
-// Exits 0 on match. Exits 1 on any difference and prints a diff.
-//
-// Inputs:
-//   packages/cli-node/dist/templates/        (produced by `npm run build`)
-//   packages/cli-python/_payload/            (produced by `python -m spec_init._build`)
-//
-// Dependency-free: uses Node stdlib only.
+// Payload parity: assert the Node dist and Python _payload templates are byte-identical.
 
 import { createHash } from 'node:crypto';
 import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs';

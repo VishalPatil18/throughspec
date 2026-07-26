@@ -1,11 +1,4 @@
-"""spec-init reinit [dir] - adopt Throughspec in an existing project, in place.
-
-Writes only the template payload files that are missing; files that already
-exist are KEPT by default (non-destructive). Pass --force, or answer "replace"
-at the prompt, to overwrite existing spec files with fresh templates. Writes the
-.spec-init/base/ snapshot + meta.json so `upgrade` works afterward. Never
-touches non-template (source) files.
-"""
+"""spec-init reinit [dir]: adopt Throughspec in place, keeping existing files unless --force."""
 
 from __future__ import annotations
 

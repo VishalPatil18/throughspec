@@ -1,6 +1,4 @@
-// Build-time parser for the repo-root CHANGELOG.md. Runs at RSC render
-// time (server-only) so the file is read once during `next build` and never
-// shipped to the client.
+// Build-time, server-only parser for the repo-root CHANGELOG.md.
 
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';

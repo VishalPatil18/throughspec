@@ -1,7 +1,6 @@
 'use client';
 
-// Framer-motion drop-in for the old `.reveal` class. Fades + rises when it
-// enters the viewport, once. Delay is staggered via the `delay` prop.
+// Framer-motion fade+rise on viewport enter, once; staggered via the delay prop.
 
 import { motion, type HTMLMotionProps } from 'framer-motion';
 import type { ReactNode } from 'react';

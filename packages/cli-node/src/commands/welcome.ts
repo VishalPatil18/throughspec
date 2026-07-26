@@ -1,9 +1,4 @@
-// spec-init (bare, on a TTY) - the interactive welcome.
-//
-// A polished setup experience built on @clack/prompts: pick new-vs-existing,
-// name the project, choose persona + integrations, then scaffold. It owns all
-// interaction and delegates the actual writing to runInit / runReinit in quiet
-// mode, so there is a single source of truth for scaffolding.
+// spec-init bare on a TTY: interactive @clack welcome that delegates to runInit/runReinit.
 
 import { existsSync } from 'node:fs';
 import { join, resolve } from 'node:path';

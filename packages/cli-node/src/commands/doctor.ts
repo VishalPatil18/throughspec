@@ -1,10 +1,4 @@
-// spec-init doctor
-//
-// Verifies a scaffolded project's shape. Exits 0 when healthy, non-zero
-// (via caller) when issues are found. Checks:
-//   - Required files from SRS §6 exist and are non-empty
-//   - CLAUDE.md carries a template-version line
-//   - .spec-init/base/ snapshot exists (needed for `upgrade`)
+// spec-init doctor: verify a scaffolded project has the required files and snapshot.
 
 import { existsSync, readFileSync, statSync } from 'node:fs';
 import { join, resolve } from 'node:path';

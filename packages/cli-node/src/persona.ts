@@ -1,10 +1,4 @@
-// Persona-strip: TypeScript port of `tools/strip-personas.mjs`.
-//
-// Kept byte-for-byte equivalent to the .mjs source. `tests/stage3/parity.test.ts`
-// asserts both produce identical output on the same input.
-//
-// Marker convention: `<!-- persona:NAME(,NAME)* -->` ... `<!-- /persona:NAME(,NAME)* -->`.
-// A block is retained when the chosen persona appears in NAME's CSV list.
+// Strip persona-gated blocks; byte-parity TS port of tools/strip-personas.mjs.
 
 import type { Persona } from './args.js';
 
@@ -26,8 +20,6 @@ export function stripPersonas(source: string, persona: Persona): string {
     }
     return names.includes(persona) ? body : '';
   });
-  // Removing a block leaves the source's surrounding blank lines behind.
-  // Collapse any resulting run of 3+ newlines to the canonical paragraph break,
-  // and ensure the file ends with a single trailing newline.
+  // Collapse 3+ newlines left by removed blocks; end with one trailing newline.
   return stripped.replace(/\n{3,}/g, '\n\n').replace(/\n+$/, '\n');
 }

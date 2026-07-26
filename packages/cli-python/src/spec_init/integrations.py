@@ -1,8 +1,4 @@
-"""Integration-strip port for the Python CLI.
-
-Byte-parity with `tools/strip-integrations.mjs` is guarded by
-`packages/cli-python/tests/test_integrations.py`.
-"""
+"""Strip integration-gated blocks; byte-parity Python port of strip-integrations.mjs."""
 
 from __future__ import annotations
 

@@ -1045,6 +1045,25 @@
 
 ---
 
+## 2026-07-26 - Comment cleanup (CLI source, tools, website)
+
+**Prompt / trigger:** User request - tidy comments across the codebase: one line, <=15 words each; drop redundant/dead comments; add meaningful ones where missing.
+
+**What was done:**
+
+- Condensed multi-line file-header blocks and verbose inline comments to single <=15-word lines across `packages/cli-node/src/**`, `packages/cli-python/src/spec_init/**`, `tools/*.mjs`, and `website/{app,components,lib}/**`. Also condensed multi-line Python module docstrings and a few multi-line JSDoc blocks; single-line docstrings kept per the project convention.
+- Removed nothing functional: no commented-out/dead code existed (the survey's one hit was a real why-comment).
+
+**Scope + preservation (explicit):**
+
+- **Excluded `templates/**` entirely** - its HTML-comment markers (`<!-- integration:x -->`, `<!-- persona:x -->`, prettier-ignore) are load-bearing for the strip machinery + parity, and its SKILL.md / spec.config.js comments are user-facing docs.
+- **Excluded tests** (per the scope choice) - their header comments document each suite.
+- **Preserved verbatim** all directive comments: `// @ts-expect-error` and `# type: ignore[...]`.
+
+**Verification:** cli-node build (tsc) OK; payload parity 54/54; vitest 190 passed; website tsc + next build clean; all Python source AST-parses and the merge3-free modules import. Comments are non-functional, so builds/tests are the proof no directive comment was lost.
+
+---
+
 ## Key Decisions
 
 - **2026-07-25** - Docs pages need both a `PAGES`/`GROUPS` entry and a matching `app/docs/<slug>/page.tsx` route file (the route is not a dynamic `[slug]`); a mismatch 404s on static export. Landing surfaces a 24-skill count with a 6-item preview + "Check all skills" CTA to the full `/docs/supporting-skills/` catalog.

@@ -1,9 +1,4 @@
-"""Three-way text merge with git-style conflict markers.
-
-Wraps merge3.Merge3 to produce the same `<<<<<<< ours` / `>>>>>>> theirs`
-fences the Node CLI emits (via node-diff3), so the two channels present
-identical conflict output to users.
-"""
+"""Three-way text merge with git-style conflict fences; mirrors the Node CLI output."""
 
 from __future__ import annotations
 
