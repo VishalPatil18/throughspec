@@ -11,7 +11,7 @@ export const metadata: Metadata = {
     template: '%s - Throughspec',
   },
   description:
-    'Throughspec scaffolds a deterministic, spec-first workflow into Claude Code. Nine slash commands, seven tool-scoped agents, an append-only memory layer under 8k tokens, distributed on npm + PyPI.',
+    'Throughspec scaffolds a deterministic, spec-first workflow into Claude Code. Twenty-four slash commands, seven tool-scoped agents, an append-only memory layer under 8k tokens, distributed on npm + PyPI.',
   keywords: [
     'Claude Code',
     'spec-driven development',

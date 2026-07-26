@@ -16,11 +16,19 @@ const ROUTES = [
   '/docs/',
   '/docs/install/',
   '/docs/quickstart/',
+  '/docs/spec-driven-development/',
+  '/docs/memory-layer/',
   '/docs/workflows/',
   '/docs/supporting-skills/',
+  '/docs/integrations/',
+  '/docs/cli-reference/',
+  '/docs/glossary/',
   '/docs/design-prompt-library/',
   '/docs/learning-map/',
   '/docs/customization-recipes/',
+  '/docs/faq/',
+  '/docs/troubleshooting/',
+  '/docs/contact-us/',
 ];
 
 export default function sitemap(): MetadataRoute.Sitemap {

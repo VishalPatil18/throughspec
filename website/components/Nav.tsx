@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useEffect, useRef } from 'react';
 import AnnounceBar from './AnnounceBar';
 import BrandMark from './BrandMark';
 
@@ -34,8 +35,22 @@ function activeFor(pathname: string | null): NavActive {
 
 export default function Nav() {
   const active = activeFor(usePathname());
+  const ref = useRef<HTMLDivElement>(null);
+
+  // Publish the sticky header's height so docs sidebars can offset below it.
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const setVar = () =>
+      document.documentElement.style.setProperty('--nav-h', `${el.offsetHeight}px`);
+    setVar();
+    const ro = new ResizeObserver(setVar);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
   return (
-    <div className="sticky top-0 z-50 font-serif">
+    <div ref={ref} className="sticky top-0 z-50 font-serif">
       <AnnounceBar />
       <nav className="flex items-center justify-between border-b border-ink bg-warm px-8 py-[15px]">
         <Link href="/" className="flex items-center gap-[11px] text-ink no-underline">

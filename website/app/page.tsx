@@ -336,7 +336,7 @@ export default function Landing() {
           </h2>
         </FadeIn>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          {INTEGRATIONS.map((ig, i) => (
+          {INTEGRATIONS.slice(0, 4).map((ig, i) => (
             <FadeIn key={ig.name} delay={i * 0.06} className="rounded-2xl border border-ink bg-warm p-6">
               <div className="mb-3 flex items-center gap-[10px]">
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-ink text-[15px]">
@@ -362,6 +362,14 @@ export default function Landing() {
             </FadeIn>
           ))}
         </div>
+        <FadeIn delay={0.1} className="mt-8 flex justify-center">
+          <Link
+            href="/docs/integrations/"
+            className="inline-flex items-center gap-2 rounded-pill border border-ink px-5 py-2 text-sm font-medium text-ink no-underline transition-colors hover:bg-ink hover:text-warm"
+          >
+            Check all integrations <span className="text-[15px]" aria-hidden>&rsaquo;</span>
+          </Link>
+        </FadeIn>
       </section>
 
       {/* FAQ */}

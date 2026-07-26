@@ -29,6 +29,7 @@ export default function Search() {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<LoadedResult[]>([]);
+  const [unavailable, setUnavailable] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const pagefindRef = useRef<Pagefind | null>(null);
 
@@ -74,7 +75,11 @@ export default function Search() {
         return;
       }
       const pf = await loadPagefind();
-      if (!pf) return;
+      if (!pf) {
+        if (!cancelled) setUnavailable(true);
+        return;
+      }
+      if (!cancelled) setUnavailable(false);
       const { results: raw } = await pf.search(query);
       const loaded = await Promise.all(raw.slice(0, 8).map(async (r) => {
         const data = await r.data();
@@ -135,7 +140,15 @@ export default function Search() {
               </button>
             </div>
             <div className="max-h-[420px] overflow-y-auto">
-              {results.length === 0 && query.trim() && (
+              {unavailable && query.trim() && (
+                <div className="p-3 text-sm leading-[1.55] text-muted">
+                  Search index not found. It’s generated at build time, so it’s absent under{' '}
+                  <code className="text-ink">npm run dev</code>. Run{' '}
+                  <code className="text-ink">npm run build</code> to index the docs; it works on the
+                  deployed site.
+                </div>
+              )}
+              {!unavailable && results.length === 0 && query.trim() && (
                 <div className="p-3 text-sm text-muted">No results.</div>
               )}
               {results.map((r) => (

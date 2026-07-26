@@ -139,7 +139,7 @@ export default function FeaturesPage() {
 
       <section className="mx-auto max-w-content px-8 py-12">
         <FadeIn className="mb-9">
-          <div className="mb-[14px] text-xs uppercase tracking-[0.06em] text-dim">Nine slash commands</div>
+          <div className="mb-[14px] text-xs uppercase tracking-[0.06em] text-dim">Twenty-four slash commands</div>
           <h2 className="text-[40px] font-normal tracking-tighter2">One command for every move you make.</h2>
         </FadeIn>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">

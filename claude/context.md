@@ -1064,8 +1064,83 @@
 
 ---
 
+## 2026-07-26 - Docs expansion: 8 new pages, interactive cards/callouts, landing 4-card slice, search dev notice
+
+**Prompt / trigger:** User request - build an Integrations docs page; landing shows only 4 integration cards + a centered "Check all integrations" button; make docs extensive/beginner-friendly; fix docs search; add more spec-driven-development knowledge; add a Help section (FAQ + Contact); make docs interactive with card/callout elements (per attached screenshots).
+
+**What was done:**
+
+- Extended the `DocBlock` union with a `cards` variant (`{ icon, title, desc, href? }[]`) and made the `callout` `label` optional, so callouts can be icon-only.
+- Added `website/components/docs/DocIcon.tsx` - a zero-dep inline-SVG line-icon set (14 icons, `stroke=currentColor`) used by cards and callouts; unknown names fall back to a dot.
+- Updated `DocBlocks.tsx`: callouts now render a variant icon (note->info, tip->lightbulb, warn->warning) plus optional label and `<InlineMarkdown>` body; added the `cards` renderer (2-col grid, optional `<a href>` with hover border).
+- Restructured `GROUPS` into Get Started / Concepts / Skills / Integrations / Reference / Recipes / Help, and added 8 new pages to `PAGES`: `spec-driven-development`, `memory-layer`, `integrations`, `cli-reference`, `glossary`, `faq`, `troubleshooting`, `contact-us` (rich blocks: cards, callouts, steps, defs, code).
+- Created the 8 matching route files under `website/app/docs/<slug>/page.tsx` (two-line `<DocLayout page={PAGES[key]} />` delegations) - required alongside the PAGES/GROUPS entry or the route 404s on static export.
+- Enriched Get Started: added "Where to go next" / "What's next" card grids to the Introduction and Quickstart pages; fixed the `workflows` page `group` from the stale `'Workflows'` to `'Concepts'` so its breadcrumb matches GROUPS.
+- Landing (`app/page.tsx`): integrations grid now renders `INTEGRATIONS.slice(0, 4)` with a centered "Check all integrations" pill linking to `/docs/integrations/`, mirroring the existing skills CTA.
+- Search (`components/Search.tsx`): added an `unavailable` state - when the Pagefind runtime can't load (e.g. `next dev`, no index), the modal shows a clear "index generated at build time, run npm run build" message instead of a silent "No results."
+- Wired the 8 new routes into `app/sitemap.ts` (`ROUTES`) and `e2e/links.spec.ts` (`START_PATHS`).
+
+**Files touched:**
+
+- `website/lib/docs-content.ts` - update - `cards` block type, optional callout label, GROUPS restructure, 8 new PAGES, card grids on intro/quickstart, workflows group fix, unwrapped two bold-wrapped links.
+- `website/components/docs/DocIcon.tsx` - create - inline-SVG icon set.
+- `website/components/docs/DocBlocks.tsx` - update - callout icons + InlineMarkdown, cards renderer.
+- `website/app/docs/{spec-driven-development,memory-layer,integrations,cli-reference,glossary,faq,troubleshooting,contact-us}/page.tsx` - create - route files.
+- `website/app/page.tsx` - update - landing 4-card slice + "Check all integrations" CTA.
+- `website/components/Search.tsx` - update - unavailable-state messaging.
+- `website/app/sitemap.ts`, `website/e2e/links.spec.ts` - update - add the 8 new `/docs/*` routes.
+
+**Decisions made:**
+
+- Callout markdown must not wrap a link in bold (`**[x](y)**`) - the inline tokenizer's bold alternative matches first and swallows the link as literal text. Fixed by using bare `[x](y)`; logged in Key Decisions.
+
+**Verification:** website `tsc --noEmit` clean; `next build` generated 32 pages incl. all 8 new `/docs/*` routes; `scripts/build-search.mjs` reindexed 26 pages / 1757 words (was 18 / 1599).
+
+**Open questions / follow-ups:**
+
+- Internal doc links inside callouts route through `InlineMarkdown`, which forces `target="_blank"` - they open in a new tab. Acceptable for now; a same-tab variant would need a component change.
+
+---
+
+## 2026-07-26 - Docs pages get a minimal one-line footer
+
+**Prompt / trigger:** User request - on all docs pages, replace the full sitemap footer with only the copyright/hire/tagline line.
+
+**What was done:**
+
+- Converted `website/components/Footer.tsx` to a client component using `usePathname()`; when the path starts with `/docs` it renders only the bottom meta strip (© line + "Hire the Developer" + tagline), else the full footer.
+- Extracted that strip into a `FooterMeta()` helper reused by both variants (the full footer's old inline bottom strip now calls it - no duplication).
+- No layout change: the global `<Footer/>` in `app/layout.tsx` stays; the branch happens inside it. Static export prerenders the correct variant per route.
+
+**Files touched:**
+
+- `website/components/Footer.tsx` - update - `'use client'` + `usePathname` branch, `FooterMeta` helper.
+
+**Verification:** website `tsc` + `next build` clean (32 pages); exported `out/docs/faq/index.html` has the minimal strip and none of the full-footer columns, `out/index.html` keeps the full footer.
+
+---
+
+## 2026-07-26 - Docs sidebars pinned + aesthetic scrollbars site-wide
+
+**Prompt / trigger:** User request - docs left/right sidebars should not scroll with the page; make scrollbars site-wide aesthetic (thin, rounded, gray at 40% opacity, no track background).
+
+**What was done:**
+
+- `components/docs/DocLayout.tsx`: both asides changed from `max-h-screen` to `h-screen` and gained `overscroll-contain`. With the existing `sticky top-0` they are now fixed full-height panes that stay put while the main column scrolls; internal sidebar scroll no longer chains into the page.
+- `app/globals.css`: global scrollbar styling on `*` - `scrollbar-width: thin` + `scrollbar-color` (Firefox), and `::-webkit-scrollbar*` (8px, transparent track, `rgba(128,128,128,0.4)` pill thumb, 0.6 on hover).
+
+**Files touched:**
+
+- `website/components/docs/DocLayout.tsx` - update - `h-screen` + `overscroll-contain` on both sidebars.
+- `website/app/globals.css` - update - site-wide thin/rounded/gray-40% scrollbars.
+
+**Verification:** website `tsc` + `next build` clean (32 pages).
+
+---
+
 ## Key Decisions
 
+- **2026-07-26** - Docs interactivity is a data-model extension, not new page infra: a `cards` `DocBlock` variant + optional callout `label` + variant icons (rendered by `DocIcon.tsx`, a zero-dep inline-SVG set). Callout bodies flow through the existing `InlineMarkdown` tokenizer, whose bold alternative greedily swallows a bold-wrapped link (`**[x](y)**`) - so callout links stay bare `[x](y)`. Landing mirrors the skills pattern: `slice(0, 4)` preview + a centered "Check all integrations" CTA to `/docs/integrations/`. Search modal now surfaces an explicit "index built at build time" notice when Pagefind can't load (dev/no-index) instead of a silent "No results."
 - **2026-07-25** - Docs pages need both a `PAGES`/`GROUPS` entry and a matching `app/docs/<slug>/page.tsx` route file (the route is not a dynamic `[slug]`); a mismatch 404s on static export. Landing surfaces a 24-skill count with a 6-item preview + "Check all skills" CTA to the full `/docs/supporting-skills/` catalog.
 - **2026-07-25** - Changelog notes render inline markdown via a zero-dependency tokenizer (`website/lib/inline-markdown.ts`), not a markdown library - consistent with the site's dep-light approach. Copy buttons use a hover "Copy" / click "Copied" tooltip (with an `sr-only` status) instead of a click toast.
 - **2026-07-25** - Open Code Review added as the 7th opt-in integration (CLI/CI code reviewer, complements `/spec-review`); key `opencodereview` (hyphenless for the `[a-z]+` marker regex). At 7 integrations the `--integrations` help line points to the README instead of inlining the list.
@@ -1134,7 +1209,7 @@
 - [ ] Verify Lighthouse Performance ≥ 90 and Accessibility ≥ 95 on the deployed Vercel URL (Stage 10 acceptance).
 - [ ] Run Playwright e2e (`test:site`) in CI - suite is wired but has not been executed locally (needs `playwright install chromium`).
 - [ ] Publish website to Vercel and confirm the build finishes in < 2 minutes on their infra (Stage 10).
-- [ ] Add a `next dev`-mode notice to the Search modal that surfaces "index not built" (Pagefind only runs post-`next build`).
+- [x] Add a `next dev`-mode notice to the Search modal that surfaces "index not built" (Pagefind only runs post-`next build`). _Resolved 2026-07-26 - `components/Search.tsx` shows an "index generated at build time, run npm run build" message when the Pagefind runtime fails to load._
 - [ ] Consider a static "first card highlighted" fallback for `PhaseCycler` under `prefers-reduced-motion` instead of bailing out entirely.
 - [x] Verify `pipx install ./dist/spec-init-<version>-py3-none-any.whl` succeeds locally before publish. _Resolved 2026-07-08 - `tests/acceptance/runbook.md` §1 requires this check on macOS, Linux, and Windows before the tag push; `post-publish-smoke.yml` re-verifies from the public registry after publish._
 - [ ] Wire a hatch build hook so editable installs auto-refresh `packages/cli-python/src/spec_init/_payload/` from the outer `_payload/` (Stage 10).

@@ -27,11 +27,7 @@ export default function DocLayout({ page }: { page: DocPage }) {
 
   return (
     <div className="mx-auto grid min-h-screen max-w-[1320px] grid-cols-1 md:grid-cols-[262px_minmax(0,1fr)] xl:grid-cols-[262px_minmax(0,1fr)_224px]">
-      <aside className="sticky top-0 max-h-screen self-start overflow-y-auto border-r border-black/10 px-6 pb-20 pt-7">
-        <Link href="/" className="mb-6 flex items-center gap-[11px] text-ink no-underline">
-          <BrandMark />
-          <span className="text-[17px] font-medium tracking-tightest">throughspec</span>
-        </Link>
+      <aside className="sticky top-[var(--nav-h)] h-[calc(100vh-var(--nav-h))] self-start overflow-y-auto overscroll-contain border-r border-black/10 px-6 pb-20 pt-7">
         <Search />
         {GROUPS.map((g) => (
           <div key={g.title} className="mb-[26px]">
@@ -102,7 +98,7 @@ export default function DocLayout({ page }: { page: DocPage }) {
         </div>
       </main>
 
-      <aside className="sticky top-0 hidden max-h-screen self-start overflow-y-auto px-6 pb-20 pt-12 xl:block">
+      <aside className="sticky top-[var(--nav-h)] hidden h-[calc(100vh-var(--nav-h))] self-start overflow-y-auto overscroll-contain px-6 pb-20 pt-12 xl:block">
         <div className="mb-[14px] text-[11px] font-medium uppercase tracking-[0.06em] text-dim">On this page</div>
         <div className="flex flex-col gap-[10px]">
           {tocItems.map((h) => (

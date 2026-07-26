@@ -26,9 +26,9 @@ const PRINCIPLES = [
 ];
 
 const STATS = [
-  { stat: '2', label: 'distribution channels - npm and PyPI - from a single source-of-truth template tree.' },
-  { stat: '9', label: 'slash commands covering scaffolding, specs, features, bugs, docs, and sync.' },
-  { stat: 'MIT', label: 'licensed and fully open - fork it, audit it, ship it.' },
+  { stat: '2', label: 'distribution channels - npm and PyPI from a single source-of-truth template tree.' },
+  { stat: '24', label: 'slash commands covering scaffolding, specs, features, bugs, docs, and sync.' },
+  { stat: 'MIT', label: 'licensed and fully open source - fork it, audit it, ship it.' },
 ];
 
 const TIMELINE = [
@@ -101,47 +101,8 @@ export default function AboutPage() {
         ))}
       </section>
 
-      {/* MAINTAINER */}
-      <section className="mx-auto max-w-[900px] px-8 pb-12">
-        <FadeIn className="rounded-[40px] border border-ink bg-warm p-10 md:p-12">
-          <div className="mb-4 text-xs uppercase tracking-[0.06em] text-dim">Maintainer</div>
-          <h2 className="mb-4 text-[32px] font-normal leading-[1.15] tracking-tighter2">
-            Built and maintained by Vishal Patil.
-          </h2>
-          <p className="mb-4 max-w-[640px] text-[15px] leading-[1.65] tracking-tighter2 text-muted">
-            AI engineer and researcher shipping end-to-end AI products from specification through production. Prior work
-            includes <span className="text-ink">VAi</span>, an AI assistant that talks to recruiters on a job seeker’s
-            behalf - it went viral and was featured by CNBC.
-          </p>
-          <p className="mb-6 max-w-[640px] text-[15px] leading-[1.65] tracking-tighter2 text-muted">
-            Throughspec is the SDLC I wish existed when I started building with Claude Code - spec-driven, drift-proof,
-            token-lean. Open to work across the US & Europe.
-          </p>
-          <div className="flex flex-wrap gap-3">
-            <Link
-              href="/hire-the-developer/"
-              className="inline-flex items-center gap-2 rounded-pill bg-dark px-[22px] py-[11px] text-sm font-medium text-warm no-underline"
-            >
-              Hire the developer <span aria-hidden>&rsaquo;</span>
-            </Link>
-            <a
-              href="https://github.com/vishalpatil18"
-              className="rounded-pill border border-ink px-[22px] py-[11px] text-sm font-medium text-ink no-underline"
-            >
-              GitHub
-            </a>
-            <a
-              href="https://www.linkedin.com/in/vishal18/"
-              className="rounded-pill border border-ink px-[22px] py-[11px] text-sm font-medium text-ink no-underline"
-            >
-              LinkedIn
-            </a>
-          </div>
-        </FadeIn>
-      </section>
-
-      <section className="mx-auto max-w-content px-8 pb-20">
-        <FadeIn className="rounded-[40px] border border-ink px-12 py-14 text-center">
+      <section className="mx-auto max-w-content px-8 pb-12">
+        <FadeIn className="rounded-[40px] px-12 py-14 text-center">
           <h2 className="mb-5 text-[38px] font-normal leading-[1.1] tracking-tighter2">
             Open source. MIT licensed. Yours to fork.
           </h2>
@@ -153,11 +114,58 @@ export default function AboutPage() {
               Read the docs &rsaquo;
             </Link>
             <Link
-              href="/changelog/"
+              href="https://github.com/vishalpatil18/throughspec"
               className="rounded-pill border border-ink px-[26px] py-[13px] text-sm font-medium text-ink no-underline"
             >
-              See the changelog
+              Github
             </Link>
+          </div>
+        </FadeIn>
+      </section>
+
+      <section className="mx-auto max-w-[900px] px-8 pb-12">
+        <FadeIn className="rounded-[40px] border border-ink bg-warm p-10 md:p-12">
+          <div className="mb-4 text-xs uppercase tracking-[0.06em] text-dim">Maintainer</div>
+          <h2 className="mb-4 text-[32px] font-normal leading-[1.15] tracking-tighter2">
+            Built and maintained by Vishal Patil.
+          </h2>
+          <p className="mb-4 text-[15px] leading-[1.65] tracking-tighter2 text-muted text-justify">
+            AI engineer and researcher shipping end-to-end AI products from specification through production. Prior work
+            includes <Link href="https://v-ai.org" className="text-ink underline">VAi</Link>, an AI assistant that talks to recruiters on Vishal's
+            behalf which went viral and was <Link href="https://www.cnbc.com/2026/04/30/these-2-job-seekers-built-ai-chatbots-to-talk-to-recruiters-for-them.html" className="text-ink underline" target="_blank">featured by CNBC.</Link>
+          </p>
+          <p className="mb-6 text-[15px] leading-[1.65] tracking-tighter2 text-muted text-justify">
+            Throughspec is the SDLC I wish existed when I started building with Claude Code - spec-driven, drift-proof,
+            token-lean. Open to work across the US & Europe.
+          </p>
+          <div className="flex flex-wrap gap-3">
+            <Link
+              href="/hire-the-developer/"
+              className="inline-flex items-center gap-2 rounded-pill bg-dark px-[22px] py-[11px] text-sm font-medium text-warm no-underline"
+            >
+              Hire the developer <span aria-hidden>&rsaquo;</span>
+            </Link>
+            <a
+              href="https://v-ai.org"
+              target="_blank"
+              className="rounded-pill border border-ink px-[22px] py-[11px] text-sm font-medium text-ink no-underline"
+            >
+              VAi
+            </a>
+            <a
+              href="https://github.com/vishalpatil18"
+              target="_blank"
+              className="rounded-pill border border-ink px-[22px] py-[11px] text-sm font-medium text-ink no-underline"
+            >
+              GitHub
+            </a>
+            <a
+              href="https://www.linkedin.com/in/vishalrameshpatil/"
+              target="_blank"
+              className="rounded-pill border border-ink px-[22px] py-[11px] text-sm font-medium text-ink no-underline"
+            >
+              LinkedIn
+            </a>
           </div>
         </FadeIn>
       </section>

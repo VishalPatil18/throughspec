@@ -7,6 +7,8 @@
 :root {
   --font-serif: 'Source Serif 4', serif;
   --font-mono: 'JetBrains Mono', monospace;
+  /* Sticky-header height; Nav.tsx refines this at runtime (announce bar dismiss). */
+  --nav-h: 91px;
 }
 
 html,
@@ -21,6 +23,30 @@ body {
 *::before,
 *::after {
   box-sizing: border-box;
+}
+
+/* Aesthetic scrollbars site-wide: thin, rounded, gray at 40% opacity, no track. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(128, 128, 128, 0.4) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: rgba(128, 128, 128, 0.4);
+  border-radius: 9999px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: rgba(128, 128, 128, 0.6);
 }
 
 a {
