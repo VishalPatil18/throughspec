@@ -175,13 +175,13 @@ export default function FeaturesPage() {
           <div className="flex flex-wrap justify-center gap-3">
             <Link
               href="/docs/"
-              className="rounded-pill bg-warm px-[26px] py-[13px] text-sm font-medium text-ink no-underline"
+              className="rounded-pill bg-warm px-3 py-2 text-sm font-medium text-ink no-underline"
             >
               Get started &rsaquo;
             </Link>
             <Link
               href="/why/"
-              className="rounded-pill border border-warm/50 px-[26px] py-[13px] text-sm font-medium text-warm no-underline"
+              className="rounded-pill border border-warm/50 px-3 py-2 text-sm font-medium text-warm no-underline"
             >
               Why Throughspec
             </Link>

@@ -67,7 +67,7 @@ export default function Nav() {
         <div className="flex items-center gap-3">
           <Link
             href="/docs/"
-            className="inline-flex items-center gap-[7px] rounded-pill bg-dark px-[21px] py-[10px] text-[13px] font-medium text-warm no-underline"
+            className="inline-flex items-center gap-[7px] rounded-pill bg-dark px-3 py-2 text-[13px] font-medium text-warm no-underline"
           >
             Get started <span className="text-[14px]" aria-hidden>&rsaquo;</span>
           </Link>

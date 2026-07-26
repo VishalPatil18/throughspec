@@ -1015,8 +1015,39 @@
 
 ---
 
+## 2026-07-25 - Landing: integrations grid, skills count/CTA, full skills docs page
+
+**Prompt / trigger:** User request - surface the new integrations (with GitHub links) on the landing page; update the skills section to mention the count, show only 6, and add a "Check all skills" button to a full skills docs page.
+
+**What was done:**
+
+- **Landing integrations** (`website/app/page.tsx`): `INTEGRATIONS` grew 2 -> 7 (added caveman, agentmemory, openwiki, ponytail, Open Code Review), each with a glyph, one-line desc, `--integrations` flag, and a link (GitHub for the five new tools; product sites for Graphify/Obsidian). Each card renders a "{label} ↗" external link; added an "Integrations" eyebrow + heading.
+- **Landing skills section**: heading now reads "Twenty-four skills…" (9 core + 15 supporting); renders only the first 6 core skills (`SKILLS.slice(0, 6)`); added a "Check all skills →" pill linking to `/docs/supporting-skills/`.
+- **Full skills docs page** (`website/lib/docs-content.ts`): the `supporting-skills` page is now the complete catalog - retitled "Skills" (page + sidebar group, slug kept), intro updated to 24 total, and a new "Core workflow" section added at the top listing the 9 core skills with usecase/when; each `/command` term is the "how to use."
+- **Fixed a pre-existing 404 (important):** the docs route is one directory per page (`app/docs/<slug>/page.tsx`), not a dynamic `[slug]`. When the `supporting-skills` page was added to `PAGES`/`GROUPS` earlier, the route file was never created, so `/docs/supporting-skills/` (and the sidebar link) 404'd on the static export. Created `website/app/docs/supporting-skills/page.tsx` and added the slug to the hand-maintained `sitemap.ts` ROUTES and `e2e/links.spec.ts` START_PATHS.
+
+**Files touched:**
+
+- `website/app/page.tsx` - update - integrations array + render (links, eyebrow); skills heading/slice/button.
+- `website/lib/docs-content.ts` - update - `supporting-skills` page retitle + intro + Core-workflow section; GROUPS title "Supporting Skills" -> "Skills".
+- `website/app/docs/supporting-skills/page.tsx` - create - the missing route file.
+- `website/app/sitemap.ts`, `website/e2e/links.spec.ts` - update - add `/docs/supporting-skills/` to the enumerated route lists.
+
+**Decisions made:**
+
+- Skill count surfaced as **24** (9 core + 15 supporting); landing shows the first 6 core, button reveals the rest.
+- "All skills" means the docs page now includes the core skills too (renamed "Skills"); slug stayed `supporting-skills` so the button URL is exact.
+
+**Open questions / follow-ups:**
+
+- The docs system requires a per-page route file **and** a PAGES/GROUPS entry - adding one without the other silently 404s on static export. A generated catch-all `[slug]` route (with `generateStaticParams` over PAGES) would remove this footgun; deferred.
+- `sitemap.ts` ROUTES and `e2e/links.spec.ts` START_PATHS are hand-maintained copies of the docs slug set - candidates to derive from GROUPS later.
+
+---
+
 ## Key Decisions
 
+- **2026-07-25** - Docs pages need both a `PAGES`/`GROUPS` entry and a matching `app/docs/<slug>/page.tsx` route file (the route is not a dynamic `[slug]`); a mismatch 404s on static export. Landing surfaces a 24-skill count with a 6-item preview + "Check all skills" CTA to the full `/docs/supporting-skills/` catalog.
 - **2026-07-25** - Changelog notes render inline markdown via a zero-dependency tokenizer (`website/lib/inline-markdown.ts`), not a markdown library - consistent with the site's dep-light approach. Copy buttons use a hover "Copy" / click "Copied" tooltip (with an `sr-only` status) instead of a click toast.
 - **2026-07-25** - Open Code Review added as the 7th opt-in integration (CLI/CI code reviewer, complements `/spec-review`); key `opencodereview` (hyphenless for the `[a-z]+` marker regex). At 7 integrations the `--integrations` help line points to the README instead of inlining the list.
 - **2026-07-25** - Kit conventions bias toward token-lean specs (Markdown narrative + flat YAML for deep structure), BDD Given/When/Then acceptance scenarios with mandatory edge cases, version-pinning + verification, no hardcoded secrets/PII in specs, and a PR Risk & Impact section. All as templates/skills conventions - no runtime infra (policy server/sandbox/eval/MCP-server explicitly out of scope for a scaffolding kit).

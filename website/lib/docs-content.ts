@@ -29,7 +29,7 @@ export interface DocGroup {
 export const GROUPS: DocGroup[] = [
   { title: 'Get Started', slugs: ['', 'install', 'quickstart'] },
   { title: 'Workflows', slugs: ['workflows'] },
-  { title: 'Supporting Skills', slugs: ['supporting-skills'] },
+  { title: 'Skills', slugs: ['supporting-skills'] },
   {
     title: 'Recipes',
     slugs: ['design-prompt-library', 'learning-map', 'customization-recipes'],
@@ -222,17 +222,33 @@ export const PAGES: Record<string, DocPage> = {
 
   'supporting-skills': {
     slug: 'supporting-skills',
-    group: 'Supporting Skills',
-    label: 'Supporting Skills',
-    title: 'Supporting skills',
+    group: 'Skills',
+    label: 'Skills',
+    title: 'Skills',
     intro:
-      'Beyond the initiation, feature, and maintenance cycles, the Kit ships fifteen supporting skills - invoked as needed across design, review, delivery, ideation, and continuity. Each one reads the memory layer first and writes its findings or decisions back, so nothing drifts.',
+      'The Kit ships 24 skills: 9 core workflow skills that carry a project from requirements to shipped feature, plus 15 supporting skills invoked as needed across design, review, delivery, ideation, and continuity. Each reads the memory layer first and writes its findings or decisions back, so nothing drifts. Every skill is a slash command - "how to use it" is simply typing its name.',
     blocks: [
       {
         t: 'callout',
         variant: 'note',
         label: 'Spec-driven, not free-floating',
-        text: 'Every supporting skill anchors in claude/srs.md and claude/context.md before it acts, and records outcomes in the memory layer (design-decisions.md, context.md, or CHANGELOG.md). They extend the SDLC; they never bypass it.',
+        text: 'Every skill anchors in claude/srs.md and claude/context.md before it acts, and records outcomes in the memory layer (design-decisions.md, context.md, or CHANGELOG.md). They extend the SDLC; they never bypass it.',
+      },
+      { t: 'h2', id: 'core', text: 'Core workflow' },
+      { t: 'p', text: 'The spine of the SDLC - run them roughly in order. Each gates the next: you cannot plan before the spec is frozen, or build before the plan is written.' },
+      {
+        t: 'defs',
+        items: [
+          { term: '/spec-init', desc: 'Scaffold the project tree inside an existing Claude session. Use when starting a new project or adopting the Kit in an empty directory.' },
+          { term: '/spec-requirements', desc: 'Cross-questions you across five mandatory categories, then freezes claude/srs.md with BDD acceptance scenarios. Use first, before any design or code; refuses to proceed on empty load-bearing categories.' },
+          { term: '/spec-design', desc: 'Extracts a design system from your references or infers one from the SRS - never fabricates brand colors. Use after requirements, before building UI.' },
+          { term: '/spec-plan', desc: 'Produces an 8-10 step build plan, each stage standalone, testable, and runnable. Use after the SRS is frozen; refuses while load-bearing open questions remain.' },
+          { term: '/spec-feature', desc: 'Runs the full 6-phase feature cycle (requirements → architecting → product specs → tech specs → planning → code). Use to build any feature end-to-end.' },
+          { term: '/spec-refactor', desc: 'Cleans only the files changed in the current cycle, writing an audit trail. Use right after a feature cycle - never for repo-wide cleanups.' },
+          { term: '/spec-bug', desc: 'Reproduction-first bug workflow: recipe → failing regression test → smallest fix → CHANGELOG entry. Use when something is broken; refuses without a reproduction.' },
+          { term: '/spec-docs', desc: 'Reconciles README and memory files against the actual code; never touches source. Use when docs have drifted from reality.' },
+          { term: '/spec-sync', desc: 'Reconciles context.md against the repo and compresses any memory file past 1,500 lines with an audit trail. Use when memory has drifted or grown large.' },
+        ],
       },
       { t: 'h2', id: 'design', text: 'Design' },
       { t: 'p', text: 'Shape the structure before code is written. These decide what is allowed to know about what.' },

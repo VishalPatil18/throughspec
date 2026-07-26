@@ -60,12 +60,56 @@ const INTEGRATIONS = [
     glyph: '◈',
     desc: 'Treat the codebase as a queryable knowledge graph. Claude prefers Graphify queries over full-repo greps when available.',
     flag: '--integrations graphify',
+    link: 'https://graphify.net/',
+    linkLabel: 'graphify.net',
   },
   {
     name: 'Obsidian',
     glyph: '◉',
     desc: 'Visualize the claude/ and design/ markdown corpus as a navigable graph, with front-matter conventions baked in.',
     flag: '--integrations obsidian',
+    link: 'https://obsidian.md/',
+    linkLabel: 'obsidian.md',
+  },
+  {
+    name: 'Caveman',
+    glyph: '◆',
+    desc: 'Ultra-compressed “caveman” replies cut output tokens ~65% while keeping code, commands, and errors byte-exact.',
+    flag: '--integrations caveman',
+    link: 'https://github.com/JuliusBrussee/caveman',
+    linkLabel: 'GitHub',
+  },
+  {
+    name: 'agentmemory',
+    glyph: '▣',
+    desc: 'Persistent cross-session memory - captures decisions and project context, then injects the relevant slice back at session start.',
+    flag: '--integrations agentmemory',
+    link: 'https://github.com/rohitg00/agentmemory',
+    linkLabel: 'GitHub',
+  },
+  {
+    name: 'openwiki',
+    glyph: '◍',
+    desc: 'Auto-generates an agent-facing documentation wiki for the codebase, so Claude reads structured context before a broad grep.',
+    flag: '--integrations openwiki',
+    link: 'https://github.com/langchain-ai/openwiki',
+    linkLabel: 'GitHub',
+  },
+  {
+    name: 'ponytail',
+    glyph: '⬡',
+    desc: 'A code-minimalism ruleset - the agent runs a YAGNI ladder and writes the least code necessary, no over-engineering.',
+    flag: '--integrations ponytail',
+    link: 'https://github.com/DietrichGebert/ponytail',
+    linkLabel: 'GitHub',
+  },
+  {
+    name: 'Open Code Review',
+    glyph: '◐',
+    desc: 'AI code-review CLI (ocr) with line-level findings on diffs and files - run it pre-push or in CI alongside /spec-review.',
+    flag: '--integrations opencodereview',
+    link: 'https://github.com/alibaba/open-code-review',
+    linkLabel: 'GitHub',
   },
 ];
 
@@ -121,18 +165,18 @@ export default function Landing() {
         <FadeIn delay={0.18} className="flex flex-wrap items-center justify-center gap-[13px]">
           <Link
             href="/docs/"
-            className="inline-flex items-center gap-2 rounded-pill bg-dark px-[26px] py-[13px] text-sm font-medium text-warm no-underline"
+            className="inline-flex items-center gap-2 rounded-pill bg-dark px-3 py-2 text-sm font-medium text-warm no-underline"
           >
             Get started <span className="text-[15px]" aria-hidden>&rsaquo;</span>
           </Link>
           <Link
             href="/docs/"
-            className="rounded-pill border border-ink px-[26px] py-[13px] text-sm font-medium text-ink no-underline"
+            className="rounded-pill border border-ink px-3 py-2 text-sm font-medium text-ink no-underline"
           >
             Read the docs
           </Link>
         </FadeIn>
-        <FadeIn delay={0.24} className="mt-[26px] inline-flex items-center gap-3 rounded-[10px] border border-ink bg-white px-4 py-[11px] text-[13.5px]">
+        <FadeIn delay={0.24} className="mt-[26px] w-auto inline-flex items-center gap-3 rounded-[10px] border border-ink bg-white px-2 py-2 text-[13.5px]">
           <span className="text-dim">$</span>
           <CopyableCommand text="npx spec-init my-app">
             <span>npx spec-init my-app</span>
@@ -262,35 +306,59 @@ export default function Landing() {
         <FadeIn className="mb-10">
           <div className="mb-[14px] text-xs uppercase tracking-[0.06em] text-dim">Skills catalog</div>
           <h2 className="max-w-[680px] text-[44px] font-normal tracking-tighter2">
-            Nine slash commands. One for every move you make.
+            Twenty-four skills. One for every move you make.
           </h2>
         </FadeIn>
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-          {SKILLS.map((sk, i) => (
-            <FadeIn key={sk.cmd} delay={i * 0.04} className="rounded-3xl border border-ink bg-warm p-6">
-              <code className="font-mono text-[15px] text-ink">{sk.cmd}</code>
-              <div className="mt-3 text-[13px] leading-[1.5] tracking-tighter2 text-muted">{sk.desc}</div>
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+          {SKILLS.slice(0, 6).map((sk, i) => (
+            <FadeIn key={sk.cmd} delay={i * 0.04} className="rounded-2xl border border-ink bg-warm p-[18px]">
+              <code className="font-mono text-[13.5px] text-ink">{sk.cmd}</code>
+              <div className="mt-[7px] text-[12.5px] leading-[1.5] tracking-tighter2 text-muted">{sk.desc}</div>
             </FadeIn>
           ))}
         </div>
+        <FadeIn delay={0.1} className="mt-8 flex justify-center">
+          <Link
+            href="/docs/supporting-skills/"
+            className="inline-flex items-center gap-2 rounded-pill border border-ink px-5 py-2 text-sm font-medium text-ink no-underline transition-colors hover:bg-ink hover:text-warm"
+          >
+            Check all skills <span className="text-[15px]" aria-hidden>&rsaquo;</span>
+          </Link>
+        </FadeIn>
       </section>
 
       {/* INTEGRATIONS */}
       <section className="mx-auto max-w-content px-8 pb-[72px]">
-        <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+        <FadeIn className="mb-10">
+          <div className="mb-[14px] text-xs uppercase tracking-[0.06em] text-dim">Integrations</div>
+          <h2 className="max-w-[680px] text-[44px] font-normal tracking-tighter2">
+            Optional integrations, one flag away.
+          </h2>
+        </FadeIn>
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           {INTEGRATIONS.map((ig, i) => (
-            <FadeIn key={ig.name} delay={i * 0.06} className="rounded-[40px] border border-ink bg-warm p-10">
-              <div className="mb-[18px] flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-ink text-lg">
+            <FadeIn key={ig.name} delay={i * 0.06} className="rounded-2xl border border-ink bg-warm p-6">
+              <div className="mb-3 flex items-center gap-[10px]">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-ink text-[15px]">
                   {ig.glyph}
                 </div>
-                <div className="text-2xl tracking-tighter2">{ig.name}</div>
+                <div className="text-lg tracking-tighter2">{ig.name}</div>
               </div>
-              <p className="mb-[18px] text-[14.5px] leading-[1.55] tracking-tighter2 text-muted">{ig.desc}</p>
-              <CopyableCommand
-                text={ig.flag}
-                className="inline-block rounded-lg border border-ink bg-white px-3 py-2 text-[12.5px]"
-              />
+              <p className="mb-[14px] text-[13px] leading-[1.5] tracking-tighter2 text-muted">{ig.desc}</p>
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+                <CopyableCommand
+                  text={ig.flag}
+                  className="inline-block rounded-lg border border-ink bg-white px-2.5 py-1.5 text-[12px]"
+                />
+                <a
+                  href={ig.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[12.5px] tracking-tighter2 text-muted no-underline hover:text-ink"
+                >
+                  {ig.linkLabel} <span aria-hidden>&#8599;</span>
+                </a>
+              </div>
             </FadeIn>
           ))}
         </div>
@@ -328,13 +396,13 @@ export default function Landing() {
           <div className="mb-[26px] flex flex-wrap justify-center gap-3">
             <Link
               href="/docs/"
-              className="inline-flex items-center gap-2 rounded-pill bg-warm px-[26px] py-[13px] text-sm font-medium text-ink no-underline"
+              className="inline-flex items-center gap-2 rounded-pill bg-warm px-3 py-2 text-sm font-medium text-ink no-underline"
             >
               Get started <span className="text-[15px]" aria-hidden>&rsaquo;</span>
             </Link>
             <Link
               href="/why/"
-              className="rounded-pill border border-warm/50 px-[26px] py-[13px] text-sm font-medium text-warm no-underline"
+              className="rounded-pill border border-warm/50 px-3 py-2 text-sm font-medium text-warm no-underline"
             >
               Why Throughspec
             </Link>

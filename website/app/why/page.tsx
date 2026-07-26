@@ -134,7 +134,7 @@ export default function WhyPage() {
           <p className="mb-[26px] text-[15px] tracking-tighter2 text-[#b9b6b4]">Spec-driven. Drift-proof. Token-lean.</p>
           <Link
             href="/docs/"
-            className="inline-block rounded-pill bg-warm px-[26px] py-[13px] text-sm font-medium text-ink no-underline"
+            className="inline-block rounded-pill bg-warm px-3 py-2 text-sm font-medium text-ink no-underline"
           >
             Get started &rsaquo;
           </Link>

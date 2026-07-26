@@ -17,6 +17,7 @@ const ROUTES = [
   '/docs/install/',
   '/docs/quickstart/',
   '/docs/workflows/',
+  '/docs/supporting-skills/',
   '/docs/design-prompt-library/',
   '/docs/learning-map/',
   '/docs/customization-recipes/',
