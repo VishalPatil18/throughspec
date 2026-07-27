@@ -1,15 +1,20 @@
-// Argv parsing for spec-init.
-//
-// Hand-rolled parser (no commander / yargs) - the surface is small enough
-// that a ~50-line function is simpler than a dependency.
+// Hand-rolled argv parser for spec-init (no commander/yargs dependency).
 
 export const PERSONAS = ['vibe', 'student', 'engineer', 'team'] as const;
 export type Persona = (typeof PERSONAS)[number];
 
-export const INTEGRATIONS = ['graphify', 'obsidian'] as const;
+export const INTEGRATIONS = [
+  'graphify',
+  'obsidian',
+  'caveman',
+  'agentmemory',
+  'openwiki',
+  'ponytail',
+  'opencodereview',
+] as const;
 export type Integration = (typeof INTEGRATIONS)[number];
 
-export const COMMANDS = ['init', 'customize', 'add-skill', 'upgrade', 'doctor'] as const;
+export const COMMANDS = ['init', 'reinit', 'customize', 'add-skill', 'upgrade', 'doctor'] as const;
 export type Command = (typeof COMMANDS)[number];
 
 export interface CliOptions {
@@ -117,6 +122,7 @@ USAGE
 
 COMMANDS
   init <name>         Scaffold a new project into <name>/
+  reinit [dir]        Adopt Throughspec in an existing project (in place; keeps your files)
   customize           Toggle integrations or swap the persona for an existing project
   add-skill <name>    Copy a skill from the payload's skills/ catalog into the project
   upgrade             Merge a newer template payload into an existing project (three-way)
@@ -124,7 +130,7 @@ COMMANDS
 
 FLAGS
   --persona <name>              vibe | student | engineer | team
-  --integrations <a,b>          graphify,obsidian (comma-separated, no spaces)
+  --integrations <a,b>          comma-separated integration names (see README for the full list)
   --add <name>                  used with customize
   --remove <name>               used with customize
   --force                       overwrite existing files during init
@@ -135,6 +141,8 @@ FLAGS
 EXAMPLES
   spec-init init my-project --persona student
   spec-init init my-project --persona engineer --integrations graphify,obsidian
+  spec-init init my-project --integrations caveman
+  spec-init reinit --persona engineer
   spec-init customize --add obsidian
   spec-init upgrade
   spec-init doctor

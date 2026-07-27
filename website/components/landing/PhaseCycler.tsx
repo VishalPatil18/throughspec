@@ -11,8 +11,7 @@ const PHASES = [
   { num: '06', title: 'Writing Code', out: 'Implement → test → refactor → memory' },
 ];
 
-// Auto-cycling grid of six phase cards. The active card flips to dark
-// (bg-dark / text-warm) with a mint dot; others sit on the warm bg.
+// Auto-cycling grid of six phase cards; the active one flips to dark.
 export default function PhaseCycler() {
   const [active, setActive] = useState(0);
   useEffect(() => {

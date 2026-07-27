@@ -1,6 +1,4 @@
-// Self-hosted fonts (zero third-party CDN, no privacy leak). @fontsource
-// injects the @font-face rules; we expose CSS variables that Tailwind's
-// `font-serif` / `font-mono` utilities resolve through tailwind.config.ts.
+// Self-hosted fonts exposed as CSS vars for Tailwind's font-serif/font-mono (no CDN).
 
 import '@fontsource/source-serif-4/400.css';
 import '@fontsource/source-serif-4/500.css';

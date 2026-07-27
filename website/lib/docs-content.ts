@@ -1,15 +1,14 @@
-// Docs content model + data. Every /docs/* page pulls its content from here
-// so the sidebar, breadcrumbs, prev/next navigation, and the on-page TOC all
-// stay in sync automatically.
+// Docs content model + data; sidebar, breadcrumbs, prev/next, and TOC derive from it.
 
 export type DocBlock =
   | { t: 'p'; text: string }
   | { t: 'h2'; id: string; text: string }
   | { t: 'code'; text: string }
-  | { t: 'callout'; variant: 'note' | 'tip' | 'warn'; label: string; text: string }
+  | { t: 'callout'; variant: 'note' | 'tip' | 'warn'; label?: string; text: string }
   | { t: 'list'; items: string[] }
   | { t: 'defs'; items: { term: string; desc: string }[] }
-  | { t: 'steps'; items: { n: string; title: string; desc: string }[] };
+  | { t: 'steps'; items: { n: string; title: string; desc: string }[] }
+  | { t: 'cards'; items: { icon: string; title: string; desc: string; href?: string }[] };
 
 export interface DocPage {
   slug: string; // path segment under /docs/
@@ -28,11 +27,15 @@ export interface DocGroup {
 // Sidebar order + grouping. Every slug here must map to a page in PAGES below.
 export const GROUPS: DocGroup[] = [
   { title: 'Get Started', slugs: ['', 'install', 'quickstart'] },
-  { title: 'Workflows', slugs: ['workflows'] },
+  { title: 'Concepts', slugs: ['spec-driven-development', 'memory-layer', 'workflows'] },
+  { title: 'Skills', slugs: ['supporting-skills'] },
+  { title: 'Integrations', slugs: ['integrations'] },
+  { title: 'Reference', slugs: ['cli-reference', 'glossary'] },
   {
     title: 'Recipes',
     slugs: ['design-prompt-library', 'learning-map', 'customization-recipes'],
   },
+  { title: 'Help', slugs: ['faq', 'troubleshooting', 'contact-us'] },
 ];
 
 export const PAGES: Record<string, DocPage> = {
@@ -72,6 +75,16 @@ export const PAGES: Record<string, DocPage> = {
           { term: 'Student', desc: 'Learning engineering via real projects - needs an auditable trail of why every decision was made.' },
           { term: 'Solo Engineer', desc: 'Using Claude Code for velocity - needs token-efficient context and a reproducible SDLC.' },
           { term: 'Team Lead', desc: 'Adopting AI-first engineering - needs a shared structural contract every contributor follows.' },
+        ],
+      },
+      { t: 'h2', id: 'next', text: 'Where to go next' },
+      {
+        t: 'cards',
+        items: [
+          { icon: 'rocket', title: 'Install', desc: 'Get spec-init on npm or PyPI in one command.', href: '/docs/install/' },
+          { icon: 'compass', title: 'Quickstart', desc: 'Empty folder to first shipped feature, end-to-end.', href: '/docs/quickstart/' },
+          { icon: 'book', title: 'Spec-Driven Development', desc: 'The five ideas the whole Kit is built on - start here if you are new.', href: '/docs/spec-driven-development/' },
+          { icon: 'plug', title: 'Integrations', desc: 'Optional tools you can turn on with one flag.', href: '/docs/integrations/' },
         ],
       },
     ],
@@ -127,8 +140,23 @@ export const PAGES: Record<string, DocPage> = {
       {
         t: 'callout',
         variant: 'tip',
+        label: 'Prefer a guided setup?',
+        text: 'Run npx spec-init with no arguments in a terminal for an interactive welcome - arrow-key selects for new-vs-existing, persona, and integrations, then it scaffolds. In a non-interactive shell (CI, pipes) it prints help instead, so scripts are unaffected.',
+      },
+      {
+        t: 'callout',
+        variant: 'tip',
         label: 'Python channel?',
         text: 'Prefer the Python channel? pipx install spec-init, then spec-init my-app. Both channels ship the same template payload, verified byte-for-byte on every release.',
+      },
+      { t: 'h2', id: 'existing-project', text: 'Already have a project?' },
+      { t: 'p', text: 'Adopt Throughspec in an existing repo with reinit. It writes only the missing spec and memory files, keeps everything you already have, and never touches your source code. It also lays down the .spec-init/base/ snapshot so upgrade works from then on.' },
+      { t: 'code', text: 'cd my-existing-project\nnpx spec-init reinit          # keeps existing files\nnpx spec-init reinit --force  # replace existing spec files with fresh templates' },
+      {
+        t: 'callout',
+        variant: 'note',
+        label: 'Non-destructive by default',
+        text: 'reinit keeps any spec file that already exists (interactively it asks keep or replace). Pass --force to overwrite them. Already Throughspec-managed? Use upgrade instead - reinit will point you there.',
       },
       { t: 'h2', id: 'cycle', text: 'Run the initiation cycle' },
       { t: 'p', text: 'Open Claude Code in the new directory and run these skills in order. Each gates the next - you cannot plan before the spec is frozen, and you cannot build before the plan is written.' },
@@ -150,12 +178,22 @@ export const PAGES: Record<string, DocPage> = {
       { t: 'h2', id: 'result', text: 'What you end up with' },
       { t: 'p', text: 'A scaffolded project whose memory layer keeps Claude oriented across every future prompt - without re-scanning the repo. CLAUDE.md plus claude/context.md stay under 8,000 tokens on a mature project (NFR-PERF-02).' },
       { t: 'code', text: 'my-app/\n├─ CLAUDE.md\n├─ claude/\n│  ├─ srs.md\n│  ├─ plan.md\n│  ├─ context.md\n│  ├─ features.md\n│  ├─ learnings.md\n│  └─ design-decisions.md\n├─ design/\n│  ├─ design.md\n│  └─ preview/\n├─ .claude/\n│  ├─ skills/\n│  └─ agents/\n├─ CHANGELOG.md\n├─ README.md\n└─ .spec-init/base/    (snapshot for upgrade)' },
+      { t: 'h2', id: 'next', text: 'What’s next' },
+      {
+        t: 'cards',
+        items: [
+          { icon: 'map', title: 'Workflows', desc: 'The full initiation, feature, and maintenance cycles.', href: '/docs/workflows/' },
+          { icon: 'wand', title: 'All 24 skills', desc: 'Every slash command, what it does, and when to use it.', href: '/docs/supporting-skills/' },
+          { icon: 'layers', title: 'The memory layer', desc: 'How the Kit keeps token cost flat as your project grows.', href: '/docs/memory-layer/' },
+          { icon: 'question', title: 'FAQ', desc: 'Short answers to the most common questions.', href: '/docs/faq/' },
+        ],
+      },
     ],
   },
 
   workflows: {
     slug: 'workflows',
-    group: 'Workflows',
+    group: 'Concepts',
     label: 'Workflows',
     title: 'Workflows',
     intro:
@@ -200,6 +238,95 @@ export const PAGES: Record<string, DocPage> = {
           { term: '/spec-refactor', desc: 'Diff-scoped cleanup. Only files in the current cycle’s changed list.' },
           { term: '/spec-sync', desc: 'Reconciles context.md drift and compresses any memory file past 1,500 lines with a compressed-from audit trail.' },
         ],
+      },
+    ],
+  },
+
+  'supporting-skills': {
+    slug: 'supporting-skills',
+    group: 'Skills',
+    label: 'Skills',
+    title: 'Skills',
+    intro:
+      'The Kit ships 24 skills: 9 core workflow skills that carry a project from requirements to shipped feature, plus 15 supporting skills invoked as needed across design, review, delivery, ideation, and continuity. Each reads the memory layer first and writes its findings or decisions back, so nothing drifts. Every skill is a slash command - "how to use it" is simply typing its name.',
+    blocks: [
+      {
+        t: 'callout',
+        variant: 'note',
+        label: 'Spec-driven, not free-floating',
+        text: 'Every skill anchors in claude/srs.md and claude/context.md before it acts, and records outcomes in the memory layer (design-decisions.md, context.md, or CHANGELOG.md). They extend the SDLC; they never bypass it.',
+      },
+      { t: 'h2', id: 'core', text: 'Core workflow' },
+      { t: 'p', text: 'The spine of the SDLC - run them roughly in order. Each gates the next: you cannot plan before the spec is frozen, or build before the plan is written.' },
+      {
+        t: 'defs',
+        items: [
+          { term: '/spec-init', desc: 'Scaffold the project tree inside an existing Claude session. Use when starting a new project or adopting the Kit in an empty directory.' },
+          { term: '/spec-requirements', desc: 'Cross-questions you across five mandatory categories, then freezes claude/srs.md with BDD acceptance scenarios. Use first, before any design or code; refuses to proceed on empty load-bearing categories.' },
+          { term: '/spec-design', desc: 'Extracts a design system from your references or infers one from the SRS - never fabricates brand colors. Use after requirements, before building UI.' },
+          { term: '/spec-plan', desc: 'Produces an 8-10 step build plan, each stage standalone, testable, and runnable. Use after the SRS is frozen; refuses while load-bearing open questions remain.' },
+          { term: '/spec-feature', desc: 'Runs the full 6-phase feature cycle (requirements → architecting → product specs → tech specs → planning → code). Use to build any feature end-to-end.' },
+          { term: '/spec-refactor', desc: 'Cleans only the files changed in the current cycle, writing an audit trail. Use right after a feature cycle - never for repo-wide cleanups.' },
+          { term: '/spec-bug', desc: 'Reproduction-first bug workflow: recipe → failing regression test → smallest fix → CHANGELOG entry. Use when something is broken; refuses without a reproduction.' },
+          { term: '/spec-docs', desc: 'Reconciles README and memory files against the actual code; never touches source. Use when docs have drifted from reality.' },
+          { term: '/spec-sync', desc: 'Reconciles context.md against the repo and compresses any memory file past 1,500 lines with an audit trail. Use when memory has drifted or grown large.' },
+        ],
+      },
+      { t: 'h2', id: 'design', text: 'Design' },
+      { t: 'p', text: 'Shape the structure before code is written. These decide what is allowed to know about what.' },
+      {
+        t: 'defs',
+        items: [
+          { term: '/spec-architect', desc: 'Designs module, service, and layer boundaries from the forces most likely to change. Defaults to a modular monolith until measured evidence earns a split, and records every non-obvious choice as a 5-line ADR in design-decisions.md.' },
+          { term: '/spec-db-design', desc: 'Designs and reviews the database schema - keys, foreign keys, constraints, and indexes for the real query shapes. Enforces invariants in the schema, not the app, and keeps every migration reversible and additive.' },
+        ],
+      },
+      { t: 'h2', id: 'review', text: 'Review' },
+      { t: 'p', text: 'Six lenses on a change, each labelling findings by severity and reviewing only the diff.' },
+      {
+        t: 'defs',
+        items: [
+          { term: '/spec-review', desc: 'Multi-axis review across correctness, readability, architecture, security, and performance. Modes: code, pr, frontend, backend, and comments (which also rewrites drifted or verbose comments).' },
+          { term: '/spec-code-quality', desc: 'Raises quality on code you write and runs a simplification pass - hierarchy of correct → honest → changeable → consistent, then small. Reports defects as input → wrong behavior → consequence.' },
+          { term: '/spec-security', desc: 'Threat-models each trust boundary with STRIDE, then verifies the always-do controls. Gates new auth, data, or integration changes behind explicit human approval.' },
+          { term: '/spec-performance', desc: 'Measurement-first: no optimization without a number, no “faster now” without a second number. Checks the database first, where the time usually is.' },
+          { term: '/spec-test', desc: 'Judges tests by whether they would catch a regression, not by coverage percent. Flags missing edge and error cases and treats flakiness as a defect.' },
+          { term: '/spec-ux', desc: 'Reviews usability and WCAG 2.1 AA accessibility against the SRS users and jobs-to-be-done - including the four states (empty, loading, error, populated) every data view needs.' },
+        ],
+      },
+      { t: 'h2', id: 'delivery', text: 'Delivery' },
+      { t: 'p', text: 'Move verified change safely from a branch to production.' },
+      {
+        t: 'defs',
+        items: [
+          { term: '/spec-cicd', desc: 'Reviews and sets up the quality-gate pipeline - lint, types, tests, build, audit - wired to the project’s real commands. No gate is skippable.' },
+          { term: '/spec-launch', desc: 'Promotes across dev → staging → production behind feature flags, with staged-rollout thresholds and a written rollback plan. Every launch is reversible, observable, and incremental.' },
+          { term: '/spec-git', desc: 'Atomic commits, short-lived branches, and semantic-version releases where the tag is the source of truth. Scans for secrets before every commit.' },
+        ],
+      },
+      { t: 'h2', id: 'ideation', text: 'Ideation' },
+      { t: 'p', text: 'Widen the option space and bring the outside world in - before committing.' },
+      {
+        t: 'defs',
+        items: [
+          { term: '/spec-brainstorm', desc: 'Diverges to 3-6 genuinely different approaches, then converges on a recommendation scored by fit, cost, risk, and reversibility. Never silently picks one.' },
+          { term: '/spec-suggest', desc: 'Surfaces evidence-backed improvements ranked by leverage (impact vs effort), split into Now / Soon / Later. Advisory only - the owning skill does the work.' },
+          { term: '/spec-research', desc: 'Gathers external knowledge or market intelligence with a cite-or-flag rule: every claim is either sourced or explicitly marked inference. Modes: knowledge and market.' },
+        ],
+      },
+      { t: 'h2', id: 'continuity', text: 'Continuity' },
+      { t: 'p', text: 'Survive an interruption without losing the thread.' },
+      {
+        t: 'defs',
+        items: [
+          { term: '/spec-resume', desc: 'Restores work stopped by a crash, dropped connection, lost context, or usage limits from a resumption brief in claude/resume.md - leading with the next action and never redoing verified work.' },
+        ],
+      },
+      {
+        t: 'callout',
+        variant: 'tip',
+        label: 'Modes',
+        text: 'Skills with modes take the mode as an argument, e.g. /spec-review frontend or /spec-research market. Omit it to get the default (code review, knowledge research).',
       },
     ],
   },
@@ -308,8 +435,17 @@ export const PAGES: Record<string, DocPage> = {
     label: 'Customization Recipes',
     title: 'Customization Recipes',
     intro:
-      'Everything you can change without editing skill sources. Personas, integrations, and skill drop-ins all live behind spec-init customize.',
+      'Everything you can change without editing skill sources. Persona and integrations live behind spec-init customize; day-to-day preferences live in spec.config.js.',
     blocks: [
+      { t: 'h2', id: 'spec-config', text: 'Edit spec.config.js' },
+      { t: 'p', text: 'spec.config.js is the friendly front door to your project preferences. Claude reads it at the start of every session (see CLAUDE.md section 2) and honors it - no build step, and the CLI never parses it, so an edit can never break your scaffold. Use it to disable skills you do not want, tune the workflow, or add project-wide instructions.' },
+      { t: 'code', text: "module.exports = {\n  skills: { disabled: ['spec-market-research'] },\n  workflow: { phases: ['requirements','design','plan','feature'], allowSkip: false },\n  settings: {\n    commitSuggestions: true,\n    customInstructions: ['Prefer Drizzle over Prisma'],\n  },\n};" },
+      {
+        t: 'callout',
+        variant: 'note',
+        label: 'Config vs customize',
+        text: 'spec.config.js holds advisory preferences Claude honors. Persona and integrations are machine-managed state - change those with spec-init customize, not in the config file.',
+      },
       { t: 'h2', id: 'swap-persona', text: 'Swap the persona' },
       { t: 'p', text: 'Persona drives CLAUDE.md verbosity and the "Why this step?" annotations. Swap safely - customize re-derives CLAUDE.md from the pristine .spec-init/base/ snapshot.' },
       { t: 'code', text: '# switch from engineer to student\nspec-init customize --persona student' },
@@ -337,6 +473,259 @@ export const PAGES: Record<string, DocPage> = {
       { t: 'h2', id: 'diagnose', text: 'Diagnose drift' },
       { t: 'p', text: 'doctor cross-checks the SRS §6 required-file list, the template-version field, and the .spec-init/base/ snapshot. Run it after any manual edit to CLAUDE.md.' },
       { t: 'code', text: 'spec-init doctor\n# ✓ CLAUDE.md present\n# ✓ template-version 1.0.0\n# ✓ .spec-init/base/ snapshot intact' },
+    ],
+  },
+
+  'spec-driven-development': {
+    slug: 'spec-driven-development',
+    group: 'Concepts',
+    label: 'Spec-Driven Development',
+    title: 'Spec-Driven Development',
+    intro:
+      'Spec-Driven Development (SDD) flips the usual order of work: you write a precise specification first, and treat the code as a disposable artifact generated from it. This page explains the idea from scratch - no prior experience assumed.',
+    blocks: [
+      {
+        t: 'callout',
+        variant: 'tip',
+        text: 'New here? Read this page top to bottom once. Everything else in the docs assumes these five ideas.',
+      },
+      { t: 'h2', id: 'why', text: 'Why not just prompt and code?' },
+      { t: 'p', text: 'When you hand an AI agent a vague idea, it guesses the parts you left out - and it guesses confidently. Those guesses become bugs you discover weeks later, when nobody remembers what the code was even supposed to do. A spec removes the guessing: it states the behavior, the edge cases, and the constraints before a line is written.' },
+      { t: 'p', text: 'The tradeoff is real but favorable. You spend more time up front deciding what to build, and far less time debugging code that does the wrong thing correctly.' },
+      { t: 'h2', id: 'principles', text: 'The five ideas' },
+      {
+        t: 'cards',
+        items: [
+          { icon: 'book', title: 'The spec is the output', desc: 'Your real work is the spec (requirements, schemas, contracts). Code is generated from it and can be regenerated.' },
+          { icon: 'layers', title: 'Code is disposable', desc: 'With a solid spec you can scrap the code and rebuild it - even switch languages - without losing progress.' },
+          { icon: 'compass', title: 'Define failure, not just success', desc: 'Every requirement states its edge and failure cases up front, as Given / When / Then scenarios.' },
+          { icon: 'shield', title: 'Propose before you build', desc: 'The agent proposes structure and a plan; a human approves it before any code is generated.' },
+        ],
+      },
+      { t: 'h2', id: 'how-throughspec', text: 'How Throughspec applies it' },
+      { t: 'p', text: 'Throughspec turns these ideas into an enforced workflow. The spec lives in claude/srs.md, the plan in claude/plan.md, and a compressed memory layer keeps the agent consistent across a long project. Each phase gates the next - you cannot plan before the spec is frozen, or build before the plan is written.' },
+      {
+        t: 'steps',
+        items: [
+          { n: '1', title: 'Requirements', desc: '/spec-requirements cross-questions you, then freezes claude/srs.md with acceptance scenarios.' },
+          { n: '2', title: 'Design + Plan', desc: '/spec-design and /spec-plan turn the spec into a design system and an 8-10 step build plan.' },
+          { n: '3', title: 'Build', desc: '/spec-feature implements one plan stage at a time, updating the memory layer after each.' },
+        ],
+      },
+      {
+        t: 'callout',
+        variant: 'note',
+        text: 'Deeper dive: see [The Memory Layer](/docs/memory-layer/) for how Throughspec keeps token cost flat as a project grows, and [Workflows](/docs/workflows/) for the full cycle.',
+      },
+    ],
+  },
+
+  'memory-layer': {
+    slug: 'memory-layer',
+    group: 'Concepts',
+    label: 'The Memory Layer',
+    title: 'The memory layer',
+    intro:
+      'Re-reading source code to reconstruct intent is a token tax the agent pays on every prompt. Throughspec pays it once by writing a small set of durable memory files, then reads a compressed snapshot instead of re-scanning the repo.',
+    blocks: [
+      { t: 'h2', id: 'files', text: 'The files' },
+      {
+        t: 'defs',
+        items: [
+          { term: 'CLAUDE.md', desc: 'The behavior contract Claude reads before every prompt: how to work here, invariants, and active integrations.' },
+          { term: 'claude/srs.md', desc: 'The frozen requirements - the source of truth for what the software must do.' },
+          { term: 'claude/plan.md', desc: 'The 8-10 stage build plan with checkbox state the agent flips as it ships.' },
+          { term: 'claude/context.md', desc: 'A compressed snapshot of current state - what exists, what works, what is next.' },
+          { term: 'claude/features.md', desc: 'An append-only log of completed features and their final shape.' },
+          { term: 'claude/design-decisions.md', desc: 'An append-only log of architectural and product decisions with rationale.' },
+          { term: 'claude/learnings.md', desc: 'An append-only learning trail (used heavily by the Student persona).' },
+        ],
+      },
+      {
+        t: 'callout',
+        variant: 'tip',
+        text: 'Append-only logs never rewrite history. If a past entry was wrong, a new entry corrects it - so the reasoning trail stays intact.',
+      },
+      { t: 'h2', id: 'budget', text: 'Why it stays cheap' },
+      { t: 'p', text: 'CLAUDE.md + context.md are kept under an ~8,000-token budget so loading full project context is a small, fixed cost no matter how large the repo grows. When a memory file passes 1,500 lines, /spec-sync compresses it while preserving a compressed-from audit trail.' },
+      {
+        t: 'callout',
+        variant: 'warn',
+        text: 'Memory is sacred: after every feature cycle, update context.md, features.md, design-decisions.md, learnings.md, and CHANGELOG.md - in that order.',
+      },
+    ],
+  },
+
+  integrations: {
+    slug: 'integrations',
+    group: 'Integrations',
+    label: 'Integrations',
+    title: 'Integrations',
+    intro:
+      'Integrations are optional tools you can turn on at scaffold time with --integrations, or add later with spec-init customize --add. Each is opt-in, free/open-source, and layered in without touching your source code.',
+    blocks: [
+      {
+        t: 'callout',
+        variant: 'note',
+        text: 'Add at scaffold time (`spec-init init my-app --integrations graphify,caveman`) or later (`spec-init customize --add obsidian`). Remove any with `customize --remove <name>`.',
+      },
+      { t: 'h2', id: 'catalog', text: 'The catalog' },
+      {
+        t: 'cards',
+        items: [
+          { icon: 'layers', title: 'Graphify', desc: 'Query the codebase as a knowledge graph instead of full-repo greps.', href: 'https://graphify.net/' },
+          { icon: 'book', title: 'Obsidian', desc: 'Navigate the claude/ and design/ markdown as a linked graph vault.', href: 'https://obsidian.md/' },
+          { icon: 'wand', title: 'Caveman', desc: 'Ultra-compressed replies cut output tokens ~65% while keeping code byte-exact.', href: 'https://github.com/JuliusBrussee/caveman' },
+          { icon: 'layers', title: 'agentmemory', desc: 'Persistent cross-session memory injected back at session start.', href: 'https://github.com/rohitg00/agentmemory' },
+          { icon: 'book', title: 'openwiki', desc: 'Auto-generates an agent-facing documentation wiki for the codebase.', href: 'https://github.com/langchain-ai/openwiki' },
+          { icon: 'shield', title: 'ponytail', desc: 'A minimalism ruleset: the agent writes the least code necessary.', href: 'https://github.com/DietrichGebert/ponytail' },
+          { icon: 'compass', title: 'Open Code Review', desc: 'AI code-review CLI (ocr) for line-level findings on diffs, in CI or pre-push.', href: 'https://github.com/alibaba/open-code-review' },
+        ],
+      },
+      { t: 'h2', id: 'how', text: 'How integrations work' },
+      { t: 'p', text: 'Each integration is a per-integration file tree plus marked-up blocks in CLAUDE.md and README. Turning one on copies its files and keeps its blocks; turning it off removes both, leaving zero residual files. Persona and integrations are recorded in .spec-init/meta.json so upgrades and customize runs re-derive them correctly.' },
+      {
+        t: 'callout',
+        variant: 'tip',
+        text: 'Most of these tools reuse your existing coding-agent model (or offer a local, zero-cost path), so you rarely need a separate paid API key.',
+      },
+    ],
+  },
+
+  'cli-reference': {
+    slug: 'cli-reference',
+    group: 'Reference',
+    label: 'CLI Reference',
+    title: 'CLI reference',
+    intro:
+      'Every spec-init command and flag. The same CLI ships identically on npm (npx spec-init) and PyPI (pipx install spec-init).',
+    blocks: [
+      { t: 'h2', id: 'commands', text: 'Commands' },
+      {
+        t: 'defs',
+        items: [
+          { term: 'spec-init', desc: 'With no arguments on a terminal, launches an interactive welcome that guides new-vs-existing, persona, and integrations.' },
+          { term: 'init <name>', desc: 'Scaffold a brand-new project into <name>/. Refuses a non-empty directory unless --force.' },
+          { term: 'reinit [dir]', desc: 'Adopt Throughspec in an existing project in place, keeping your files unless --force.' },
+          { term: 'customize', desc: 'Toggle an integration (--add / --remove) or swap the persona (--persona) for a scaffolded project.' },
+          { term: 'add-skill <name>', desc: 'Copy one skill from the payload catalog into .claude/skills/.' },
+          { term: 'upgrade', desc: 'Three-way merge a newer template into your project; conflicts surface as git-style fences.' },
+          { term: 'doctor', desc: 'Verify a scaffolded project has the required files, template-version, and snapshot.' },
+        ],
+      },
+      { t: 'h2', id: 'flags', text: 'Flags' },
+      {
+        t: 'defs',
+        items: [
+          { term: '--persona <p>', desc: 'vibe | student | engineer | team - tunes CLAUDE.md tone and verbosity.' },
+          { term: '--integrations <a,b>', desc: 'Comma-separated integration names to activate at init (see the Integrations page).' },
+          { term: '--add / --remove <name>', desc: 'Used with customize to toggle a single integration.' },
+          { term: '--force', desc: 'Overwrite existing files (init) or replace existing spec files (reinit).' },
+          { term: '--dry-run', desc: 'Print the plan and write nothing.' },
+          { term: '-h, --help / -v, --version', desc: 'Show help text or the CLI version.' },
+        ],
+      },
+      { t: 'h2', id: 'examples', text: 'Examples' },
+      { t: 'code', text: '# new project, engineer persona, two integrations\nnpx spec-init my-app --persona engineer --integrations graphify,caveman\n\n# adopt into an existing repo, keeping your files\ncd my-existing-project && npx spec-init reinit\n\n# add an integration later\nspec-init customize --add obsidian\n\n# pull a newer template\nspec-init upgrade' },
+    ],
+  },
+
+  glossary: {
+    slug: 'glossary',
+    group: 'Reference',
+    label: 'Glossary',
+    title: 'Glossary',
+    intro: 'Plain-language definitions of the terms used across these docs.',
+    blocks: [
+      {
+        t: 'defs',
+        items: [
+          { term: 'SDD', desc: 'Spec-Driven Development - write a precise spec first; treat code as generated and disposable.' },
+          { term: 'SRS', desc: 'Software Requirements Specification - the frozen requirements in claude/srs.md.' },
+          { term: 'BDD scenario', desc: 'A Given / When / Then description of one behavior, including its edge and failure cases.' },
+          { term: 'Memory layer', desc: 'The claude/*.md files that store durable project state so the agent need not re-scan the repo.' },
+          { term: 'Persona', desc: 'A preset (vibe/student/engineer/team) that tunes CLAUDE.md tone and verbosity.' },
+          { term: 'Integration', desc: 'An optional, opt-in tool layered in via --integrations (Graphify, Caveman, and others).' },
+          { term: 'Skill', desc: 'A slash command like /spec-feature that runs a defined workflow inside Claude Code.' },
+          { term: 'Payload', desc: 'The template tree both CLIs copy when scaffolding, verified byte-identical across npm and PyPI.' },
+          { term: 'Snapshot', desc: 'The pristine copy in .spec-init/base/ used as the merge base for upgrade and customize.' },
+          { term: 'Three-way merge', desc: 'Merging new template + your edits against the snapshot, surfacing conflicts instead of overwriting.' },
+        ],
+      },
+    ],
+  },
+
+  faq: {
+    slug: 'faq',
+    group: 'Help',
+    label: 'FAQ',
+    title: 'Frequently asked questions',
+    intro: 'Short answers to the questions people ask most. Still stuck? See Contact us.',
+    blocks: [
+      { t: 'h2', id: 'replace-claude', text: 'Does Throughspec replace Claude Code?' },
+      { t: 'p', text: 'No. It composes on top of Claude Code - it scaffolds process (specs, memory, skills), not application source, and never hosts or runs Claude Code itself.' },
+      { t: 'h2', id: 'npm-or-pypi', text: 'npm or PyPI?' },
+      { t: 'p', text: 'Either. npx spec-init for Node >= 18, or pipx install spec-init for Python >= 3.10. One source-of-truth template feeds both, verified byte-for-byte, so they never drift.' },
+      { t: 'h2', id: 'skip-questions', text: 'Can I skip the cross-questioning to go faster?' },
+      { t: 'p', text: 'No - the requirements skill refuses to proceed until target users, jobs-to-be-done, the success metric, hard constraints, and non-goals are all filled. Overrides require an explicit, logged decision. The gate is the point.' },
+      { t: 'h2', id: 'existing-project', text: 'Can I add it to an existing project?' },
+      { t: 'p', text: 'Yes. Run spec-init reinit in the project - it writes only the missing files, keeps everything you have, and never touches source code.' },
+      { t: 'h2', id: 'upgrades', text: 'What happens to my edits when I upgrade?' },
+      { t: 'p', text: 'upgrade never overwrites your content - it does a three-way merge and surfaces conflicts as git-style fences for you to resolve.' },
+      { t: 'h2', id: 'cost', text: 'Does it cost anything?' },
+      { t: 'p', text: 'The kit is free and open source (MIT). Integrations are free/open-source too, and most reuse your existing coding-agent model.' },
+      {
+        t: 'callout',
+        variant: 'note',
+        text: 'Throughspec is free and open source (MIT). Read every line, fork it, or audit it yourself. Source: [github.com/vishalpatil18/throughspec](https://github.com/vishalpatil18/throughspec).',
+      },
+    ],
+  },
+
+  troubleshooting: {
+    slug: 'troubleshooting',
+    group: 'Help',
+    label: 'Troubleshooting',
+    title: 'Troubleshooting',
+    intro: 'Fixes for the issues people hit most. If none apply, reach out via Contact us.',
+    blocks: [
+      { t: 'h2', id: 'command-not-found', text: '"spec-init: command not found"' },
+      { t: 'p', text: 'Use npx spec-init (no global install needed), or install globally with npm install -g spec-init. On the Python side, pipx install spec-init then spec-init.' },
+      { t: 'h2', id: 'refuses-nonempty', text: 'init refuses my directory' },
+      { t: 'p', text: 'init will not overwrite a non-empty folder. For an existing project use spec-init reinit (non-destructive), or pass --force to init only if you truly want to overwrite.' },
+      { t: 'h2', id: 'upgrade-conflicts', text: 'upgrade left conflict markers' },
+      { t: 'p', text: 'That is expected when you edited a template-managed file. Resolve the <<<<<<< / ======= / >>>>>>> fences by hand, then commit - exactly like a git merge.' },
+      { t: 'h2', id: 'search-empty', text: 'Docs search returns nothing locally' },
+      { t: 'p', text: 'The search index is generated at build time. In npm run dev it does not exist yet. Run npm run build (which builds the index), then serve the out/ directory to use search.' },
+      {
+        t: 'callout',
+        variant: 'tip',
+        text: 'Run `spec-init doctor` any time a scaffolded project looks off - it checks the required files, the template-version line, and the .spec-init/base/ snapshot.',
+      },
+    ],
+  },
+
+  'contact-us': {
+    slug: 'contact-us',
+    group: 'Help',
+    label: 'Contact us',
+    title: 'Contact us',
+    intro: 'Questions, bugs, or ideas - here is how to reach the project.',
+    blocks: [
+      {
+        t: 'cards',
+        items: [
+          { icon: 'question', title: 'Ask a question', desc: 'Open a GitHub Discussion for how-to questions and ideas.', href: 'https://github.com/vishalpatil18/throughspec/discussions' },
+          { icon: 'warning', title: 'Report a bug', desc: 'File a GitHub Issue with steps to reproduce.', href: 'https://github.com/vishalpatil18/throughspec/issues' },
+          { icon: 'book', title: 'Read the source', desc: 'The full repository - free and open source (MIT).', href: 'https://github.com/vishalpatil18/throughspec' },
+          { icon: 'info', title: 'Email', desc: 'For anything that does not fit a public thread.', href: 'mailto:hire.vishalpatil@gmail.com' },
+        ],
+      },
+      {
+        t: 'callout',
+        variant: 'tip',
+        text: 'Filing a bug? Include your OS, Node/Python version, the exact command, and what you expected vs. what happened - it gets fixed far faster.',
+      },
     ],
   },
 };

@@ -4,8 +4,7 @@ export const size = { width: 32, height: 32 };
 export const contentType = 'image/png';
 export const dynamic = 'force-static';
 
-// File-based icon. Renders the BrandMark shape (horizontal rule + square)
-// at 32x32 for the browser tab.
+// File-based tab icon: the BrandMark shape rendered at 32x32.
 export default function Icon() {
   return new ImageResponse(
     (

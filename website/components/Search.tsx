@@ -1,8 +1,6 @@
 'use client';
 
-// Lightweight search modal backed by Pagefind. The index is generated at
-// build time by scripts/build-search.mjs and served from /pagefind/. We
-// import Pagefind lazily on first open so the docs shell stays JS-light.
+// Search modal backed by Pagefind (index built by build-search.mjs); loaded lazily.
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 
@@ -31,6 +29,7 @@ export default function Search() {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<LoadedResult[]>([]);
+  const [unavailable, setUnavailable] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const pagefindRef = useRef<Pagefind | null>(null);
 
@@ -53,16 +52,13 @@ export default function Search() {
   const loadPagefind = useCallback(async (): Promise<Pagefind | null> => {
     if (pagefindRef.current) return pagefindRef.current;
     try {
-      // Bypass webpack/turbopack static analysis: bundlers rewrite
-      // `import('/pagefind/pagefind.js')` even with a webpackIgnore comment
-      // in Next.js 15, so we hide the specifier inside a Function ctor.
+      // Hide the specifier in a Function ctor so bundlers don't rewrite the dynamic import.
       const dynamicImport = new Function('return import("/pagefind/pagefind.js")');
       const mod = (await dynamicImport()) as Pagefind;
       pagefindRef.current = mod;
       return mod;
     } catch (err) {
-      // In `next dev` /pagefind/ does not exist (Pagefind runs post-build).
-      // Log so failures do not sit silent behind an empty modal.
+      // /pagefind/ is absent in next dev; log so failures aren't silent.
       console.warn(
         '[Search] Pagefind not available. In dev, run `npm run build` first. In prod, verify /pagefind/pagefind.js is deployed.',
         err,
@@ -79,7 +75,11 @@ export default function Search() {
         return;
       }
       const pf = await loadPagefind();
-      if (!pf) return;
+      if (!pf) {
+        if (!cancelled) setUnavailable(true);
+        return;
+      }
+      if (!cancelled) setUnavailable(false);
       const { results: raw } = await pf.search(query);
       const loaded = await Promise.all(raw.slice(0, 8).map(async (r) => {
         const data = await r.data();
@@ -140,7 +140,15 @@ export default function Search() {
               </button>
             </div>
             <div className="max-h-[420px] overflow-y-auto">
-              {results.length === 0 && query.trim() && (
+              {unavailable && query.trim() && (
+                <div className="p-3 text-sm leading-[1.55] text-muted">
+                  Search index not found. It’s generated at build time, so it’s absent under{' '}
+                  <code className="text-ink">npm run dev</code>. Run{' '}
+                  <code className="text-ink">npm run build</code> to index the docs; it works on the
+                  deployed site.
+                </div>
+              )}
+              {!unavailable && results.length === 0 && query.trim() && (
                 <div className="p-3 text-sm text-muted">No results.</div>
               )}
               {results.map((r) => (

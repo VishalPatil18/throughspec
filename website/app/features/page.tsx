@@ -57,6 +57,21 @@ const SKILLS = [
   { cmd: '/spec-bug', desc: 'Isolated bug resolution: reproduce, test, smallest fix.' },
   { cmd: '/spec-docs', desc: 'Reconcile docs against reality - never touches source.' },
   { cmd: '/spec-sync', desc: 'Reconcile context.md against actual repo state.' },
+  { cmd: '/spec-architect', desc: 'Design module/service/layer boundaries and record ADRs.' },
+  { cmd: '/spec-db-design', desc: 'Design and review schema, constraints, and migrations.' },
+  { cmd: '/spec-review', desc: 'Multi-axis review: code, PR, frontend, backend, comments.' },
+  { cmd: '/spec-code-quality', desc: 'Raise code quality and run a simplification pass.' },
+  { cmd: '/spec-security', desc: 'Threat-model and harden against vulnerabilities.' },
+  { cmd: '/spec-performance', desc: 'Measurement-first optimization with before/after numbers.' },
+  { cmd: '/spec-test', desc: 'Review coverage by whether tests catch regressions.' },
+  { cmd: '/spec-ux', desc: 'Review usability and WCAG accessibility.' },
+  { cmd: '/spec-cicd', desc: 'Review or set up CI/CD quality gates.' },
+  { cmd: '/spec-launch', desc: 'Staged rollout across environments with a rollback plan.' },
+  { cmd: '/spec-git', desc: 'Commit, branch, merge, rebase, tag, and release.' },
+  { cmd: '/spec-brainstorm', desc: 'Generate options with explicit tradeoffs.' },
+  { cmd: '/spec-suggest', desc: 'Leverage-ranked, evidence-backed suggestions.' },
+  { cmd: '/spec-research', desc: 'External knowledge or market research, cited.' },
+  { cmd: '/spec-resume', desc: 'Resume interrupted work from a resumption brief.' },
 ];
 
 const GUARANTEES = [
@@ -124,7 +139,7 @@ export default function FeaturesPage() {
 
       <section className="mx-auto max-w-content px-8 py-12">
         <FadeIn className="mb-9">
-          <div className="mb-[14px] text-xs uppercase tracking-[0.06em] text-dim">Nine slash commands</div>
+          <div className="mb-[14px] text-xs uppercase tracking-[0.06em] text-dim">Twenty-four slash commands</div>
           <h2 className="text-[40px] font-normal tracking-tighter2">One command for every move you make.</h2>
         </FadeIn>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
@@ -160,13 +175,13 @@ export default function FeaturesPage() {
           <div className="flex flex-wrap justify-center gap-3">
             <Link
               href="/docs/"
-              className="rounded-pill bg-warm px-[26px] py-[13px] text-sm font-medium text-ink no-underline"
+              className="rounded-pill bg-warm px-3 py-2 text-sm font-medium text-ink no-underline"
             >
               Get started &rsaquo;
             </Link>
             <Link
               href="/why/"
-              className="rounded-pill border border-warm/50 px-[26px] py-[13px] text-sm font-medium text-warm no-underline"
+              className="rounded-pill border border-warm/50 px-3 py-2 text-sm font-medium text-warm no-underline"
             >
               Why Throughspec
             </Link>

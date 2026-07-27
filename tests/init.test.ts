@@ -3,9 +3,12 @@
 
 import { spawnSync } from 'node:child_process';
 import { existsSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { beforeAll, describe, expect, it } from 'vitest';
+
+const requireCjs = createRequire(import.meta.url);
 
 const REPO_ROOT = resolve(__dirname, '..');
 const CLI = resolve(REPO_ROOT, 'packages/cli-node/dist/index.js');
@@ -26,6 +29,7 @@ const REQUIRED = [
   'claude/design-decisions.md',
   'claude/learnings.md',
   'design/design.md',
+  'spec.config.js',
   '.github/pull_request_template.md',
   '.github/ISSUE_TEMPLATE/bug_report.md',
   '.github/ISSUE_TEMPLATE/feature_request.md',
@@ -134,6 +138,17 @@ describe('spec-init init', () => {
     const r = spawnSync('node', [CLI, 'init', 'p', '--dry-run'], { cwd: dir, encoding: 'utf8' });
     expect(r.status).toBe(0);
     expect(existsSync(join(dir, 'p'))).toBe(false);
+  });
+
+  it('ships a valid spec.config.js exporting skills/workflow/settings', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'throughspec-config-'));
+    initInto(dir, 'p', ['--persona', 'engineer']);
+    const config = requireCjs(join(dir, 'p', 'spec.config.js'));
+    expect(config).toMatchObject({
+      skills: { disabled: expect.any(Array) },
+      workflow: { phases: expect.any(Array), allowSkip: expect.any(Boolean) },
+      settings: { commitSuggestions: expect.any(Boolean), customInstructions: expect.any(Array) },
+    });
   });
 
   it('scaffolded output passes markdownlint and prettier --check', () => {

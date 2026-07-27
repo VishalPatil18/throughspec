@@ -1,9 +1,4 @@
-"""spec-init customize --add <name> | --remove <name> | --persona <name>.
-
-Non-destructive by default: only replays template-managed files that host
-persona or integration markers. Everything else (memory files without
-integration markers, user source code, .git, .spec-init) is left alone.
-"""
+"""spec-init customize: toggle an integration or swap persona; re-derives marker-gated files."""
 
 from __future__ import annotations
 

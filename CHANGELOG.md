@@ -14,6 +14,24 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ---
 
+## [1.0.0] - 2026-07-26
+
+First stable release. Throughspec is now production-ready and published to npm (`npx spec-init`) and PyPI (`pipx install spec-init`) from one source-of-truth template tree, verified byte-for-byte across both channels. From this release the public surface follows semantic versioning: breaking changes only on a major bump.
+
+### Changed
+
+- Promoted from beta to **Production/Stable**. Both CLIs are versioned at `1.0.0`; the Python trove classifier is now `Development Status :: 5 - Production/Stable` and the shipped template version is `1.0.0`.
+
+### Added
+
+- Full published-package polish: bundled `LICENSE` in both distributions, complete author/repository/homepage/issues metadata, and end-user READMEs with install, quickstart, the complete command surface, and all seven integrations.
+
+### Migration
+
+- Users on a pre-1.0 scaffold can run `spec-init upgrade` to pick up the finalized template payload. Local edits to `CLAUDE.md`, `README.md`, or the memory files surface as three-way merge conflicts for manual resolution - no silent overwrites.
+
+---
+
 ## [0.1.0] - 2026-07-08
 
 First beta release. Throughspec ships as a publishable scaffolding tool on npm and PyPI, distributing a spec-driven SDLC for Claude Code from one source-of-truth template tree. Under semver 0.x - the public surface may still shift in minor bumps before 1.0.
@@ -22,7 +40,7 @@ First beta release. Throughspec ships as a publishable scaffolding tool on npm a
 
 - **Scaffolding CLI** on npm (`npx spec-init`) and PyPI (`pipx install spec-init`). Same command surface across both channels: `init`, `customize`, `add-skill`, `upgrade`, `doctor`. Cold-start scaffold completes in under 5 seconds on macOS, Linux, and Windows (PowerShell + WSL).
 - **Persona presets**: `vibe | student | engineer | team`, gating tone and verbosity in `CLAUDE.md` via HTML-comment marker fences that are consumed at scaffold time.
-- **Nine slash commands**: `/spec-init`, `/spec-requirements`, `/spec-design`, `/spec-plan`, `/spec-feature`, `/spec-refactor`, `/spec-bug`, `/spec-docs`, `/spec-sync`. Each ships as a `SKILL.md` under `.claude/skills/`.
+- **Twenty-four slash commands**: `/spec-init`, `/spec-requirements`, `/spec-design`, `/spec-plan`, `/spec-feature`, `/spec-refactor`, `/spec-bug`, `/spec-docs`, `/spec-sync`. Each ships as a `SKILL.md` under `.claude/skills/`.
 - **Seven tool-scoped sub-agents**: `spec-interrogator`, `spec-architect`, `spec-planner`, `spec-coder`, `spec-refactorer`, `spec-doc-writer`, `spec-bug-hunter`. Each carries a frontmatter `tools:` allowlist enforced by Claude Code at dispatch time.
 - **Append-only memory layer**: `claude/{srs,plan,context,features,design-decisions,learnings}.md`. Reading `CLAUDE.md` + `context.md` stays under 8,000 tokens on a mature project; `/spec-sync` compresses any memory file past 1,500 lines with a `compressed-from` audit trail.
 - **Feature cycle**: `/spec-feature` orchestrates six ordered steps (Requirements → Architecting → Product Specs → Tech Specs → Planning → Writing Code) with a fixed memory-update order (`context.md → features.md → design-decisions.md → learnings.md → CHANGELOG.md`).

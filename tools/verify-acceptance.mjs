@@ -1,18 +1,12 @@
 #!/usr/bin/env node
-// Aggregate the programmatic SRS §9 acceptance checks into one pass/fail
-// summary. Called by ci.yml's `acceptance-verify` job. Human-only items
-// (90-min new-user walkthrough, cycle-5 token budget) live in
-// tests/acceptance/runbook.md instead.
-//
-// Exit 0 = all checks pass. Exit 1 = at least one failed.
+// Aggregate the programmatic SRS §9 acceptance checks into one pass/fail summary (ci.yml).
 
 import { execFileSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-// fileURLToPath handles Windows drive letters; new URL('..').pathname returns
-// "/C:/…" on Windows which is not a valid path for fs / cwd.
+// fileURLToPath handles Windows drive letters that new URL().pathname would mangle.
 const REPO = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
 const CHECKS = [

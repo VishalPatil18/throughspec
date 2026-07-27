@@ -1,13 +1,17 @@
 // Renders a DocPage's `blocks` array. One switch, one component per variant.
 
 import type { DocBlock } from '@/lib/docs-content';
+import InlineMarkdown from '@/components/InlineMarkdown';
 import DocCodeBlock from './DocCodeBlock';
+import DocIcon from './DocIcon';
 
 const CALLOUT_TONE = {
   note: 'bg-cloud',
   tip: 'bg-mint/40',
   warn: 'bg-[#f6dccb]',
 } as const;
+
+const CALLOUT_ICON = { note: 'info', tip: 'lightbulb', warn: 'warning' } as const;
 
 export default function DocBlocks({ blocks }: { blocks: DocBlock[] }) {
   return (
@@ -39,12 +43,19 @@ export default function DocBlocks({ blocks }: { blocks: DocBlock[] }) {
             return (
               <div
                 key={i}
-                className={`mb-[22px] max-w-[680px] rounded-2xl px-6 py-5 ${CALLOUT_TONE[b.variant]}`}
+                className={`mb-[22px] flex max-w-[680px] items-start gap-3 rounded-2xl px-5 py-4 ${CALLOUT_TONE[b.variant]}`}
               >
-                <div className="mb-[7px] text-[11px] font-medium uppercase tracking-[0.05em] text-ink">
-                  {b.label}
+                <span className="mt-[2px] flex-none text-ink">
+                  <DocIcon name={CALLOUT_ICON[b.variant]} size={18} />
+                </span>
+                <div className="text-sm leading-[1.6] tracking-tighter2 text-[#3d3d3d]">
+                  {b.label && (
+                    <span className="mb-[3px] block text-[11px] font-medium uppercase tracking-[0.05em] text-ink">
+                      {b.label}
+                    </span>
+                  )}
+                  <InlineMarkdown text={b.text} />
                 </div>
-                <div className="text-sm leading-[1.6] tracking-tighter2 text-[#3d3d3d]">{b.text}</div>
               </div>
             );
           case 'list':
@@ -92,6 +103,36 @@ export default function DocBlocks({ blocks }: { blocks: DocBlock[] }) {
                     </div>
                   </div>
                 ))}
+              </div>
+            );
+          case 'cards':
+            return (
+              <div key={i} className="mb-6 grid max-w-[680px] grid-cols-1 gap-4 sm:grid-cols-2">
+                {b.items.map((c, j) => {
+                  const inner = (
+                    <>
+                      <span className="mb-3 inline-flex text-ink">
+                        <DocIcon name={c.icon} />
+                      </span>
+                      <div className="mb-1 text-[15px] font-medium tracking-tighter2 text-ink">
+                        {c.title}
+                      </div>
+                      <div className="text-[13.5px] leading-[1.5] tracking-tighter2 text-muted">
+                        {c.desc}
+                      </div>
+                    </>
+                  );
+                  const cls = 'block rounded-2xl border border-black/10 p-5 no-underline transition-colors';
+                  return c.href ? (
+                    <a key={j} href={c.href} className={`${cls} hover:border-ink`}>
+                      {inner}
+                    </a>
+                  ) : (
+                    <div key={j} className={cls}>
+                      {inner}
+                    </div>
+                  );
+                })}
               </div>
             );
         }

@@ -7,12 +7,35 @@ from dataclasses import dataclass, field
 from typing import Literal
 
 Persona = Literal["vibe", "student", "engineer", "team"]
-Integration = Literal["graphify", "obsidian"]
-Command = Literal["init", "customize", "add-skill", "upgrade", "doctor"]
+Integration = Literal[
+    "graphify",
+    "obsidian",
+    "caveman",
+    "agentmemory",
+    "openwiki",
+    "ponytail",
+    "opencodereview",
+]
+Command = Literal["init", "reinit", "customize", "add-skill", "upgrade", "doctor"]
 
 PERSONAS: tuple[Persona, ...] = ("vibe", "student", "engineer", "team")
-INTEGRATIONS: tuple[Integration, ...] = ("graphify", "obsidian")
-COMMANDS: tuple[Command, ...] = ("init", "customize", "add-skill", "upgrade", "doctor")
+INTEGRATIONS: tuple[Integration, ...] = (
+    "graphify",
+    "obsidian",
+    "caveman",
+    "agentmemory",
+    "openwiki",
+    "ponytail",
+    "opencodereview",
+)
+COMMANDS: tuple[Command, ...] = (
+    "init",
+    "reinit",
+    "customize",
+    "add-skill",
+    "upgrade",
+    "doctor",
+)
 
 
 class UsageError(Exception):
@@ -42,6 +65,7 @@ USAGE
 
 COMMANDS
   init <name>         Scaffold a new project into <name>/
+  reinit [dir]        Adopt Throughspec in an existing project (in place; keeps your files)
   customize           Toggle integrations or swap the persona for an existing project
   add-skill <name>    Copy a skill from the payload's skills/ catalog into the project
   upgrade             Merge a newer template payload into an existing project (three-way)
@@ -49,7 +73,7 @@ COMMANDS
 
 FLAGS
   --persona <name>              vibe | student | engineer | team
-  --integrations <a,b>          graphify,obsidian (comma-separated, no spaces)
+  --integrations <a,b>          comma-separated integration names (see README for the full list)
   --add <name>                  used with customize
   --remove <name>               used with customize
   --force                       overwrite existing files during init
@@ -60,6 +84,8 @@ FLAGS
 EXAMPLES
   spec-init init my-project --persona student
   spec-init init my-project --persona engineer --integrations graphify,obsidian
+  spec-init init my-project --integrations caveman
+  spec-init reinit --persona engineer
   spec-init customize --add obsidian
   spec-init upgrade
   spec-init doctor

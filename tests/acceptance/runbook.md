@@ -19,8 +19,8 @@ Node CLI (npm tarball):
 
 ```bash
 npm run build -w packages/cli-node
-npm pack --workspace packages/cli-node   # → spec-init-0.1.0.tgz
-npm i -g ./spec-init-0.1.0.tgz
+npm pack --workspace packages/cli-node   # → spec-init-1.0.0.tgz
+npm i -g ./spec-init-1.0.0.tgz
 spec-init --version
 ```
 
@@ -28,7 +28,7 @@ Python CLI (wheel):
 
 ```bash
 cd packages/cli-python && uv build
-pipx install ./dist/spec-init-0.1.0-py3-none-any.whl
+pipx install ./dist/spec-init-1.0.0-py3-none-any.whl
 spec-init --version
 ```
 

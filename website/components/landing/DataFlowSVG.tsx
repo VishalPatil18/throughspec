@@ -1,6 +1,4 @@
-// The animated hero diagram ("Your decisions → Spec Engine → Shipped, with memory").
-// Ported from design/Landing.dc.html. Animations resolve through class names
-// defined in landing.module.css; keyframes live in app/globals.css.
+// Animated hero diagram, ported from design/Landing.dc.html (styles in landing.module.css).
 
 import s from './landing.module.css';
 

@@ -1,19 +1,4 @@
-"""Copy the canonical templates/ payload into this package for build.
-
-Run before ``uv build`` (or any ``python -m build``) so the wheel and sdist
-contain the same payload the Node CLI ships. Kept pure-stdlib so the build
-needs no extra dependencies.
-
-Usage (from repo root, no install required)::
-
-    python3 packages/cli-python/src/spec_init/_build.py
-
-This script reads ``<repo-root>/templates/`` and writes
-``packages/cli-python/_payload/``. The ``_payload`` directory is referenced
-by ``pyproject.toml``'s ``force-include`` so hatchling packages it under
-``spec_init/_payload`` inside the wheel. It MUST exist before ``uv sync``
-or ``uv build`` because hatchling resolves ``force-include`` paths eagerly.
-"""
+"""Copy templates/ into packages/cli-python/_payload/ so the wheel ships the same payload."""
 
 from __future__ import annotations
 

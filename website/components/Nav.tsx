@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useEffect, useRef } from 'react';
 import AnnounceBar from './AnnounceBar';
 import BrandMark from './BrandMark';
 
@@ -21,8 +22,7 @@ const LINKS: { label: string; href: string; id: Exclude<NavActive, null> }[] = [
   { label: 'Docs', href: '/docs/', id: 'docs' },
 ];
 
-/** Map a pathname to the nav's active-link id. Prefix match so /docs/install
- * highlights the Docs link. */
+/** Map a pathname to the nav's active-link id via prefix match. */
 function activeFor(pathname: string | null): NavActive {
   if (!pathname || pathname === '/') return 'landing';
   if (pathname.startsWith('/docs')) return 'docs';
@@ -35,8 +35,22 @@ function activeFor(pathname: string | null): NavActive {
 
 export default function Nav() {
   const active = activeFor(usePathname());
+  const ref = useRef<HTMLDivElement>(null);
+
+  // Publish the sticky header's height so docs sidebars can offset below it.
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const setVar = () =>
+      document.documentElement.style.setProperty('--nav-h', `${el.offsetHeight}px`);
+    setVar();
+    const ro = new ResizeObserver(setVar);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
   return (
-    <div className="sticky top-0 z-50 font-serif">
+    <div ref={ref} className="sticky top-0 z-50 font-serif">
       <AnnounceBar />
       <nav className="flex items-center justify-between border-b border-ink bg-warm px-8 py-[15px]">
         <Link href="/" className="flex items-center gap-[11px] text-ink no-underline">
@@ -67,7 +81,7 @@ export default function Nav() {
         <div className="flex items-center gap-3">
           <Link
             href="/docs/"
-            className="inline-flex items-center gap-[7px] rounded-pill bg-dark px-[21px] py-[10px] text-[13px] font-medium text-warm no-underline"
+            className="inline-flex items-center gap-[7px] rounded-pill bg-dark px-3 py-2 text-[13px] font-medium text-warm no-underline"
           >
             Get started <span className="text-[14px]" aria-hidden>&rsaquo;</span>
           </Link>

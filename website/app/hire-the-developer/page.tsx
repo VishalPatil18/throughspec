@@ -17,7 +17,7 @@ const SKILLS = [
 ];
 
 const LINKS = [
-  { label: 'About me!', href: 'https://v-ai.org/', kind: 'primary' as const },
+  { label: 'About me', href: 'https://v-ai.org/', kind: 'primary' as const },
   { label: 'LinkedIn', href: 'https://www.linkedin.com/in/vishalrameshpatil/', kind: 'primary' as const },
   { label: 'GitHub', href: 'https://github.com/vishalpatil18', kind: 'primary' as const },
   { label: 'Email', href: 'mailto:hire.vishalpatil@gmail.com', kind: 'primary' as const },
@@ -141,7 +141,7 @@ export default function HireThePage() {
               <h3 className="mb-3 text-[24px] font-normal tracking-tighter2 text-ink">Throughspec</h3>
               <p className="mb-4 text-[14.5px] leading-[1.6] tracking-tighter2 text-muted">
                 A spec-driven SDLC for Claude Code, published to npm + PyPI from one source-of-truth template tree.
-                Nine slash commands, seven tool-scoped agents, an append-only memory layer under 8k tokens.
+                Twenty-four slash commands, seven tool-scoped agents, an append-only memory layer under 8k tokens.
               </p>
               <div className="text-[12.5px] tracking-tighter2 text-dim">
                 TypeScript · Python · Next.js · Design system

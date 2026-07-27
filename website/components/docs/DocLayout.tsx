@@ -1,6 +1,4 @@
-// Full-page docs shell: sidebar (left), content column (middle), on-page TOC
-// (right). Prev/next navigation is derived from the flattened group order in
-// docs-content.ts so pages don't have to name their siblings by hand.
+// Docs shell: sidebar + content + TOC; prev/next derived from group order.
 
 import Link from 'next/link';
 import { GROUPS, PAGES, type DocPage } from '@/lib/docs-content';
@@ -22,19 +20,14 @@ function prevNext(current: string): { prev?: DocPage; next?: DocPage } {
   };
 }
 
-// Renders one DocPage inside the shared shell. Every /docs route
-// delegates to this component so shell markup stays in one place.
+// Render one DocPage inside the shared shell (all /docs routes delegate here).
 export default function DocLayout({ page }: { page: DocPage }) {
   const { prev, next } = prevNext(page.slug);
   const tocItems = page.blocks.filter((b) => b.t === 'h2') as Extract<DocPage['blocks'][number], { t: 'h2' }>[];
 
   return (
     <div className="mx-auto grid min-h-screen max-w-[1320px] grid-cols-1 md:grid-cols-[262px_minmax(0,1fr)] xl:grid-cols-[262px_minmax(0,1fr)_224px]">
-      <aside className="sticky top-0 max-h-screen self-start overflow-y-auto border-r border-black/10 px-6 pb-20 pt-7">
-        <Link href="/" className="mb-6 flex items-center gap-[11px] text-ink no-underline">
-          <BrandMark />
-          <span className="text-[17px] font-medium tracking-tightest">throughspec</span>
-        </Link>
+      <aside className="sticky top-[var(--nav-h)] h-[calc(100vh-var(--nav-h))] self-start overflow-y-auto overscroll-contain border-r border-black/10 px-6 pb-20 pt-7">
         <Search />
         {GROUPS.map((g) => (
           <div key={g.title} className="mb-[26px]">
@@ -105,7 +98,7 @@ export default function DocLayout({ page }: { page: DocPage }) {
         </div>
       </main>
 
-      <aside className="sticky top-0 hidden max-h-screen self-start overflow-y-auto px-6 pb-20 pt-12 xl:block">
+      <aside className="sticky top-[var(--nav-h)] hidden h-[calc(100vh-var(--nav-h))] self-start overflow-y-auto overscroll-contain px-6 pb-20 pt-12 xl:block">
         <div className="mb-[14px] text-[11px] font-medium uppercase tracking-[0.06em] text-dim">On this page</div>
         <div className="flex flex-col gap-[10px]">
           {tocItems.map((h) => (

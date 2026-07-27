@@ -10,6 +10,7 @@ from .commands.add_skill import run_add_skill
 from .commands.customize import run_customize
 from .commands.doctor import run_doctor
 from .commands.init import run_init
+from .commands.reinit import run_reinit
 from .commands.upgrade import run_upgrade
 
 
@@ -23,6 +24,9 @@ def dispatch(opts: CliOptions) -> int:
         return 0
     if opts.command == "init":
         run_init(opts)
+        return 0
+    if opts.command == "reinit":
+        run_reinit(opts)
         return 0
     if opts.command == "customize":
         run_customize(opts)

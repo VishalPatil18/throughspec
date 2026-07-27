@@ -5,8 +5,7 @@ export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 export const dynamic = 'force-static';
 
-// Dynamic OG card. Rendered once at build time (static export). Reuses the
-// site's warm/ink/mint palette so shares look like the site.
+// Dynamic OG card built once at export time, reusing the site palette.
 export default function OG() {
   return new ImageResponse(
     (

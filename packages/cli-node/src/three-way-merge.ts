@@ -1,8 +1,4 @@
-// Three-way text merge, git-style conflict markers.
-//
-// Delegates the diff to `node-diff3.diff3Merge`, which returns either a run
-// of clean text or a `conflict` block. We render conflicts as the same
-// `<<<<<<<`/`=======`/`>>>>>>>` fences git uses so users have muscle memory.
+// Three-way text merge via node-diff3, rendering conflicts with git-style fences.
 
 import { diff3Merge } from 'node-diff3';
 

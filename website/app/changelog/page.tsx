@@ -1,4 +1,5 @@
 import FadeIn from '@/components/motion/FadeIn';
+import InlineMarkdown from '@/components/InlineMarkdown';
 import { loadChangelog } from '@/lib/changelog';
 
 export const metadata = {
@@ -7,30 +8,9 @@ export const metadata = {
     'Release notes and upcoming features for Throughspec. Follows Keep a Changelog and semantic versioning.',
 };
 
-const UPCOMING = [
-  {
-    kind: 'Planned - v1.1',
-    items: [
-      'Stronger Student-persona detection than the "For the Student" block grep.',
-      '`.claude/config.yml` for data-driven source-path definition (consumed by /spec-docs).',
-      'Cross-language parity coverage for customize and upgrade outputs (currently only init).',
-      'Auto-refresh hook so editable Python installs stay in sync with the outer _payload/.',
-      '`spec-init doctor` cross-check of meta.json integrations against on-disk artifacts.',
-      'Independent versioning for skills separate from the template payload.',
-    ],
-  },
-  {
-    kind: 'Under consideration',
-    items: [
-      'Automatic `/spec-sync` on a Stop hook vs. manual invocation.',
-      'Default test-runner per stack, vs. staying stack-agnostic.',
-      'Student persona `learnings.md` as a separate Obsidian vault.',
-    ],
-  },
-];
-
 export default function ChangelogPage() {
-  const releases = loadChangelog();
+  // Show only shipped versions; hide the "Unreleased" placeholder section.
+  const releases = loadChangelog().filter((r) => r.version !== 'Unreleased');
   return (
     <main className="bg-warm font-serif text-ink">
       <section className="mx-auto max-w-[820px] px-8 pb-10 pt-[72px]">
@@ -39,38 +19,6 @@ export default function ChangelogPage() {
           <h1 className="mb-[18px] text-[50px] font-normal leading-[1.08] tracking-tighter2">
             What’s new in Throughspec.
           </h1>
-        </FadeIn>
-      </section>
-
-      {/* UPCOMING */}
-      <section className="mx-auto max-w-[820px] px-8 pb-4 pt-2">
-        <FadeIn className="rounded-[32px] bg-cloud p-10">
-          <div className="mb-[18px] flex items-center gap-3">
-            <h2 className="text-[26px] font-normal tracking-tighter2">Upcoming Features</h2>
-          </div>
-          <p className="mb-[22px] max-w-[560px] text-[14px] leading-[1.6] tracking-tighter2 text-muted">
-            Work already in flight or on deck. Ordered by likelihood of shipping in the next release cycle.
-          </p>
-          <div className="flex flex-col gap-6">
-            {UPCOMING.map((u) => (
-              <div key={u.kind}>
-                <div className="mb-[10px] text-[11px] font-medium uppercase tracking-[0.06em] text-ink">
-                  {u.kind}
-                </div>
-                <div className="flex flex-col gap-[9px]">
-                  {u.items.map((it, i) => (
-                    <div
-                      key={i}
-                      className="flex items-start gap-[11px] text-sm leading-[1.55] tracking-tighter2 text-[#3d3d3d]"
-                    >
-                      <span className="mt-[7px] h-[5px] w-[5px] flex-none rounded-pill bg-ink" />
-                      <span>{it}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
         </FadeIn>
       </section>
 
@@ -100,7 +48,7 @@ export default function ChangelogPage() {
               </div>
               <div>
                 <h2 className="mb-[18px] text-[26px] font-normal tracking-tighter2">
-                  {r.version === 'Unreleased' ? 'In-flight changes' : `Release ${r.version}`}
+                  Release {r.version}
                 </h2>
                 {r.groups.map((g) => (
                   <div key={g.kind} className="mb-[18px]">
@@ -114,7 +62,9 @@ export default function ChangelogPage() {
                           className="flex items-start gap-[11px] text-sm leading-[1.55] tracking-tighter2 text-[#3d3d3d]"
                         >
                           <span className="mt-[7px] h-[5px] w-[5px] flex-none rounded-pill bg-ink" />
-                          <span>{it}</span>
+                          <span>
+                            <InlineMarkdown text={it} />
+                          </span>
                         </div>
                       ))}
                     </div>

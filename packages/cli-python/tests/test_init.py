@@ -8,6 +8,9 @@ from typing import Callable
 
 import pytest
 
+from spec_init.args import INTEGRATIONS, CliOptions
+from spec_init.commands.init import prompt_integrations
+
 REQUIRED = [
     "CLAUDE.md",
     "README.md",
@@ -21,6 +24,7 @@ REQUIRED = [
     "claude/design-decisions.md",
     "claude/learnings.md",
     "design/design.md",
+    "spec.config.js",
     ".github/pull_request_template.md",
     ".github/ISSUE_TEMPLATE/bug_report.md",
     ".github/ISSUE_TEMPLATE/feature_request.md",
@@ -81,3 +85,45 @@ def test_dry_run_writes_nothing(tmp_path: Path, run_cli: Callable) -> None:
     result = run_cli("init", "p", "--dry-run", cwd=tmp_path)
     assert result.returncode == 0
     assert not (tmp_path / "p").exists()
+
+
+def _opts(**kw: object) -> CliOptions:
+    return CliOptions(command="init", positional=("p",), **kw)  # type: ignore[arg-type]
+
+
+def _queue_ask(answers: list[str]) -> Callable:
+    it = iter(answers)
+
+    def ask(_prompt: str) -> str:
+        return next(it)
+
+    return ask
+
+
+def test_prompt_all_selects_every_integration() -> None:
+    assert prompt_integrations(_opts(), isatty=lambda: True, ask=_queue_ask(["1"])) == INTEGRATIONS
+    assert prompt_integrations(_opts(), isatty=lambda: True, ask=_queue_ask(["all"])) == INTEGRATIONS
+
+
+def test_prompt_none_or_empty_selects_nothing() -> None:
+    assert prompt_integrations(_opts(), isatty=lambda: True, ask=_queue_ask(["3"])) == ()
+    assert prompt_integrations(_opts(), isatty=lambda: True, ask=_queue_ask([""])) == ()
+
+
+def test_prompt_let_me_select_returns_subset_in_order() -> None:
+    # choose "let me select", then pick caveman + graphify (out of order)
+    result = prompt_integrations(_opts(), isatty=lambda: True, ask=_queue_ask(["2", "3 1"]))
+    assert result == ("graphify", "caveman")
+
+
+def test_prompt_gated_off_when_ineligible() -> None:
+    """No prompt when non-TTY, dry-run, or integrations already chosen."""
+
+    def boom(_p: str) -> str:
+        raise AssertionError("ask must not be called")
+
+    assert prompt_integrations(_opts(), isatty=lambda: False, ask=boom) == ()
+    assert prompt_integrations(_opts(dry_run=True), isatty=lambda: True, ask=boom) == ()
+    assert prompt_integrations(
+        _opts(integrations=("graphify",)), isatty=lambda: True, ask=boom
+    ) == ("graphify",)

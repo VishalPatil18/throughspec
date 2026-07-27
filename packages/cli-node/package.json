@@ -1,15 +1,28 @@
 {
   "name": "spec-init",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Throughspec - Spec-driven. Drift-proof. Token-lean. Scaffolds a Claude Code project around a deterministic SDLC.",
   "license": "MIT",
+  "author": "Vishal Patil <vishalpatil.imp@gmail.com>",
+  "homepage": "https://throughspec.v-ai.org",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/VishalPatil18/throughspec.git",
+    "directory": "packages/cli-node"
+  },
+  "bugs": {
+    "url": "https://github.com/VishalPatil18/throughspec/issues"
+  },
   "type": "module",
   "bin": {
-    "spec-init": "./dist/index.js"
+    "spec-init": "dist/index.js"
   },
   "files": [
     "dist"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "engines": {
     "node": ">=18"
   },
@@ -22,11 +35,13 @@
     "throughspec"
   ],
   "dependencies": {
+    "@clack/prompts": "^1.7.0",
     "node-diff3": "^3.1.2"
   },
   "scripts": {
     "build": "node scripts/build.mjs",
     "test": "vitest run",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf dist",
+    "prepublishOnly": "npm run build"
   }
 }

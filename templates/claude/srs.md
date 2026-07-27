@@ -39,12 +39,30 @@ _<One paragraph: what problem this product solves and for whom.>_
 
 ## 4. Functional Requirements
 
+<!-- Render any data schema or structured config as a fenced ```yaml block (flat; nesting deeper than 3 levels -> YAML), not prose. -->
+
 | ID    | Requirement            |
 | ----- | ---------------------- |
 | FR-01 | _<must-have behavior>_ |
 | FR-02 | _<must-have behavior>_ |
 
-## 5. Non-Functional Requirements
+## 5. Acceptance Scenarios
+
+<!-- Given/When/Then per load-bearing FR. Include at least one edge/failure scenario for each, not just the happy path. -->
+
+```gherkin
+Scenario: [FR-01] <success case>
+  Given <starting state>
+  When <the action>
+  Then <the observable outcome>
+
+Scenario: [FR-01] <edge or failure case>
+  Given <edge starting state>
+  When <the action>
+  Then <the safe, expected failure outcome>
+```
+
+## 6. Non-Functional Requirements
 
 | ID          | Requirement             |
 | ----------- | ----------------------- |
@@ -52,21 +70,21 @@ _<One paragraph: what problem this product solves and for whom.>_
 | NFR-SEC-01  | _<security constraint>_ |
 | NFR-USE-01  | _<usability bar>_       |
 
-## 6. Hard Constraints
+## 7. Hard Constraints
 
 - _<e.g., must run on-device>_
 - _<e.g., must integrate with X>_
 
-## 7. Explicit Non-Goals
+## 8. Explicit Non-Goals
 
 - _<we are NOT building Y>_
 - _<we are NOT supporting Z in v1>_
 
-## 8. Success Metric
+## 9. Success Metric
 
 _<One sentence: how we know this worked.>_
 
-## 9. Open Questions
+## 10. Open Questions
 
 - [ ] _<question 1>_
 - [ ] _<question 2>_

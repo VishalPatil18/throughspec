@@ -3,6 +3,9 @@
 import { spawnSync } from 'node:child_process';
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
+import { parseArgs } from '../packages/cli-node/dist/args.js';
+import { shouldLaunchWelcome } from '../packages/cli-node/dist/index.js';
+import { buildWelcomeOptions } from '../packages/cli-node/dist/commands/welcome.js';
 
 const CLI = resolve(__dirname, '..', 'packages/cli-node/dist/index.js');
 
@@ -15,7 +18,7 @@ describe('spec-init CLI', () => {
   it('--help prints every command and flag', () => {
     const { status, stdout } = run(['--help']);
     expect(status).toBe(0);
-    for (const cmd of ['init', 'customize', 'add-skill', 'upgrade', 'doctor']) {
+    for (const cmd of ['init', 'reinit', 'customize', 'add-skill', 'upgrade', 'doctor']) {
       expect(stdout).toContain(cmd);
     }
     for (const flag of ['--persona', '--integrations', '--force', '--dry-run']) {
@@ -41,11 +44,36 @@ describe('spec-init CLI', () => {
     expect(stderr).toMatch(/unknown flag/);
   });
 
-  it('--version prints a version string', () => {
+  it('--version prints the version and exits 0', () => {
     const { status, stdout } = run(['--version']);
-    // --version has no command so dispatcher prints help; version flag alone
-    // is fine but requires a command context. We accept either.
-    expect([0, 2]).toContain(status);
-    expect(stdout.length).toBeGreaterThan(0);
+    expect(status).toBe(0);
+    expect(stdout).toMatch(/spec-init \d+\.\d+\.\d+/);
+  });
+});
+
+describe('welcome gate + option mapping', () => {
+  it('launches the welcome only on a bare TTY invocation', () => {
+    expect(shouldLaunchWelcome(parseArgs([]), true)).toBe(true);
+    expect(shouldLaunchWelcome(parseArgs([]), false)).toBe(false); // non-TTY (CI/pipes)
+    expect(shouldLaunchWelcome(parseArgs(['init', 'p']), true)).toBe(false); // has a command
+    expect(shouldLaunchWelcome(parseArgs(['--help']), true)).toBe(false);
+    expect(shouldLaunchWelcome(parseArgs(['--version']), true)).toBe(false);
+  });
+
+  it('maps welcome answers to the right CliOptions', () => {
+    expect(buildWelcomeOptions('new', 'my-app', 'engineer', ['graphify'])).toMatchObject({
+      command: 'init',
+      positional: ['my-app'],
+      persona: 'engineer',
+      integrations: ['graphify'],
+      force: false,
+      dryRun: false,
+    });
+    expect(buildWelcomeOptions('current', '.', 'student', [])).toMatchObject({
+      command: 'reinit',
+      positional: [],
+      persona: 'student',
+      integrations: [],
+    });
   });
 });

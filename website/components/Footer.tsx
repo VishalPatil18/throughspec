@@ -1,6 +1,27 @@
+'use client';
+
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import BrandMark from './BrandMark';
 import CopyableCommand from './CopyableCommand';
+
+// Bottom strip shared by the full footer and the docs-only minimal footer.
+function FooterMeta() {
+  return (
+    <div className="flex flex-wrap items-center justify-between gap-4">
+      <div className="text-xs tracking-[-0.01em] text-dim">
+        © 2026 Throughspec v1.0.0 · MIT licensed
+      </div>
+      <div className="flex gap-2 items-center">
+        <Link href="/hire-the-developer/" className="text-xs text-dim underline">
+          Hire the Developer
+        </Link>
+        <span>·</span>
+        <span className="text-xs text-dim">Spec-driven. Drift-proof. Token-lean.</span>
+      </div>
+    </div>
+  );
+}
 
 const COLUMNS: { title: string; items: { label: string; href: string }[] }[] = [
   {
@@ -10,22 +31,15 @@ const COLUMNS: { title: string; items: { label: string; href: string }[] }[] = [
       { label: 'Docs', href: '/docs/' },
       { label: 'Changelog', href: '/changelog/' },
       { label: 'Why Throughspec', href: '/why/' },
+      { label: 'Quickstart', href: '/docs/quickstart/' },
     ],
   },
   {
     title: 'Resources',
     items: [
-      { label: 'Quickstart', href: '/docs/quickstart/' },
       { label: 'Workflows', href: '/docs/workflows/' },
       { label: 'Design Prompts', href: '/docs/design-prompt-library/' },
       { label: 'Learning Map', href: '/docs/learning-map/' },
-    ],
-  },
-  {
-    title: 'Integrations',
-    items: [
-      { label: 'Graphify', href: '/features/#graphify' },
-      { label: 'Obsidian', href: '/features/#obsidian' },
       { label: 'npm', href: '/docs/install/#npm' },
       { label: 'PyPI', href: '/docs/install/#pypi' },
     ],
@@ -42,6 +56,17 @@ const COLUMNS: { title: string; items: { label: string; href: string }[] }[] = [
 ];
 
 export default function Footer() {
+  const pathname = usePathname();
+  // Docs pages get a minimal one-line footer, not the full sitemap footer.
+  if (pathname?.startsWith('/docs')) {
+    return (
+      <footer className="border-t border-black/10 bg-warm font-serif">
+        <div className="mx-auto max-w-[1320px] px-8 py-6 md:px-14">
+          <FooterMeta />
+        </div>
+      </footer>
+    );
+  }
   return (
     <footer className="border-t border-ink bg-warm font-serif">
       <div className="mx-auto max-w-content px-8 pb-10 pt-[72px]">
@@ -89,18 +114,7 @@ export default function Footer() {
 
         <div className="my-[22px] mt-12 h-px bg-black/10" />
 
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div className="text-xs tracking-[-0.01em] text-dim">
-            © 2026 Throughspec v0.1.0 · MIT licensed
-          </div>
-          <div className="flex gap-2 items-center">
-            <Link href="/hire-the-developer/" className="text-xs text-dim underline">
-              Hire the Developer
-            </Link>
-            <span>·</span>
-            <span className="text-xs text-dim">Spec-driven. Drift-proof. Token-lean.</span>
-          </div>
-        </div>
+        <FooterMeta />
       </div>
     </footer>
   );

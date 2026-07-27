@@ -1,8 +1,4 @@
-"""Persona-strip: Python port of tools/strip-personas.mjs.
-
-Kept byte-for-byte equivalent to the .mjs source. tests/test_persona.py
-asserts both produce identical output on the same input.
-"""
+"""Strip persona-gated blocks; byte-parity Python port of strip-personas.mjs."""
 
 from __future__ import annotations
 
@@ -32,8 +28,7 @@ def strip_personas(source: str, persona: Persona) -> str:
         return body if persona in names else ""
 
     stripped = _BLOCK_RE.sub(_replace, source)
-    # Removing a block leaves surrounding blank lines. Collapse 3+ newlines to a
-    # canonical paragraph break, and ensure the file ends with a single newline.
+    # Collapse 3+ newlines left by removed blocks; end with one trailing newline.
     stripped = re.sub(r"\n{3,}", "\n\n", stripped)
     stripped = re.sub(r"\n+$", "\n", stripped)
     return stripped

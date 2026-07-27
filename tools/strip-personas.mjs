@@ -1,24 +1,5 @@
 #!/usr/bin/env node
-// Persona-strip utility for Throughspec templates.
-//
-// Reads a markdown file and emits a copy with persona-gated blocks stripped
-// or retained per the chosen --persona. Blocks are fenced by HTML comments:
-//
-//     <!-- persona:NAME -->
-//     ...content...
-//     <!-- /persona:NAME -->
-//
-// NAME may be a single persona (`vibe`) or a CSV list (`student,engineer`).
-// A block is retained when the chosen persona appears in NAME's list;
-// otherwise the block (fences and content) is removed verbatim.
-//
-// Unmarked content is always retained.
-//
-// Usage:
-//   node tools/strip-personas.mjs --persona <name> --in <path> [--out <path>]
-//
-// If --out is omitted, the stripped output is written to stdout.
-// Zero-dep: Node stdlib only.
+// Persona-strip CLI for templates: keep/remove <!-- persona:NAME --> blocks per --persona.
 
 import { readFileSync, writeFileSync } from 'node:fs';
 import { argv, exit, stdout } from 'node:process';
@@ -55,10 +36,7 @@ function usage() {
   ].join('\n');
 }
 
-/**
- * Strip persona-gated blocks from `source`, retaining only those whose CSV
- * name list contains `persona`. Exported for tests.
- */
+/** Strip persona-gated blocks, keeping those whose CSV name list contains persona. */
 export function stripPersonas(source, persona) {
   if (!VALID_PERSONAS.has(persona)) {
     throw new Error(`unknown persona: ${persona}`);
@@ -74,9 +52,7 @@ export function stripPersonas(source, persona) {
     }
     return names.includes(persona) ? body : '';
   });
-  // Removing a block leaves the source's surrounding blank lines behind.
-  // Collapse any resulting run of 3+ newlines to the canonical paragraph break,
-  // and ensure the file ends with a single trailing newline.
+  // Collapse 3+ newlines left by removed blocks; end with one trailing newline.
   return stripped.replace(/\n{3,}/g, '\n\n').replace(/\n+$/, '\n');
 }
 

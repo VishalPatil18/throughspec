@@ -1,12 +1,4 @@
-// spec-init upgrade
-//
-// Three-way merges the shipped payload (THEIRS) into the project's current
-// state (OURS) using .spec-init/base/ (BASE) as the common ancestor.
-//
-// Files unchanged since scaffold are silently overwritten with THEIRS.
-// Files edited by the user get a three-way merge; conflicts are written to
-// disk with git-style markers and the command exits non-zero so the user
-// resolves them by hand (NFR-REL-02).
+// spec-init upgrade: three-way merge the new payload into the project via .spec-init/base/.
 
 import { existsSync, readFileSync, readdirSync, writeFileSync, mkdirSync, cpSync } from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';

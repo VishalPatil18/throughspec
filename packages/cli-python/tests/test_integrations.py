@@ -22,7 +22,36 @@ FIXTURES = (
     REPO_ROOT / "templates" / "claude" / "srs.md",
     REPO_ROOT / "templates" / "design" / "design.md",
 )
-ACTIVE_SETS = ((), ("graphify",), ("obsidian",), ("graphify", "obsidian"))
+ACTIVE_SETS = (
+    (),
+    ("graphify",),
+    ("obsidian",),
+    ("caveman",),
+    ("agentmemory",),
+    ("openwiki",),
+    ("ponytail",),
+    ("opencodereview",),
+    (
+        "graphify",
+        "obsidian",
+        "caveman",
+        "agentmemory",
+        "openwiki",
+        "ponytail",
+        "opencodereview",
+    ),
+)
+
+# Payload marker file written by each integration, relative to the project root.
+INTEGRATION_MARKER_FILE = {
+    "graphify": ".graphify/config.yml",
+    "obsidian": ".obsidian/workspace.json",
+    "caveman": "claude/caveman.md",
+    "agentmemory": "claude/agentmemory.md",
+    "openwiki": "claude/openwiki.md",
+    "ponytail": "claude/ponytail.md",
+    "opencodereview": "claude/opencodereview.md",
+}
 
 
 def _has_node() -> bool:
@@ -86,7 +115,18 @@ def _assert_roundtrip_empty(before: dict[str, str], after: dict[str, str]) -> No
     assert (missing, extra, changed) == ([], [], [])
 
 
-@pytest.mark.parametrize("name", ("graphify", "obsidian"))
+@pytest.mark.parametrize(
+    "name",
+    (
+        "graphify",
+        "obsidian",
+        "caveman",
+        "agentmemory",
+        "openwiki",
+        "ponytail",
+        "opencodereview",
+    ),
+)
 def test_toggle_roundtrip_leaves_zero_residual(tmp_path: Path, name: str) -> None:
     r = _run_cli(tmp_path, "init", "p", "--persona", "engineer")
     assert r.returncode == 0, r.stderr
@@ -95,10 +135,7 @@ def test_toggle_roundtrip_leaves_zero_residual(tmp_path: Path, name: str) -> Non
 
     add = _run_cli(project, "customize", "--add", name)
     assert add.returncode == 0, add.stderr
-    if name == "graphify":
-        assert (project / ".graphify" / "config.yml").exists()
-    else:
-        assert (project / ".obsidian" / "workspace.json").exists()
+    assert (project / INTEGRATION_MARKER_FILE[name]).exists()
 
     rm = _run_cli(project, "customize", "--remove", name)
     assert rm.returncode == 0, rm.stderr

@@ -1,17 +1,4 @@
-// spec-init customize --add <name> | --remove <name> | --persona <name>
-//
-// Non-destructive by default: only replays template-managed files that host
-// persona or integration markers. Everything else (memory files without
-// integration markers, user source code, .git, .spec-init) is left alone.
-//
-// --add / --remove: recomputes the active integration set, re-derives files
-// whose snapshot content carries a `<!-- integration:<name> -->` block from
-// the pristine snapshot in .spec-init/base/, and copies or deletes the
-// integration's file tree under _integrations/<name>/.
-//
-// --persona: re-derives files whose snapshot content carries a
-// `<!-- persona:...` block (currently only CLAUDE.md) with the new persona,
-// preserving the currently-active integration set.
+// spec-init customize --add/--remove/--persona: re-derive marker-gated files from the snapshot.
 
 import {
   existsSync,
@@ -104,14 +91,7 @@ function readMeta(projectRoot: string): MetaFile {
   };
 }
 
-/**
- * Re-derive files from the snapshot that carry markers for the current action.
- * For --add / --remove: files whose snapshot content contains
- * `<!-- integration:<target> -->` — those are the only files whose rendered
- * output changes when the target's active flag flips.
- * For --persona: files whose snapshot content contains `<!-- persona:...` —
- * currently only CLAUDE.md.
- */
+/** Re-derive snapshot files carrying the marker for the current action. */
 function rederive(
   snapshotDir: string,
   outDir: string,

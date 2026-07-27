@@ -1,6 +1,4 @@
-// The broken-throughline mark on the 404 page. Ported from
-// design/NotFound.dc.html; reuses the shared flow / glowPulse keyframes
-// from globals.css (via classes in landing.module.css).
+// Broken-throughline 404 mark, ported from design/NotFound.dc.html.
 
 import s from './landing.module.css';
 

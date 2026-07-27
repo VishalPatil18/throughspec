@@ -10,8 +10,8 @@
 </p>
 
 <p align="center">
-  <a href="https://throughspec.dev"><strong>Website</strong></a> ·
-  <a href="https://throughspec.dev/docs"><strong>Docs</strong></a> ·
+  <a href="https://throughspec.v-ai.org/"><strong>Website</strong></a> ·
+  <a href="https://throughspec.v-ai.org/docs"><strong>Docs</strong></a> ·
   <a href="https://www.npmjs.com/package/spec-init"><strong>npm</strong></a> ·
   <a href="https://pypi.org/project/spec-init/"><strong>PyPI</strong></a>
 </p>
@@ -53,9 +53,12 @@ my-project/
 │   └── learnings.md          # append-only learning trail (Student persona)
 ├── design/
 │   └── design.md             # tokens, components, do's and don'ts
+├── spec.config.js           # advisory config Claude reads: skills, workflow, settings
 ├── README.md, CHANGELOG.md, SECURITY.md, CONTRIBUTING.md
 └── .github/                  # issue and PR templates
 ```
+
+Edit `spec.config.js` to customize your experience - disable skills, tune the workflow, add project-wide instructions. Claude reads it every session; there is no build step. (Persona and integrations are managed by `spec-init customize`.)
 
 Then in Claude Code:
 
@@ -105,6 +108,14 @@ Requires Python ≥ 3.10.
 
 ## Get started
 
+Run `spec-init` with no arguments in a terminal for a guided, interactive setup - it walks you through new-vs-existing, persona, and integrations, then scaffolds:
+
+```bash
+npx spec-init
+```
+
+Or go straight to it with flags:
+
 ```bash
 # 1. scaffold
 npx spec-init my-project
@@ -118,6 +129,17 @@ cd my-project
 ```
 
 The kit prints the next step after each command so you never have to remember what comes next.
+
+### Already have a project?
+
+Adopt Throughspec in place - it writes only the missing spec/memory files and keeps everything you already have:
+
+```bash
+cd my-existing-project
+npx spec-init reinit          # keeps existing files; add --force to replace them
+```
+
+`reinit` never touches your source code, and it writes the `.spec-init/base/` snapshot so `spec-init upgrade` works from then on.
 
 ## Built spec-first
 
@@ -164,7 +186,7 @@ throughspec/
 
 ## Contributing
 
-PRs welcome. Start with [CONTRIBUTING.md](./CONTRIBUTING.md). Every change must trace to a stage in [`claude/plan.md`](./claude/plan.md).
+PRs welcome. Start with [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 ## Security
 

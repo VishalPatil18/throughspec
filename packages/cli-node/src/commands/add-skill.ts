@@ -1,8 +1,4 @@
-// spec-init add-skill <name>
-//
-// Copies a skill definition from the payload's skills/ catalog into the
-// project's .claude/skills/ directory. Stage 5 populates the catalog; until
-// then this command reports "no skills available" and exits non-zero.
+// spec-init add-skill <name>: copy a skill from the payload catalog into .claude/skills/.
 
 import { cpSync, existsSync, mkdirSync, readdirSync } from 'node:fs';
 import { join, resolve } from 'node:path';

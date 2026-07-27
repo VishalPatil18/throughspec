@@ -428,7 +428,7 @@
 - **Isolation-by-audit-log.** Claude Code cannot enforce tool-call auditing at dispatch time - the harness does not currently expose "which files did this agent read?" as an inspectable artifact. `spec-refactor` compensates by requiring the skill itself to write an on-disk audit log recording the file list. A later reviewer (or a Stage 10 CI check) can compare the log's "reported changing" list against the "scope handed" list. It is compensating control, not preventive - but it makes drift observable at review time instead of production time.
 - **Bug fixes are a separate track from feature cycles.** `spec-bug` writes only to `CHANGELOG.md` and does not touch `claude/context.md`, `claude/features.md`, `claude/design-decisions.md`, or `claude/learnings.md`. That mirrors how bug fixes work in most healthy repositories: they get a CHANGELOG entry and a regression test, not a feature-log entry, because "we fixed a defect" is different history from "we shipped a capability."
 - **`spec-sync` compression retains recency verbatim.** Older Session History and Feature entries get folded into a summary block; the most recent 2-3 stay untouched. The `compressed-from` block plus git history means a rollback is a single `git checkout` away. Never delete, never rewrite in place.
-- **Nested fenced code blocks in agent .md files are avoided.** The original spec-bug-hunter regression-test placeholder used ```` ```{lang} ```` inside an outer ```` ```text ```` block. Markdown parsers stop the outer fence at the first inner three-backtick, cascading multiple lint errors. Solution: describe the test content in prose instead of nesting a fence.
+- **Nested fenced code blocks in agent .md files are avoided.** The original spec-bug-hunter regression-test placeholder used ` ```{lang} ` inside an outer ` ```text ` block. Markdown parsers stop the outer fence at the first inner three-backtick, cascading multiple lint errors. Solution: describe the test content in prose instead of nesting a fence.
 
 **Open questions / follow-ups:**
 
@@ -491,14 +491,14 @@
 - **Surgical re-derive by marker match.** Rather than blanket-overwriting every templated file on customize, both CLIs scan the snapshot for files containing `<!-- integration:<target> -->` (or `<!-- persona:` for --persona) and only rewrite those. Preserves user edits to memory files that don't host the marker.
 - **`<!-- prettier-ignore-start/-end -->` inside each obsidian block.** Prettier reformats standalone `---` into a thematic break with blank lines around, which breaks Obsidian's line-1 front-matter requirement. Prettier-ignore keeps the template lint-clean; the strip utility drops the helper comments so scaffolded output has YAML on line 1.
 - **Markdownlint MD003 + MD022 turned off (not per-block disable).** Both rules misread the `---` fence line right below `tags:` as a setext H2. Disabling globally is one edit vs threading `<!-- markdownlint-disable -->` / `<!-- markdownlint-enable -->` (plus stripping their comments) through every affected file.
-- **`flipIntegration()` deleted, not deprecated.** The old checkbox-flipper is fundamentally incompatible with the marker-fence model (there are no `- [ ]` lines to flip anymore — an inactive integration produces no content at all). Keeping it around as a no-op would confuse future readers.
+- **`flipIntegration()` deleted, not deprecated.** The old checkbox-flipper is fundamentally incompatible with the marker-fence model (there are no `- [ ]` lines to flip anymore - an inactive integration produces no content at all). Keeping it around as a no-op would confuse future readers.
 - **Three-implementation parity, matching persona.** `tools/strip-integrations.mjs` is the reference; the TS and Python ports are byte-parity-tested against it. Same pattern as persona; four implementations would be the break-even point for extracting a shared spec.
 
 **Open questions / follow-ups:**
 
 - `uv` is not installed on this dev machine, so the Python pytest suite for Stage 8 was not run locally. Ad-hoc Python ↔ mjs strip parity confirmed on `srs.md`; full suite runs at CI/Stage 10.
 - `spec-init doctor` does not yet cross-check `meta.json.integrations` against on-disk artifacts (e.g. verify `.graphify/config.yml` exists iff `graphify` is in meta). Optional Stage 10 polish.
-- Customize's snapshot-driven re-derive will replay CLAUDE.md §8 and README.md's Integrations section from the snapshot — user edits to those sections after init are lost when toggling. This is the same trade-off `--persona` has always had for CLAUDE.md; document it in the website's Customization Recipes (Stage 9) so users know to make integration decisions before manually editing those files.
+- Customize's snapshot-driven re-derive will replay CLAUDE.md §8 and README.md's Integrations section from the snapshot - user edits to those sections after init are lost when toggling. This is the same trade-off `--persona` has always had for CLAUDE.md; document it in the website's Customization Recipes (Stage 9) so users know to make integration decisions before manually editing those files.
 - The `_integrations/` payload prefix is a naming convention. If more optional payloads appear (e.g. Stage 10 might add a `.claude/refactor-audits/` placeholder), consider hoisting the "conditional payload subtree" idea into a formal manifest instead of relying on the prefix.
 
 ---
@@ -671,8 +671,488 @@
 
 ---
 
+## 2026-07-24 - Caveman integration + interactive integration picker
+
+**Prompt / trigger:** `/feature-dev` then `/caveman` - add Caveman (https://github.com/JuliusBrussee/caveman) as a token-saving integration users can opt into at install time; then generalize the interactive offer so graphify/obsidian/caveman all get an in-terminal picker.
+
+**What was done:**
+
+- Added `caveman` as a third integration alongside `graphify`/`obsidian`. Because Caveman is an externally-installed agent skill (`npx skills add JuliusBrussee/caveman`), not a config file the project owns, its payload is one guidance doc plus marker blocks and a post-init install nudge - **no vendoring** of Caveman's code (honors §7 zero-cost and avoids version drift).
+- Added an interactive integration picker to `init`: when run on a TTY with no explicit `--integrations`, it prompts `Integrations to include? 1) all 2) let me select 3) none`. "let me select" prints a numbered list; space/comma-separated numbers + Enter submit the subset. Gated off for dry-run, non-TTY (CI/tests), and explicit `--integrations`, so the existing spawn-based suite is unaffected. Chose a dependency-free numbered picker over a raw-mode checkbox TUI (would need ~150 lines/language, fragile cross-platform) - deliberate simplification.
+- Prompt logic factored behind injectable deps (`isTty`/`ask`) so gating + selection parsing is unit-tested without a pty; the raw stdin read is thin glue.
+
+**Files touched:**
+
+- `packages/cli-node/src/args.ts`, `packages/cli-node/src/integrations.ts`, `tools/strip-integrations.mjs`, `packages/cli-python/src/spec_init/args.py`, `packages/cli-python/src/spec_init/integrations.py` - update - add `caveman` to every integration-name list / Literal / help text (the 5-spot parity surface).
+- `templates/CLAUDE.md`, `templates/README.md` - update - new `<!-- integration:caveman -->` marker blocks (§8 + Integrations section).
+- `templates/_integrations/caveman/claude/caveman.md` - create - guidance doc (install command, `/caveman` modes, session note); copied only when caveman active.
+- `packages/cli-node/src/checklist.ts`, `packages/cli-python/src/spec_init/checklist.py` - update - accept `integrations`, print Caveman install nudge when active.
+- `packages/cli-node/src/commands/init.ts`, `packages/cli-python/src/spec_init/commands/init.py` - update - `promptIntegrations`/`prompt_integrations` picker; effective (post-prompt) set drives strip/apply, `meta.json`, and checklist.
+- `tests/integrations-parity.test.ts`, `tests/integrations.test.ts`, `packages/cli-python/tests/test_integrations.py`, `packages/cli-python/tests/test_init.py` - update - caveman parity sets, add/remove roundtrip, README-host assertion, picker gating tests.
+- `tests/__snapshots__/personas.test.ts.snap` - update - CLAUDE.md gained the caveman block (regenerated via `vitest -u`).
+
+**Decisions made:**
+
+- Picker is numbered-list, dependency-free, synchronous - rejected raw-mode checkbox TUI and pulling `@inquirer`/`questionary` (§7 zero-cost, no-new-dep).
+- Caveman is opt-in (off unless selected/named); not vendored - install nudged via checklist + README.
+- Prompt gated on TTY + empty `--integrations` + not dry-run; explicit flags always win, keeping scripted/CI runs prompt-free.
+
+**Open questions / follow-ups:**
+
+- pytest not run in this environment (`uv` absent, system python 3.9 without pytest); Python verified via direct runtime import checks mirroring the pytest assertions. Run `uv run pytest` before merge.
+- `spec-init doctor` cross-check of `meta.json` integrations vs on-disk artifacts should include `claude/caveman.md` (folds into the existing Stage 10 doctor TODO).
+- If a real arrow/space checkbox TUI is later wanted, it needs a raw-mode helper per language - revisit the dependency tradeoff then.
+
+---
+
+## 2026-07-24 - Kit default: suggest a commit message each turn
+
+**Prompt / trigger:** `/feature-dev` - add an instruction to the kit's CLAUDE.md so scaffolded projects get a short commit-message suggestion at the end of file-changing responses by default.
+
+**What was done:**
+
+- Added invariant **6. Suggest a commit.** to §2 of `templates/CLAUDE.md`: end any response that changed files with a Conventional Commits message (`<type>: <description>`, imperative subject <= 50 chars, `type` from the same set as CONTRIBUTING.md). Placed in §2 (the standing contract, unmarked prose) rather than §7 (reserved for the user's own rules) so it survives every persona strip and applies by default.
+- No section renumbering - a new invariant inside the existing §2 list keeps `## 9. Quick links` (asserted by `tests/personas.test.ts`) and all section numbers stable.
+
+**Files touched:**
+
+- `templates/CLAUDE.md` - update - new §2 invariant 6.
+- `tests/__snapshots__/personas.test.ts.snap` - update - all four persona snapshots gain the invariant line (regenerated via `vitest -u`).
+
+**Decisions made:**
+
+- Scoped to responses that changed files (not every turn) - a commit suggestion with nothing to commit is noise.
+- Aligned wording to `templates/CONTRIBUTING.md` §Commit Messages so the kit stays internally consistent; references it instead of duplicating the full spec.
+
+**Open questions / follow-ups:**
+
+- If users want a suggestion on every turn regardless of file changes, widen the invariant wording - trivial one-line change.
+- Consider whether `/spec-feature` and `/spec-bug` skills should emit the commit suggestion themselves (belt-and-suspenders) or rely solely on the CLAUDE.md contract.
+
+---
+
+## 2026-07-24 - Supporting-skills catalog (15 new skills) + spec/docs wiring
+
+**Prompt / trigger:** `/feature-dev` - add ~22 requested skills to the kit (inspired by uploaded reference skills, not cloned), spec-driven and token-lean; user chose all-at-once, consolidate overlaps, and wire spec+docs.
+
+**What was done:**
+
+- Added **15 new supporting skills** under `templates/.claude/skills/`, consolidating the 22 requests: review family (code/pr/frontend/backend/comments) merged into `spec-review` (modes); db-review folded into `spec-db-design`; simplify folded into `spec-code-quality`; knowledge+market merged into `spec-research` (modes). Full list: spec-architect, spec-db-design, spec-review, spec-code-quality, spec-security, spec-performance, spec-test, spec-ux, spec-cicd, spec-launch, spec-git, spec-brainstorm, spec-suggest, spec-research, spec-resume.
+- Each skill written in the kit's tight, FR-anchored voice (~90-140 dense lines): trigger-phrase frontmatter, "read first" from the memory layer, numbered workflow, refusal/guardrail clauses, writes findings/decisions back to memory, checklist, red flags. `spec-resume` uses an AliceBot-inspired file-based **resumption brief** at `claude/resume.md` (no DB - zero-cost).
+- Wired the catalog: SRS §2.2.3, `templates/README.md` skills table, `templates/CLAUDE.md` §3 supporting-skills sub-table (inside §3, no renumber so the `## 9` snapshot anchor holds), and the website (`features/page.tsx` commands grid + a full "Supporting Skills" docs page/group in `lib/docs-content.ts`).
+
+**Files touched:**
+
+- `templates/.claude/skills/<15 names>/SKILL.md` - create - the new skills.
+- `claude/srs-beta.md` - update - §2.2.3 supporting-skills table.
+- `templates/README.md`, `templates/CLAUDE.md` - update - skill listings (CLAUDE.md §3 sub-table -> persona snapshot regen).
+- `website/app/features/page.tsx` - update - 15 commands added to the grid.
+- `website/lib/docs-content.ts` - update - new `supporting-skills` DocGroup + DocPage (full narrative).
+- `tests/__snapshots__/personas.test.ts.snap` - update - CLAUDE.md §3 sub-table (regenerated).
+
+**Decisions made:**
+
+- Consolidated 22 -> 15 to avoid near-duplicate review skills; overlap-heavy requests became modes of one skill (`spec-review`, `spec-research`).
+- New skills cite the memory layer and SDD principles but **not** invented FR-IDs (dangling refs would be dishonest); `skills.test.ts` validates only the named legacy skills, so new skills only had to pass markdownlint + prettier + parity.
+- `spec-architect` is a skill distinct from the pre-existing `spec-architect` **agent** (agent proposes options in a dispatch; skill drives the interactive design + ADRs).
+
+**Open questions / follow-ups:**
+
+- SRS acceptance line "All 9 skills in §2.2.3" is now historical; the catalog is larger. Reconcile the acceptance count in a future SRS pass.
+- No automated test asserts the new skills' shape - consider a generic "every skill dir has valid frontmatter + required sections" validator so future skills stay consistent.
+- pytest still unrun locally (`uv` absent) - unaffected here (no Python source changed), but note it stays a standing gap.
+
+---
+
+## 2026-07-24 - agentmemory + openwiki integrations
+
+**Prompt / trigger:** `/feature-dev` - add agentmemory (memory/context) and openwiki (agent documentation) as opt-in integrations, following the graphify/obsidian/caveman pattern.
+
+**What was done:**
+
+- Added `agentmemory` and `openwiki` as the 4th and 5th integrations. Both are externally-installed CLI tools (like caveman), so each ships a guidance doc + CLAUDE.md/README marker blocks + an entry in the 5 name-lists - no vendoring, no fabricated config file.
+- `agentmemory` (rohitg00): persistent cross-session memory, local SQLite, MCP server on port 3111, installed via `npx @agentmemory/agentmemory` + `agentmemory connect claude-code`. Doc notes the zero-cost path (`EMBEDDING_PROVIDER=local`, reuse existing LLM key) and that it augments - does not replace - the memory-file layer.
+- `openwiki` (langchain-ai): generates an agent-facing wiki into `openwiki/`, installed via `npm install -g openwiki`. Doc flags two gotchas: it writes prompting into the repo-root `CLAUDE.md`/`AGENTS.md` (could clobber the behavior contract - review the diff, commit first) and telemetry is on by default (`OPENWIKI_TELEMETRY_DISABLED=1`).
+
+**Files touched:**
+
+- `packages/cli-node/src/args.ts`, `packages/cli-node/src/integrations.ts`, `tools/strip-integrations.mjs`, `packages/cli-python/src/spec_init/args.py`, `packages/cli-python/src/spec_init/integrations.py` - update - add both names to every list/Literal/help text.
+- `templates/CLAUDE.md` §8, `templates/README.md` - update - integration marker blocks (CLAUDE.md -> persona snapshot regen).
+- `templates/_integrations/agentmemory/claude/agentmemory.md`, `templates/_integrations/openwiki/claude/openwiki.md` - create - guidance docs.
+- `tests/integrations-parity.test.ts`, `tests/integrations.test.ts`, `packages/cli-python/tests/test_integrations.py` - update - parity sets, marker map, roundtrips, README-host assertions, and the Node `all`-picker test (hardcoded set -> now 5).
+- `tests/__snapshots__/personas.test.ts.snap` - update - CLAUDE.md §8 grew.
+
+**Decisions made:**
+
+- Mirrored the caveman scope exactly (name-lists + template blocks + doc + tests); did not touch the interactive picker (enumerates `INTEGRATIONS` dynamically) or the Python prompt tests (reference `INTEGRATIONS` dynamically) - both auto-absorb new integrations. The one hardcoded spot was the Node `all`-picker assertion.
+- Post-init checklist stays caveman-only; install steps for the new two live in the README blocks + docs.
+- openwiki's CLAUDE.md-overwrite conflict is handled by documentation (review-the-diff guidance), not code - the scaffolder cannot police what an external tool writes.
+
+**Open questions / follow-ups:**
+
+- The `--integrations` help line now lists 5 names and is getting long; if a 6th arrives, consider pointing to docs instead of inlining the full list.
+- Consider generalizing the post-init checklist to nudge external installs for any active integration (agentmemory/openwiki also need a one-time install), instead of the caveman special-case.
+
+---
+
+## 2026-07-24 - ponytail integration (code-minimalism)
+
+**Prompt / trigger:** `/feature-dev` - add ponytail (DietrichGebert/ponytail) as an integration for agent minimalism / workflow discipline.
+
+**What was done:**
+
+- Added `ponytail` as the 6th integration via the established external-tool pattern (name in 5 lists + CLAUDE.md/README blocks + guidance doc; no vendoring). ponytail is a Claude Code plugin installed via `/plugin marketplace add DietrichGebert/ponytail` then `/plugin install ponytail@ponytail` (two separate prompts).
+- Framed it honestly as a **code-minimalism discipline** (YAGNI ladder, shortest working diff, "lazy about the solution, never about reading"), not literal orchestration. Doc positions it as the code-generation-time complement to `/spec-refactor`, `/spec-code-quality`, `/spec-simplify`, and notes the SRS wins when scope and minimalism disagree.
+
+**Files touched:**
+
+- `packages/cli-node/src/args.ts`, `packages/cli-node/src/integrations.ts`, `tools/strip-integrations.mjs`, `packages/cli-python/src/spec_init/args.py`, `packages/cli-python/src/spec_init/integrations.py` - update - add `ponytail` to every list/Literal/help text.
+- `templates/CLAUDE.md` §8, `templates/README.md` - update - integration marker blocks (CLAUDE.md -> persona snapshot regen).
+- `templates/_integrations/ponytail/claude/ponytail.md` - create - guidance doc.
+- `tests/integrations-parity.test.ts`, `tests/integrations.test.ts`, `packages/cli-python/tests/test_integrations.py` - update - parity sets, marker map + roundtrip params, add/remove roundtrip, README-host assertion, and the Node `all`-picker test (hardcoded set -> now 6).
+- `tests/__snapshots__/personas.test.ts.snap` - update.
+
+**Decisions made:**
+
+- Same caveman-pattern scope; picker + Python prompt tests untouched (dynamic over `INTEGRATIONS`). The only hardcoded spot remains the Node `all`-picker assertion (now 6).
+- Kept the `--integrations` help line inline at 6 names but shortened the trailing hint to `(comma-separated)` to keep it readable; the "point to docs" idea stays a follow-up for a 7th.
+
+**Open questions / follow-ups:**
+
+- 6 integrations now: the earlier follow-up to move the help-text list to a docs pointer is now due if a 7th lands.
+- Integrations catalog (graphify, obsidian, caveman, agentmemory, openwiki, ponytail) is not enumerated in SRS/website docs; if a per-integration catalog page is ever wanted, that is a separate docs task.
+
+---
+
+## 2026-07-24 - spec-init reinit (adopt Throughspec in an existing project)
+
+**Prompt / trigger:** `/feature-dev` - add a `reinit` command for installing Throughspec into an already-existing project; it checks for existing spec files and lets the user keep them or create new ones.
+
+**What was done:**
+
+- Added `reinit` as a 6th CLI subcommand (`spec-init reinit [dir]`, default `.`). It adopts Throughspec **in place** in a brownfield repo: writes only the missing payload/spec files, **keeps** existing spec files by default (non-destructive), and writes the `.spec-init/base/` snapshot + `meta.json` so `upgrade` works afterward. Never touches non-template (source) files.
+- Existing-file handling = a global binary: **keep** (default, safe) vs **replace**. `--force` = replace without asking; on a TTY with existing spec files it prompts `keep/replace`; non-interactive/dry-run defaults to keep. Guard: if `.spec-init/base` already exists, it refuses and points to `upgrade`/`customize`.
+- Reused init's helpers rather than duplicating: exported `walkPayload`, `maybeTransform`, `readLineSync` from init.ts (and imported `_walk_payload`, `_maybe_transform`, `integration_files_for`, `prompt_integrations` in Python). Added a `verb` param to `postInitChecklist`/`post_init_checklist` so reinit reuses the whole next-steps/persona/caveman output with an "Initialized" header.
+
+**Files touched:**
+
+- `packages/cli-node/src/args.ts`, `packages/cli-python/src/spec_init/args.py` - update - `reinit` in `COMMANDS`/Literal + HELP_TEXT.
+- `packages/cli-node/src/checklist.ts`, `packages/cli-python/src/spec_init/checklist.py` - update - optional `verb` param (default `Scaffolded`).
+- `packages/cli-node/src/commands/init.ts` - update - export `walkPayload`, `maybeTransform`, `readLineSync` (no logic change).
+- `packages/cli-node/src/commands/reinit.ts`, `packages/cli-python/src/spec_init/commands/reinit.py` - create - `run_reinit` + `resolve_reinit_mode`.
+- `packages/cli-node/src/index.ts`, `packages/cli-python/src/spec_init/cli.py` - update - dispatch `reinit`.
+- `tests/reinit.test.ts`, `packages/cli-python/tests/test_reinit.py` - create; `tests/cli.test.ts` - update (help-command loop).
+- `claude/srs-beta.md` §2.2.1 (Commands + Idempotency rows), `README.md` ("Already have a project?"), `website/lib/docs-content.ts` (quickstart "Already have a project?" section).
+
+**Decisions made:**
+
+- Keep vs replace is a **global binary** (not per-file) - matches the user's "use them or create new ones" and stays simple; per-file granularity is a possible follow-up.
+- `reinit` is a CLI subcommand (scaffolding is the CLI's job), not a Claude skill; positional `dir` is optional (`.`), unlike `init`'s required name.
+- Reused init helpers via targeted exports instead of refactoring init or duplicating the walk/transform logic.
+
+**Open questions / follow-ups:**
+
+- pytest still not runnable locally (no `uv`; the CLI import chain needs `merge3`). Verified via Node vitest + calling `run_reinit`/`resolve_reinit_mode` directly under system Python 3.9. Run `uv run pytest` before merge.
+- reinit keep-mode sets `.spec-init/base` = pristine payload while a kept file differs, so the first `upgrade` treats kept files as user edits (three-way merge, possible conflicts) - inherent to brownfield adoption; documented behavior, not a bug.
+- Per-file keep/replace selection could be added later if the global binary proves too coarse.
+
+---
+
+## 2026-07-24 - spec.config.js (advisory, Claude-read project config)
+
+**Prompt / trigger:** `/feature-dev` - add a `spec.config.js` in the scaffolded project holding all Throughspec config (skills, workflow, settings), easy to read and modify.
+
+**What was done:**
+
+- Added `templates/spec.config.js` - a top-level, comment-rich `module.exports` object with `skills.disabled[]`, `workflow.{phases, allowSkip}`, and `settings.{commitSuggestions, customInstructions[]}`. Ships in every scaffold (init/reinit copy it automatically; no CLI change needed).
+- Added CLAUDE.md §2 invariant 7: read `spec.config.js` if present and honor it; the mandatory invariants (spec before code, memory sacred) still win. This makes **Claude the consumer** - the config is real in a Claude-driven kit without the CLI parsing it.
+- Deliberately **advisory + Claude-read**, chosen over a CLI-consumed machine config: keeps the `.js` extension, avoids the dual-CLI parity problem (the Python CLI can't execute JS), and does not duplicate CLI-owned state. Persona/integrations stay in `.spec-init/meta.json` + CLAUDE.md §8, managed by `spec-init customize`; spec.config holds the user-facing knobs only.
+
+**Files touched:**
+
+- `templates/spec.config.js` - create - the config file.
+- `templates/CLAUDE.md` §2 - update - invariant 7 (persona snapshot regen).
+- `tests/init.test.ts` - update - `spec.config.js` in `REQUIRED` + a `require()` well-formedness test (exports skills/workflow/settings).
+- `packages/cli-python/tests/test_init.py` - update - `spec.config.js` in `REQUIRED`.
+- `tests/__snapshots__/personas.test.ts.snap` - update.
+- `claude/srs-beta.md` §6.1 canonical tree, `README.md` (scaffold tree + note), `website/lib/docs-content.ts` (customization-recipes "Edit spec.config.js" section) - update.
+
+**Decisions made:**
+
+- Advisory `.js` read by Claude, not a CLI-parsed config - the CLI never touches it, so it cannot break a scaffold and stays cross-language safe. It is functional because CLAUDE.md instructs Claude to honor it every session.
+- Not a `doctor` REQUIRED_FILE: it is advisory, and a project runs fine without it (Claude falls back to defaults), so health should not fail on its absence. init tests still assert init ships it.
+- No duplication of persona/integrations - avoids a second source of truth that would drift from meta.json.
+
+**Open questions / follow-ups:**
+
+- `module.exports` is CJS; in a scaffolded project whose package.json is `"type":"module"`, the file is technically ESM-mismatched - but it is never executed (Claude reads it as text; the CLI never parses it), so this is cosmetic. The require-based test validates well-formedness in the no-package.json scaffold context.
+- If users later want mechanical enforcement (e.g. actually removing disabled skills from `.claude/skills/`), that would need a CLI-consumed config in a cross-parseable format - a separate, larger change.
+- pytest still not runnable locally (no `uv`); Python `REQUIRED` addition is covered by parity (both payloads ship spec.config.js -> 53 files) and the Node init test.
+
+---
+
+## 2026-07-25 - Interactive welcome TUI (bare `spec-init`, @clack/prompts, Node-only)
+
+**Prompt / trigger:** `/feature-dev` - a Claude-style terminal UI shown when you run the tool bare, guiding first-time setup with a neat, non-plain interface.
+
+**What was done:**
+
+- Bare `spec-init` **on a TTY** now launches an interactive welcome built on `@clack/prompts` (rounded intro/outro, arrow-key select, space-toggle multiselect, spinner). Flow: detect already-managed -> else new-vs-current -> project name (new) -> persona -> integrations -> confirm -> scaffold -> next-steps note.
+- **TTY-gated** via a pure `shouldLaunchWelcome(opts, isTty)`: non-TTY (CI, pipes, the test suite) keeps the prior help+exit-2 behavior, so no existing contract broke.
+- The welcome owns all interaction and delegates writing to `runInit`/`runReinit` in a new **quiet** mode (skips their own prompts + summary prints), then renders next-steps via the reused `postInitChecklist` - single source of truth for scaffolding.
+- **Node-only** (the `npx` channel); the Python CLI is unchanged. **One new dependency**: `@clack/prompts`, dynamic-imported only on the interactive path so normal commands never load it.
+
+**Files touched:**
+
+- `packages/cli-node/package.json` - update - add `@clack/prompts`.
+- `packages/cli-node/src/commands/welcome.ts` - create - `runWelcome()` + pure `buildWelcomeOptions()`.
+- `packages/cli-node/src/index.ts` - update - `main` is now async; exported pure `shouldLaunchWelcome`; dynamic-imports welcome on the TTY path; bin wrapper `main(...).then(process.exit)`.
+- `packages/cli-node/src/commands/init.ts`, `reinit.ts` - update - `quiet` param (skip prompts + summary; caller owns I/O).
+- `tests/cli.test.ts` - update - unit tests for `shouldLaunchWelcome` + `buildWelcomeOptions`.
+- `README.md`, `website/lib/docs-content.ts` (quickstart), `claude/srs-beta.md` §2.2.1 (Interactive row) - update - document the welcome.
+
+**Decisions made:**
+
+- Chose `@clack/prompts` over a zero-dep numbered flow (genuine arrow-key polish, matches "not the normal terminal UI") and over Ink (too heavy). Node-only to avoid a second interactive surface drifting in Python.
+- TTY gate is the whole safety mechanism: it preserves every non-interactive test/contract and means scripts/CI are unaffected.
+- `quiet` on runInit/runReinit lets the TUI reuse the exact scaffolding + next-steps code instead of duplicating it; current-directory setup defaults to keep (non-destructive) - replacing stays an explicit `reinit --force`.
+
+**Open questions / follow-ups:**
+
+- The live @clack flow can't be auto-tested without a pseudo-terminal; covered by unit-testing the gate + option mapping and reusing `runInit`/`runReinit` tests. A pty-driven e2e is a future option.
+- No payload/template change -> parity stays 53, no snapshot/token impact. `@clack` is a Node-CLI runtime dep (not payload), so it does not affect the byte-parity guarantee.
+
+---
+
+## 2026-07-25 - Spec-format, BDD, review, and guardrail conventions
+
+**Prompt / trigger:** `/feature-dev` - tighten the kit toward faster, more token-efficient, more rigorously spec-driven output.
+
+**What was done:**
+
+- **Token-lean spec format (CLAUDE.md invariant 8):** narrative stays Markdown, but structured data - config and schemas nested > 3 levels - is rendered as flat fenced YAML. YAML parses more reliably and costs fewer tokens than deep JSON/prose, so specs are cheaper for Claude to read and act on every turn.
+- **BDD acceptance scenarios:** `/spec-requirements` and the `srs.md` template now capture Given/When/Then (State -> Action -> Outcome) scenarios for each load-bearing FR, each requiring at least one edge/failure scenario, not just the happy path. These become the acceptance criteria `/spec-plan` stages against and the failing tests `/spec-feature` and `/spec-bug` write first. New `srs.md` section 5 "Acceptance Scenarios" (renumbered 5->10).
+- **Guardrails (CLAUDE.md invariants 9-10):** pin every library version and verify against current docs (model version knowledge is stale by definition); never hardcode secrets/PII/live URLs into specs, prompts, or memory - reference env/config so an agent cannot reuse stray literals.
+- **PR Risk & Impact section:** the PR template now asks for what changed / could break / security notes, so human review targets architecture and blast radius rather than line counts.
+
+**Files touched:**
+
+- `templates/CLAUDE.md` - update - §2 invariants 8, 9, 10 (persona snapshot regen).
+- `templates/.claude/skills/spec-requirements/SKILL.md` - update - Acceptance Scenarios step + YAML-schema note + canonical section list (now 10; the 8 names `skills.test.ts` checks are unchanged).
+- `templates/claude/srs.md` - update - new §5 Acceptance Scenarios (Gherkin) + YAML note under FRs; §5-9 renumbered to §6-10.
+- `templates/.github/pull_request_template.md` - update - Risk & Impact block.
+
+**Decisions made:**
+
+- Kept all changes as scaffolded-project **conventions** (templates/skills/contract), not runtime code. Explicitly did **not** build policy servers, sandboxes, eval services, or MCP-server code - those are application runtime infrastructure, out of scope for a zero-cost scaffolding kit and against the simplicity/zero-cost constraints.
+- Invariants added inside §2 (no new top-level section) so the `## 9 Quick links` snapshot anchor holds.
+- SRS section renumber is safe: no test asserts section numbers; `skills.test.ts` matches section names.
+
+**Open questions / follow-ups:**
+
+- `/spec-plan` and `/spec-feature` could explicitly stage against the new Acceptance Scenarios (they reference them in prose now; a hard gate is a future option).
+- The YAML-for-deep-nesting convention is guidance, not enforced; a lint that flags deep prose-nested config in specs could enforce it later.
+
+---
+
+## 2026-07-25 - Open Code Review integration (7th)
+
+**Prompt / trigger:** `/feature-dev` - add alibaba/open-code-review as an integration.
+
+**What was done:**
+
+- Added `opencodereview` as the 7th integration via the established external-tool pattern (name in 5 lists + CLAUDE.md/README blocks + guidance doc; no vendoring). It is Alibaba's AI code-review CLI (`ocr`, Apache-2.0): `npm install -g @alibaba-group/open-code-review`, then `ocr review` / `ocr scan`. Positioned as the CLI/CI complement to the in-session `/spec-review` skill.
+- **Naming:** the repo is `open-code-review` (hyphens), but integration keys must match the strip regex `[a-z]+`, so the key is `opencodereview` (display name "Open Code Review", CLI `ocr`).
+- **Help text:** at 7 integrations, the `--integrations` help line no longer inlines the full CSV list (it grew unwieldy) - it now says "comma-separated integration names (see README for the full list)". The dynamic validation error still lists valid values, and the README/CLAUDE.md blocks enumerate them.
+- **Zero-cost note:** doc + README highlight `ocr delegate preview`, which reuses the existing coding-agent LLM instead of a separate paid API key.
+
+**Files touched:**
+
+- `packages/cli-node/src/args.ts` (+ shortened HELP), `packages/cli-node/src/integrations.ts`, `tools/strip-integrations.mjs`, `packages/cli-python/src/spec_init/args.py` (+ shortened help), `packages/cli-python/src/spec_init/integrations.py` - update - add `opencodereview`.
+- `templates/CLAUDE.md` §8, `templates/README.md` - update - integration blocks (CLAUDE.md -> persona snapshot regen).
+- `templates/_integrations/opencodereview/claude/opencodereview.md` - create - guidance doc.
+- `tests/integrations-parity.test.ts`, `tests/integrations.test.ts`, `packages/cli-python/tests/test_integrations.py` - update - parity sets, marker map + roundtrip params, add/remove roundtrip, README-host assertion, Node `all`-picker (now 7).
+- `tests/__snapshots__/personas.test.ts.snap` - update.
+
+**Decisions made:**
+
+- Hyphenless key `opencodereview` to satisfy the `[a-z]+` marker regex without touching the strip parity surface.
+- Shortened the `--integrations` help to a README pointer now that the list has grown; the follow-up flagged at 6 integrations is now resolved.
+
+**Open questions / follow-ups:**
+
+- Integration count is 7; the picker/welcome/prompt tests remain dynamic over `INTEGRATIONS` (only the Node `all`-picker assertion is hardcoded).
+- If a per-integration catalog page is ever wanted in the website docs, that stays a separate task (integrations are not enumerated there).
+
+---
+
+## 2026-07-25 - Website: markdown changelog notes + copy-button tooltip
+
+**Prompt / trigger:** `/feature-dev` - two UI updates: render changelog notes with markdown styling, and replace the copy button's click toast with a hover "Copy" / click "Copied" tooltip.
+
+**What was done:**
+
+- **Inline markdown in the changelog.** Changelog item strings were rendered as literal text (`<span>{it}</span>`), so `**bold**`, `` `code` ``, `_italic_`, `[text](url)` showed raw. Added a zero-dependency inline tokenizer + renderer and wired it into both the Upcoming and Shipped lists. No markdown lib was added - the site ships none by design, and a one-line-snippet tokenizer is far lighter than remark/rehype.
+- **Copy-button tooltip.** Both copy components (`CopyableCommand` marketing hover-copy, `DocCodeBlock` docs button) showed a "Copied to clipboard" toast on click. Replaced it with a tooltip reading **Copy** on hover and **Copied** for ~1.8s after click, plus an `sr-only` `role="status"` live region and a dynamic `aria-label` for accessibility. Dropped the now-unused `framer-motion` import from both files (the dep stays; used elsewhere).
+
+**Files touched:**
+
+- `website/lib/inline-markdown.ts` - create - pure `parseInline(text): InlineToken[]` (code/link/bold/italic, matched in that priority).
+- `website/components/InlineMarkdown.tsx` - create - server-safe renderer of the tokens to `<code>/<a>/<strong>/<em>`.
+- `website/app/changelog/page.tsx` - update - render Upcoming + release items via `<InlineMarkdown>`.
+- `website/components/CopyableCommand.tsx`, `website/components/docs/DocCodeBlock.tsx` - update - Copy/Copied tooltip; removed toast + framer-motion + native `title`.
+
+**Decisions made:**
+
+- Zero-dep inline tokenizer over a markdown library - consistent with the site's dep-light rendering and cheaper for short strings. Scope: inline `code`/bold/italic/links (the markdown CHANGELOG bullets actually use); fenced blocks are not used in bullets.
+- Updated **both** copy components for consistent UX (they shared the same toast).
+- Tooltip parser lives in `lib/` as a pure function (unit-checkable) separate from the JSX component.
+
+**Open questions / follow-ups:**
+
+- Playwright e2e could not run here (needs `chromium`); validated via `tsc`, a node sanity check of the tokenizer, and a successful `next build` (changelog renders server-side, components compile). The existing e2e only checks page load + heading, both unaffected.
+- If changelog bullets ever need fenced code blocks or nested markdown, the tokenizer would need extending (currently single-level inline).
+
+---
+
+## 2026-07-25 - Landing: integrations grid, skills count/CTA, full skills docs page
+
+**Prompt / trigger:** User request - surface the new integrations (with GitHub links) on the landing page; update the skills section to mention the count, show only 6, and add a "Check all skills" button to a full skills docs page.
+
+**What was done:**
+
+- **Landing integrations** (`website/app/page.tsx`): `INTEGRATIONS` grew 2 -> 7 (added caveman, agentmemory, openwiki, ponytail, Open Code Review), each with a glyph, one-line desc, `--integrations` flag, and a link (GitHub for the five new tools; product sites for Graphify/Obsidian). Each card renders a "{label} ↗" external link; added an "Integrations" eyebrow + heading.
+- **Landing skills section**: heading now reads "Twenty-four skills…" (9 core + 15 supporting); renders only the first 6 core skills (`SKILLS.slice(0, 6)`); added a "Check all skills →" pill linking to `/docs/supporting-skills/`.
+- **Full skills docs page** (`website/lib/docs-content.ts`): the `supporting-skills` page is now the complete catalog - retitled "Skills" (page + sidebar group, slug kept), intro updated to 24 total, and a new "Core workflow" section added at the top listing the 9 core skills with usecase/when; each `/command` term is the "how to use."
+- **Fixed a pre-existing 404 (important):** the docs route is one directory per page (`app/docs/<slug>/page.tsx`), not a dynamic `[slug]`. When the `supporting-skills` page was added to `PAGES`/`GROUPS` earlier, the route file was never created, so `/docs/supporting-skills/` (and the sidebar link) 404'd on the static export. Created `website/app/docs/supporting-skills/page.tsx` and added the slug to the hand-maintained `sitemap.ts` ROUTES and `e2e/links.spec.ts` START_PATHS.
+
+**Files touched:**
+
+- `website/app/page.tsx` - update - integrations array + render (links, eyebrow); skills heading/slice/button.
+- `website/lib/docs-content.ts` - update - `supporting-skills` page retitle + intro + Core-workflow section; GROUPS title "Supporting Skills" -> "Skills".
+- `website/app/docs/supporting-skills/page.tsx` - create - the missing route file.
+- `website/app/sitemap.ts`, `website/e2e/links.spec.ts` - update - add `/docs/supporting-skills/` to the enumerated route lists.
+
+**Decisions made:**
+
+- Skill count surfaced as **24** (9 core + 15 supporting); landing shows the first 6 core, button reveals the rest.
+- "All skills" means the docs page now includes the core skills too (renamed "Skills"); slug stayed `supporting-skills` so the button URL is exact.
+
+**Open questions / follow-ups:**
+
+- The docs system requires a per-page route file **and** a PAGES/GROUPS entry - adding one without the other silently 404s on static export. A generated catch-all `[slug]` route (with `generateStaticParams` over PAGES) would remove this footgun; deferred.
+- `sitemap.ts` ROUTES and `e2e/links.spec.ts` START_PATHS are hand-maintained copies of the docs slug set - candidates to derive from GROUPS later.
+
+---
+
+## 2026-07-26 - Comment cleanup (CLI source, tools, website)
+
+**Prompt / trigger:** User request - tidy comments across the codebase: one line, <=15 words each; drop redundant/dead comments; add meaningful ones where missing.
+
+**What was done:**
+
+- Condensed multi-line file-header blocks and verbose inline comments to single <=15-word lines across `packages/cli-node/src/**`, `packages/cli-python/src/spec_init/**`, `tools/*.mjs`, and `website/{app,components,lib}/**`. Also condensed multi-line Python module docstrings and a few multi-line JSDoc blocks; single-line docstrings kept per the project convention.
+- Removed nothing functional: no commented-out/dead code existed (the survey's one hit was a real why-comment).
+
+**Scope + preservation (explicit):**
+
+- **Excluded `templates/**` entirely** - its HTML-comment markers (`<!-- integration:x -->`, `<!-- persona:x -->`, prettier-ignore) are load-bearing for the strip machinery + parity, and its SKILL.md / spec.config.js comments are user-facing docs.
+- **Excluded tests** (per the scope choice) - their header comments document each suite.
+- **Preserved verbatim** all directive comments: `// @ts-expect-error` and `# type: ignore[...]`.
+
+**Verification:** cli-node build (tsc) OK; payload parity 54/54; vitest 190 passed; website tsc + next build clean; all Python source AST-parses and the merge3-free modules import. Comments are non-functional, so builds/tests are the proof no directive comment was lost.
+
+---
+
+## 2026-07-26 - Docs expansion: 8 new pages, interactive cards/callouts, landing 4-card slice, search dev notice
+
+**Prompt / trigger:** User request - build an Integrations docs page; landing shows only 4 integration cards + a centered "Check all integrations" button; make docs extensive/beginner-friendly; fix docs search; add more spec-driven-development knowledge; add a Help section (FAQ + Contact); make docs interactive with card/callout elements (per attached screenshots).
+
+**What was done:**
+
+- Extended the `DocBlock` union with a `cards` variant (`{ icon, title, desc, href? }[]`) and made the `callout` `label` optional, so callouts can be icon-only.
+- Added `website/components/docs/DocIcon.tsx` - a zero-dep inline-SVG line-icon set (14 icons, `stroke=currentColor`) used by cards and callouts; unknown names fall back to a dot.
+- Updated `DocBlocks.tsx`: callouts now render a variant icon (note->info, tip->lightbulb, warn->warning) plus optional label and `<InlineMarkdown>` body; added the `cards` renderer (2-col grid, optional `<a href>` with hover border).
+- Restructured `GROUPS` into Get Started / Concepts / Skills / Integrations / Reference / Recipes / Help, and added 8 new pages to `PAGES`: `spec-driven-development`, `memory-layer`, `integrations`, `cli-reference`, `glossary`, `faq`, `troubleshooting`, `contact-us` (rich blocks: cards, callouts, steps, defs, code).
+- Created the 8 matching route files under `website/app/docs/<slug>/page.tsx` (two-line `<DocLayout page={PAGES[key]} />` delegations) - required alongside the PAGES/GROUPS entry or the route 404s on static export.
+- Enriched Get Started: added "Where to go next" / "What's next" card grids to the Introduction and Quickstart pages; fixed the `workflows` page `group` from the stale `'Workflows'` to `'Concepts'` so its breadcrumb matches GROUPS.
+- Landing (`app/page.tsx`): integrations grid now renders `INTEGRATIONS.slice(0, 4)` with a centered "Check all integrations" pill linking to `/docs/integrations/`, mirroring the existing skills CTA.
+- Search (`components/Search.tsx`): added an `unavailable` state - when the Pagefind runtime can't load (e.g. `next dev`, no index), the modal shows a clear "index generated at build time, run npm run build" message instead of a silent "No results."
+- Wired the 8 new routes into `app/sitemap.ts` (`ROUTES`) and `e2e/links.spec.ts` (`START_PATHS`).
+
+**Files touched:**
+
+- `website/lib/docs-content.ts` - update - `cards` block type, optional callout label, GROUPS restructure, 8 new PAGES, card grids on intro/quickstart, workflows group fix, unwrapped two bold-wrapped links.
+- `website/components/docs/DocIcon.tsx` - create - inline-SVG icon set.
+- `website/components/docs/DocBlocks.tsx` - update - callout icons + InlineMarkdown, cards renderer.
+- `website/app/docs/{spec-driven-development,memory-layer,integrations,cli-reference,glossary,faq,troubleshooting,contact-us}/page.tsx` - create - route files.
+- `website/app/page.tsx` - update - landing 4-card slice + "Check all integrations" CTA.
+- `website/components/Search.tsx` - update - unavailable-state messaging.
+- `website/app/sitemap.ts`, `website/e2e/links.spec.ts` - update - add the 8 new `/docs/*` routes.
+
+**Decisions made:**
+
+- Callout markdown must not wrap a link in bold (`**[x](y)**`) - the inline tokenizer's bold alternative matches first and swallows the link as literal text. Fixed by using bare `[x](y)`; logged in Key Decisions.
+
+**Verification:** website `tsc --noEmit` clean; `next build` generated 32 pages incl. all 8 new `/docs/*` routes; `scripts/build-search.mjs` reindexed 26 pages / 1757 words (was 18 / 1599).
+
+**Open questions / follow-ups:**
+
+- Internal doc links inside callouts route through `InlineMarkdown`, which forces `target="_blank"` - they open in a new tab. Acceptable for now; a same-tab variant would need a component change.
+
+---
+
+## 2026-07-26 - Docs pages get a minimal one-line footer
+
+**Prompt / trigger:** User request - on all docs pages, replace the full sitemap footer with only the copyright/hire/tagline line.
+
+**What was done:**
+
+- Converted `website/components/Footer.tsx` to a client component using `usePathname()`; when the path starts with `/docs` it renders only the bottom meta strip (© line + "Hire the Developer" + tagline), else the full footer.
+- Extracted that strip into a `FooterMeta()` helper reused by both variants (the full footer's old inline bottom strip now calls it - no duplication).
+- No layout change: the global `<Footer/>` in `app/layout.tsx` stays; the branch happens inside it. Static export prerenders the correct variant per route.
+
+**Files touched:**
+
+- `website/components/Footer.tsx` - update - `'use client'` + `usePathname` branch, `FooterMeta` helper.
+
+**Verification:** website `tsc` + `next build` clean (32 pages); exported `out/docs/faq/index.html` has the minimal strip and none of the full-footer columns, `out/index.html` keeps the full footer.
+
+---
+
+## 2026-07-26 - Docs sidebars pinned + aesthetic scrollbars site-wide
+
+**Prompt / trigger:** User request - docs left/right sidebars should not scroll with the page; make scrollbars site-wide aesthetic (thin, rounded, gray at 40% opacity, no track background).
+
+**What was done:**
+
+- `components/docs/DocLayout.tsx`: both asides changed from `max-h-screen` to `h-screen` and gained `overscroll-contain`. With the existing `sticky top-0` they are now fixed full-height panes that stay put while the main column scrolls; internal sidebar scroll no longer chains into the page.
+- `app/globals.css`: global scrollbar styling on `*` - `scrollbar-width: thin` + `scrollbar-color` (Firefox), and `::-webkit-scrollbar*` (8px, transparent track, `rgba(128,128,128,0.4)` pill thumb, 0.6 on hover).
+
+**Files touched:**
+
+- `website/components/docs/DocLayout.tsx` - update - `h-screen` + `overscroll-contain` on both sidebars.
+- `website/app/globals.css` - update - site-wide thin/rounded/gray-40% scrollbars.
+
+**Verification:** website `tsc` + `next build` clean (32 pages).
+
+---
+
 ## Key Decisions
 
+- **2026-07-26** - Docs interactivity is a data-model extension, not new page infra: a `cards` `DocBlock` variant + optional callout `label` + variant icons (rendered by `DocIcon.tsx`, a zero-dep inline-SVG set). Callout bodies flow through the existing `InlineMarkdown` tokenizer, whose bold alternative greedily swallows a bold-wrapped link (`**[x](y)**`) - so callout links stay bare `[x](y)`. Landing mirrors the skills pattern: `slice(0, 4)` preview + a centered "Check all integrations" CTA to `/docs/integrations/`. Search modal now surfaces an explicit "index built at build time" notice when Pagefind can't load (dev/no-index) instead of a silent "No results."
+- **2026-07-25** - Docs pages need both a `PAGES`/`GROUPS` entry and a matching `app/docs/<slug>/page.tsx` route file (the route is not a dynamic `[slug]`); a mismatch 404s on static export. Landing surfaces a 24-skill count with a 6-item preview + "Check all skills" CTA to the full `/docs/supporting-skills/` catalog.
+- **2026-07-25** - Changelog notes render inline markdown via a zero-dependency tokenizer (`website/lib/inline-markdown.ts`), not a markdown library - consistent with the site's dep-light approach. Copy buttons use a hover "Copy" / click "Copied" tooltip (with an `sr-only` status) instead of a click toast.
+- **2026-07-25** - Open Code Review added as the 7th opt-in integration (CLI/CI code reviewer, complements `/spec-review`); key `opencodereview` (hyphenless for the `[a-z]+` marker regex). At 7 integrations the `--integrations` help line points to the README instead of inlining the list.
+- **2026-07-25** - Kit conventions bias toward token-lean specs (Markdown narrative + flat YAML for deep structure), BDD Given/When/Then acceptance scenarios with mandatory edge cases, version-pinning + verification, no hardcoded secrets/PII in specs, and a PR Risk & Impact section. All as templates/skills conventions - no runtime infra (policy server/sandbox/eval/MCP-server explicitly out of scope for a scaffolding kit).
+- **2026-07-25** - Bare `spec-init` on a TTY launches a `@clack/prompts` welcome (Node-only); TTY-gated so non-interactive behavior is unchanged. The TUI reuses `runInit`/`runReinit` via a new `quiet` mode; `@clack` is dynamic-imported only on the interactive path.
+- **2026-07-24** - `spec.config.js` is an advisory, Claude-read project config (skills/workflow/settings), honored via CLAUDE.md §2 invariant 7. The CLI never parses it (keeps `.js`, avoids the dual-CLI JS-parse problem); persona/integrations stay CLI-owned in meta.json - no duplication.
+- **2026-07-24** - `reinit` adopts Throughspec into existing projects in place, non-destructive by default (keep existing spec files; `--force`/prompt to replace), writing `.spec-init/base` so `upgrade` works after. Reuses init helpers via exports; keep/replace is a global binary.
+- **2026-07-24** - ponytail added as the 6th opt-in integration (code-minimalism discipline), same external-tool pattern; described honestly as minimalism, not orchestration.
+- **2026-07-24** - agentmemory + openwiki added as opt-in integrations following the caveman pattern (external tool -> doc + marker blocks + name-lists, no vendoring). openwiki's root-CLAUDE.md overwrite is mitigated by documentation, not code.
+- **2026-07-24** - Kit ships a 15-skill supporting catalog (design/review/delivery/ideation/continuity) consolidating overlapping requests into moded skills (`spec-review`, `spec-research`). Skills are self-contained memory-integrated prompts; they do not invent FR-IDs. `spec-resume` persists a file-based resumption brief (`claude/resume.md`), no database.
+- **2026-07-24** - Kit CLAUDE.md defaults to suggesting a Conventional Commits message at the end of file-changing responses (§2 invariant 6). Placed in the standing-contract section, not the user-overrides section, so it is persona-agnostic and on by default.
+- **2026-07-24** - Interactive integration picker in `init` is a dependency-free numbered list (all / let me select / none), gated on TTY + no explicit `--integrations`. Rejected raw-mode checkbox TUI and inquirer/questionary deps (zero-cost, no-new-dep). Caveman added as a non-vendored, opt-in integration (install nudged, not bundled).
 - **2026-06-29** - Single `templates/` tree consumed by both packagers; parity enforced by SHA-256 manifest. Prevents npm/PyPI drift (SRS Risk row 6).
 - **2026-06-29** - npm workspaces + uv as the two package managers.
 - **2026-06-29** - MIT license.
@@ -729,7 +1209,7 @@
 - [ ] Verify Lighthouse Performance ≥ 90 and Accessibility ≥ 95 on the deployed Vercel URL (Stage 10 acceptance).
 - [ ] Run Playwright e2e (`test:site`) in CI - suite is wired but has not been executed locally (needs `playwright install chromium`).
 - [ ] Publish website to Vercel and confirm the build finishes in < 2 minutes on their infra (Stage 10).
-- [ ] Add a `next dev`-mode notice to the Search modal that surfaces "index not built" (Pagefind only runs post-`next build`).
+- [x] Add a `next dev`-mode notice to the Search modal that surfaces "index not built" (Pagefind only runs post-`next build`). _Resolved 2026-07-26 - `components/Search.tsx` shows an "index generated at build time, run npm run build" message when the Pagefind runtime fails to load._
 - [ ] Consider a static "first card highlighted" fallback for `PhaseCycler` under `prefers-reduced-motion` instead of bailing out entirely.
 - [x] Verify `pipx install ./dist/spec-init-<version>-py3-none-any.whl` succeeds locally before publish. _Resolved 2026-07-08 - `tests/acceptance/runbook.md` §1 requires this check on macOS, Linux, and Windows before the tag push; `post-publish-smoke.yml` re-verifies from the public registry after publish._
 - [ ] Wire a hatch build hook so editable installs auto-refresh `packages/cli-python/src/spec_init/_payload/` from the outer `_payload/` (Stage 10).

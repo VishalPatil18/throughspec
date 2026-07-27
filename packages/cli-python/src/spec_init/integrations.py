@@ -1,8 +1,4 @@
-"""Integration-strip port for the Python CLI.
-
-Byte-parity with `tools/strip-integrations.mjs` is guarded by
-`packages/cli-python/tests/test_integrations.py`.
-"""
+"""Strip integration-gated blocks; byte-parity Python port of strip-integrations.mjs."""
 
 from __future__ import annotations
 
@@ -11,7 +7,15 @@ from typing import Iterable
 
 from .args import Integration
 
-INTEGRATION_NAMES: tuple[Integration, ...] = ("graphify", "obsidian")
+INTEGRATION_NAMES: tuple[Integration, ...] = (
+    "graphify",
+    "obsidian",
+    "caveman",
+    "agentmemory",
+    "openwiki",
+    "ponytail",
+    "opencodereview",
+)
 _VALID = frozenset(INTEGRATION_NAMES)
 _BLOCK_RE = re.compile(
     r"<!--\s*integration:([a-z]+)\s*-->(.*?)<!--\s*/integration:\1\s*-->\n?",
