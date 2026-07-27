@@ -127,3 +127,10 @@ def test_prompt_gated_off_when_ineligible() -> None:
     assert prompt_integrations(
         _opts(integrations=("graphify",)), isatty=lambda: True, ask=boom
     ) == ("graphify",)
+
+
+def test_init_stamps_persona_line(scaffold) -> None:
+    """init --persona student writes the active-persona line into spec.config.js."""
+    project = scaffold("p", "student")
+    cfg = (project / "spec.config.js").read_text(encoding="utf-8")
+    assert "active-persona: student" in cfg

@@ -32,3 +32,13 @@ def strip_personas(source: str, persona: Persona) -> str:
     stripped = re.sub(r"\n{3,}", "\n\n", stripped)
     stripped = re.sub(r"\n+$", "\n", stripped)
     return stripped
+
+
+_ACTIVE_PERSONA_RE = re.compile(r"^// active-persona:.*$", re.MULTILINE)
+_MANAGED_SUFFIX = "   // managed by spec-init - change via `spec-init customize --persona`"
+
+
+def stamp_persona(text: str, persona: str | None) -> str:
+    """Replace the CLI-managed `// active-persona:` line with `persona` (or `<none>`). No-op if absent."""
+    line = f"// active-persona: {persona or '<none>'}{_MANAGED_SUFFIX}"
+    return _ACTIVE_PERSONA_RE.sub(line, text) if _ACTIVE_PERSONA_RE.search(text) else text

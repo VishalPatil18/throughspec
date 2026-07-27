@@ -20,6 +20,7 @@ from .init import (
     integration_files_for,
     prompt_integrations,
 )
+from ..persona import stamp_persona
 
 ReinitMode = Literal["keep", "replace"]
 
@@ -75,6 +76,8 @@ def run_reinit(opts: CliOptions) -> ReinitResult:
         content = _maybe_transform(
             rel, (payload_dir / rel).read_text(encoding="utf-8"), opts.persona, integrations
         )
+        if rel == "spec.config.js" and opts.persona:
+            content = stamp_persona(content, opts.persona)
         dest.write_text(content, encoding="utf-8", newline="")
         written += 1
 
