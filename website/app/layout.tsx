@@ -30,7 +30,7 @@ export const metadata: Metadata = {
   alternates: { canonical: '/' },
   openGraph: {
     type: 'website',
-    url: 'https://throughspec.dev/',
+    url: 'https://throughspec.v-ai.org/',
     siteName: 'Throughspec',
     title: 'Throughspec - Spec-driven SDLC for Claude Code',
     description:

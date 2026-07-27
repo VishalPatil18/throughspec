@@ -3,7 +3,7 @@
 exports[`persona stripping > retains only the engineer block 1`] = `
 "# CLAUDE.md - Project Behavior Contract
 
-> **Template version:** 0.1.0
+> **Template version:** 1.0.0
 > **Read this file before every prompt.** It is the contract between you (Claude) and this project.
 
 ---
@@ -180,7 +180,7 @@ When invoked via \`/spec-docs\`:
 exports[`persona stripping > retains only the student block 1`] = `
 "# CLAUDE.md - Project Behavior Contract
 
-> **Template version:** 0.1.0
+> **Template version:** 1.0.0
 > **Read this file before every prompt.** It is the contract between you (Claude) and this project.
 
 ---
@@ -359,7 +359,7 @@ After every phase, ask Claude: **"Why this step?"** and append the answer to [\`
 exports[`persona stripping > retains only the team block 1`] = `
 "# CLAUDE.md - Project Behavior Contract
 
-> **Template version:** 0.1.0
+> **Template version:** 1.0.0
 > **Read this file before every prompt.** It is the contract between you (Claude) and this project.
 
 ---
@@ -536,7 +536,7 @@ When invoked via \`/spec-docs\`:
 exports[`persona stripping > retains only the vibe block 1`] = `
 "# CLAUDE.md - Project Behavior Contract
 
-> **Template version:** 0.1.0
+> **Template version:** 1.0.0
 > **Read this file before every prompt.** It is the contract between you (Claude) and this project.
 
 ---

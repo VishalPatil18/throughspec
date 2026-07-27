@@ -12,16 +12,16 @@
 <p align="center">
   <a href="https://throughspec.v-ai.org/"><strong>Website</strong></a> ·
   <a href="https://throughspec.v-ai.org/docs"><strong>Docs</strong></a> ·
-  <a href="https://www.npmjs.com/package/throughspec"><strong>npm</strong></a> ·
-  <a href="https://pypi.org/project/throughspec/"><strong>PyPI</strong></a>
+  <a href="https://www.npmjs.com/package/spec-init"><strong>npm</strong></a> ·
+  <a href="https://pypi.org/project/spec-init/"><strong>PyPI</strong></a>
 </p>
 
 <p align="center">
   <img src="https://img.shields.io/badge/License-MIT-green" alt="MIT License">
   <img src="https://img.shields.io/badge/Node-%E2%89%A518-339933?logo=nodedotjs&logoColor=white" alt="Node 18+">
   <img src="https://img.shields.io/badge/Python-%E2%89%A53.10-3776AB?logo=python&logoColor=white" alt="Python 3.10+">
-  <img src="https://img.shields.io/npm/v/throughspec.svg?label=npm" alt="throughspec npm package">
-  <img src="https://img.shields.io/pypi/v/throughspec.svg?label=PyPI" alt="throughspec PyPI package">
+  <img src="https://img.shields.io/npm/v/spec-init.svg?label=npm" alt="spec-init npm package">
+  <img src="https://img.shields.io/pypi/v/spec-init.svg?label=PyPI" alt="spec-init PyPI package">
   <img src="https://img.shields.io/badge/Claude%20Code-ready-7c3aed" alt="Claude Code ready">
 </p>
 

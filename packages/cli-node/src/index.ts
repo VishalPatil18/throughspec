@@ -10,17 +10,17 @@ import { runAddSkill } from './commands/add-skill.js';
 import { runUpgrade } from './commands/upgrade.js';
 import { runDoctor } from './commands/doctor.js';
 
-const VERSION = '0.1.0-alpha.0';
+const VERSION = '1.0.0';
 
 /** Dispatch a parsed command to its runner. Exported for direct testing. */
 export function dispatch(opts: CliOptions): number {
-  if (opts.help || opts.command === null) {
-    process.stdout.write(HELP_TEXT);
-    return opts.command === null && !opts.help ? 2 : 0;
-  }
   if (opts.version) {
     process.stdout.write(`spec-init ${VERSION}\n`);
     return 0;
+  }
+  if (opts.help || opts.command === null) {
+    process.stdout.write(HELP_TEXT);
+    return opts.command === null && !opts.help ? 2 : 0;
   }
   switch (opts.command) {
     case 'init':

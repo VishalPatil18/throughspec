@@ -44,12 +44,10 @@ describe('spec-init CLI', () => {
     expect(stderr).toMatch(/unknown flag/);
   });
 
-  it('--version prints a version string', () => {
+  it('--version prints the version and exits 0', () => {
     const { status, stdout } = run(['--version']);
-    // --version has no command so dispatcher prints help; version flag alone
-    // is fine but requires a command context. We accept either.
-    expect([0, 2]).toContain(status);
-    expect(stdout.length).toBeGreaterThan(0);
+    expect(status).toBe(0);
+    expect(stdout).toMatch(/spec-init \d+\.\d+\.\d+/);
   });
 });
 

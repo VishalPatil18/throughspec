@@ -1,6 +1,6 @@
 # CLAUDE.md - Project Behavior Contract
 
-> **Template version:** 0.1.0
+> **Template version:** 1.0.0
 > **Read this file before every prompt.** It is the contract between you (Claude) and this project.
 
 ---

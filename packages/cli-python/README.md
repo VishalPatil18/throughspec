@@ -1,15 +1,17 @@
-# spec-init (Python)
+# spec-init
 
-The PyPI-distributed Throughspec scaffolding CLI. Published to PyPI as `spec-init`.
+[![PyPI version](https://img.shields.io/pypi/v/spec-init.svg)](https://pypi.org/project/spec-init/)
+[![Python versions](https://img.shields.io/pypi/pyversions/spec-init.svg)](https://pypi.org/project/spec-init/)
+[![license](https://img.shields.io/pypi/l/spec-init.svg)](./LICENSE)
 
-This is the **end-user CLI**. For repo-level dev info, see the [root README](../../README.md).
+**Throughspec** - spec-driven, drift-proof, token-lean scaffolding for [Claude Code](https://docs.claude.com/en/docs/claude-code). `spec-init` bootstraps a project around a deterministic, spec-first SDLC: you make the decisions, Claude does the heavy lifting, and a fixed structure keeps the work from drifting.
 
----
+The same CLI ships on PyPI (this package) and [npm](https://www.npmjs.com/package/spec-init) from one source-of-truth template tree, verified byte-for-byte.
 
 ## Install
 
 ```bash
-# recommended
+# recommended (isolated)
 pipx install spec-init
 spec-init my-project
 
@@ -20,68 +22,82 @@ spec-init my-project
 
 Requires Python ≥ 3.10.
 
----
-
-## What It Does
-
-Identical to the npm-published `spec-init`. Both CLIs ship the same `templates/` payload, verified byte-for-byte by `tools/check-payload-parity.mjs` at the repo root.
-
-See [`packages/cli-node/README.md`](../cli-node/README.md) for the scaffolded tree shape.
-
-After scaffolding, open the project in Claude Code and run `/spec-requirements`.
-
----
-
-## Local Development
-
-The Python package's wheel includes the canonical `templates/` payload from the repo root. The build flow:
+## Quickstart
 
 ```bash
-# 1. Copy templates/ -> _payload/ (cleared and rewritten on every run)
-python -m spec_init._build
-
-# 2. Build the wheel and sdist
-uv build
+# scaffold, then open in Claude Code and run /spec-requirements
+spec-init my-project
+cd my-project
 ```
 
-`_payload/` is gitignored.
+Run with **no arguments** in a terminal for an interactive welcome (new-vs-existing, persona, integrations). In a non-interactive shell (CI, pipes) it prints help instead, so scripts are unaffected.
 
----
+`spec-init <name>` scaffolds the canonical Throughspec tree:
+
+```
+my-project/
+├── CLAUDE.md
+├── README.md
+├── CHANGELOG.md
+├── SECURITY.md
+├── CONTRIBUTING.md
+├── claude/
+│   ├── srs.md
+│   ├── plan.md
+│   ├── context.md
+│   ├── features.md
+│   ├── design-decisions.md
+│   └── learnings.md
+├── design/
+│   └── design.md
+├── .claude/
+│   ├── skills/
+│   └── agents/
+└── .spec-init/base/    # pristine snapshot for upgrade
+```
 
 ## Commands
 
-Command surface and flags are identical to the [Node CLI](../cli-node/README.md#commands). The two channels produce byte-identical scaffolded trees for every persona/integration combination - enforced by the cross-language parity test at `tests/cli-parity.test.ts`.
-
 | Command | Purpose |
 |---------|---------|
+| `spec-init` | With no args on a terminal, launch the interactive welcome |
 | `spec-init init <name>` | Scaffold a new project into `<name>/` |
-| `spec-init customize --add / --remove <graphify\|obsidian>` | Toggle an integration in an existing project |
+| `spec-init reinit [dir]` | Adopt Throughspec in an existing project in place (non-destructive) |
+| `spec-init customize --add / --remove <name>` | Toggle an integration in an existing project |
 | `spec-init customize --persona <name>` | Swap the CLAUDE.md persona block |
-| `spec-init add-skill <name>` | Copy a skill from the payload's `skills/` catalog (populated in Stage 5) |
+| `spec-init add-skill <name>` | Copy one skill from the payload catalog into `.claude/skills/` |
 | `spec-init upgrade` | Three-way-merge a newer template payload into an existing project |
 | `spec-init doctor` | Verify a scaffolded project's shape |
 
 ### Flags
 
-- `--persona vibe|student|engineer|team`
-- `--integrations graphify,obsidian`
-- `--force` / `--dry-run` / `-h` / `-v`
+- `--persona vibe|student|engineer|team` - which CLAUDE.md persona block to keep.
+- `--integrations <csv>` - activate integrations at scaffold time (see below).
+- `--force` - overwrite an existing directory (`init`) or replace existing spec files (`reinit`).
+- `--dry-run` - print the plan without writing files.
+- `-h, --help` / `-v, --version`.
+
+### Integrations
+
+Opt-in, free/open-source tools layered in without touching your source. Add at scaffold time (`--integrations graphify,caveman`) or later (`spec-init customize --add obsidian`); remove with `customize --remove <name>`.
+
+`graphify`, `obsidian`, `caveman`, `agentmemory`, `openwiki`, `ponytail`, `opencodereview`.
+
+See the [Integrations docs](https://throughspec.v-ai.org/docs/integrations/) for what each does.
+
+Both channels produce byte-identical scaffolded trees for every persona/integration combination, enforced by a cross-language parity test.
 
 ### The `.spec-init/base/` snapshot
 
-`init` writes a pristine copy of the payload into `<project>/.spec-init/base/`. `upgrade` uses that snapshot as the common ancestor for its three-way merge. `doctor` checks it exists.
+`init` writes a pristine copy of the payload into `<project>/.spec-init/base/`. `upgrade` uses it as the common ancestor for its three-way merge; `doctor` checks it exists. Don't edit files under `.spec-init/` - they are the CLI's private state.
 
----
+## Links
 
-## Tests
-
-```bash
-cd packages/cli-python
-uv run pytest tests/
-```
-
----
+- **Docs:** https://throughspec.v-ai.org/docs/
+- **Changelog:** https://throughspec.v-ai.org/changelog/
+- **Source & issues:** https://github.com/VishalPatil18/throughspec
+- **Contributing:** see [CONTRIBUTING.md](https://github.com/VishalPatil18/throughspec/blob/development/CONTRIBUTING.md) for local dev and build.
 
 ## License
 
-[MIT](../../LICENSE)
+[MIT](./LICENSE) © Vishal Patil
