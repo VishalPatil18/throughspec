@@ -45,13 +45,34 @@ def test_conflict_produces_markers(
         assert ">>>>>>> theirs" in readme
 
 
-def test_spec_config_persona_survives_upgrade(
+def test_upgrade_no_false_conflict_on_stripped_persona_block(
     scaffold: Callable, run_cli: Callable
 ) -> None:
-    """upgrade keeps the stamped persona line and does not conflict on spec.config.js."""
+    """A template change inside a persona block the user's persona stripped must
+    not resurface as a conflict after the transform-on-read upgrade.
+
+    Without the fix, the raw base snapshot still contains the engineer block
+    while ours (student) deleted it; a difference inside that block makes the
+    three-way merge see an overlapping change and emit a conflict. With the fix,
+    base and theirs are stripped on read so the engineer change vanishes and the
+    upgrade is clean.
+    """
     project = scaffold("p", "student")
+    base_claude = project / ".spec-init" / "base" / "CLAUDE.md"
+    text = base_claude.read_text(encoding="utf-8")
+    # Sanity: the RAW base snapshot contains the engineer-persona block that the
+    # student-stripped working CLAUDE.md does not.
+    assert "For the Solo Engineer" in text
+    assert "For the Solo Engineer" not in (project / "CLAUDE.md").read_text(encoding="utf-8")
+    # Simulate a prior template version whose engineer block differed, so
+    # base != theirs INSIDE a region ours deleted.
+    base_claude.write_text(
+        text.replace("For the Solo Engineer", "For the Solo Engineer (old)"),
+        encoding="utf-8",
+    )
+
     result = run_cli("upgrade", cwd=project)
-    assert result.returncode == 0
-    cfg = (project / "spec.config.js").read_text(encoding="utf-8")
-    assert "active-persona: student" in cfg
-    assert "<<<<<<< ours" not in cfg
+    ours = (project / "CLAUDE.md").read_text(encoding="utf-8")
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "<<<<<<< ours" not in ours  # no conflict markers
+    assert "For the Solo Engineer" not in ours  # stripped block not resurrected
