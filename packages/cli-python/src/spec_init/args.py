@@ -115,11 +115,18 @@ def parse_args(argv: list[str]) -> CliOptions:
     if argv[0] in ("--version", "-v"):
         return CliOptions(version=True)
 
-    command_token = argv[0]
-    if command_token not in COMMANDS:
+    first = argv[0]
+    if first in COMMANDS:
+        command_token = first
+        rest = argv[1:]
+    elif first.startswith("-"):
         raise UsageError(
-            f"unknown command: {command_token} (try one of: {', '.join(COMMANDS)})"
+            f"unknown command: {first} (try one of: {', '.join(COMMANDS)})"
         )
+    else:
+        # Implied init: `spec-init my-project` == `spec-init init my-project`.
+        command_token = "init"
+        rest = argv
 
     parser = argparse.ArgumentParser(prog=f"spec-init {command_token}", add_help=False)
     parser.add_argument("--persona", choices=list(PERSONAS))
@@ -133,7 +140,7 @@ def parse_args(argv: list[str]) -> CliOptions:
     parser.add_argument("positional", nargs="*")
 
     try:
-        ns = parser.parse_args(argv[1:])
+        ns = parser.parse_args(rest)
     except SystemExit as e:  # argparse calls sys.exit on unknown flags
         raise UsageError("invalid flag or missing value") from e
 
