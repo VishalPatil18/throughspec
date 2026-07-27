@@ -10,6 +10,8 @@
 //     `spec-init customize --persona <p>` / `--add|--remove <integration>`.
 //     They are recorded in .spec-init/meta.json and CLAUDE.md section 8.
 
+// active-persona: <none>   // managed by spec-init - change via `spec-init customize --persona`
+
 module.exports = {
   // --- Skills -------------------------------------------------------------
   // Every shipped skill is available by default. List the names of any skills
