@@ -43,3 +43,15 @@ def test_conflict_produces_markers(
         readme = (project / "README.md").read_text(encoding="utf-8")
         assert "<<<<<<< ours" in readme
         assert ">>>>>>> theirs" in readme
+
+
+def test_spec_config_persona_survives_upgrade(
+    scaffold: Callable, run_cli: Callable
+) -> None:
+    """upgrade keeps the stamped persona line and does not conflict on spec.config.js."""
+    project = scaffold("p", "student")
+    result = run_cli("upgrade", cwd=project)
+    assert result.returncode == 0
+    cfg = (project / "spec.config.js").read_text(encoding="utf-8")
+    assert "active-persona: student" in cfg
+    assert "<<<<<<< ours" not in cfg

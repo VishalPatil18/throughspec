@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import shutil
 import sys
 from dataclasses import dataclass, field
@@ -10,6 +11,8 @@ from pathlib import Path
 from ..args import CliOptions, UsageError
 from ..payload import resolve_payload_dir
 from ..three_way_merge import three_way_merge
+from .init import INTEGRATIONS_PREFIX, _maybe_transform
+from ..persona import stamp_persona
 
 
 @dataclass
@@ -32,15 +35,31 @@ def run_upgrade(opts: CliOptions) -> UpgradeReport:
         )
     theirs_dir = resolve_payload_dir()
 
+    meta = _read_meta(project_root)
+    persona = meta["persona"]
+    integrations = tuple(meta["integrations"])
+
     report = UpgradeReport()
     for rel in _walk(theirs_dir):
+        if rel.startswith(INTEGRATIONS_PREFIX):
+            continue  # integration trees are not project-root files
+
         base_path = base_dir / rel
         ours_path = project_root / rel
         theirs_path = theirs_dir / rel
 
-        theirs = theirs_path.read_text(encoding="utf-8")
-        base = base_path.read_text(encoding="utf-8") if base_path.exists() else ""
+        theirs = _maybe_transform(rel, theirs_path.read_text(encoding="utf-8"), persona, integrations)
+        base = (
+            _maybe_transform(rel, base_path.read_text(encoding="utf-8"), persona, integrations)
+            if base_path.exists()
+            else ""
+        )
         ours = ours_path.read_text(encoding="utf-8") if ours_path.exists() else base
+
+        if rel == "spec.config.js":
+            base = stamp_persona(base, None)
+            theirs = stamp_persona(theirs, None)
+            ours = stamp_persona(ours, None)
 
         if base == theirs:
             continue  # template unchanged in this release
@@ -66,6 +85,15 @@ def run_upgrade(opts: CliOptions) -> UpgradeReport:
         shutil.rmtree(base_dir)
         shutil.copytree(theirs_dir, base_dir)
 
+    if not opts.dry_run and persona:
+        cfg = project_root / "spec.config.js"
+        if cfg.exists():
+            cfg.write_text(
+                stamp_persona(cfg.read_text(encoding="utf-8"), persona),
+                encoding="utf-8",
+                newline="",
+            )
+
     _print_report(report, opts.dry_run)
     return report
 
@@ -86,3 +114,15 @@ def _print_report(r: UpgradeReport, dry_run: bool) -> None:
 def _walk(root: Path) -> list[str]:
     """Return every file under `root` as sorted forward-slash relative paths."""
     return sorted(p.relative_to(root).as_posix() for p in root.rglob("*") if p.is_file())
+
+
+def _read_meta(project_root: Path) -> dict:
+    """Read persona + integrations recorded at init; defaults for older/absent snapshots."""
+    p = project_root / ".spec-init" / "meta.json"
+    if not p.exists():
+        return {"persona": None, "integrations": []}
+    try:
+        raw = json.loads(p.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return {"persona": None, "integrations": []}
+    return {"persona": raw.get("persona"), "integrations": list(raw.get("integrations") or [])}
