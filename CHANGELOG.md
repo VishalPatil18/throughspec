@@ -10,7 +10,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Added
 
-- Placeholder for the next release cycle.
+- Create-app shorthand: `spec-init <name>` (and `npx spec-init my-project`) now implies `init`, so scaffolding no longer requires the explicit `init` subcommand. A leading flag or `-`-prefixed token is still rejected.
+- The active persona is now surfaced in `spec.config.js` through a CLI-managed `// active-persona:` line, written and kept current by `init`, `reinit`, and `customize --persona`.
+
+### Fixed
+
+- `spec-init upgrade` no longer produces false conflicts on persona- or integration-gated files. The `.spec-init/base/` snapshot stays raw (so `customize` can still re-derive from its markers), but `base` and `theirs` are transformed through the recorded `meta.json` persona/integration settings before the three-way merge. The managed persona line in `spec.config.js` is normalized out of the merge and re-stamped afterward, so it can never conflict.
 
 ---
 

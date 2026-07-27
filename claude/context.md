@@ -1138,6 +1138,36 @@
 
 ---
 
+## 2026-07-27 - CLI fixes: create-app shorthand, conflict-free upgrade, persona surfaced in spec.config.js
+
+**Prompt / trigger:** User reported three issues in the published npm CLI: (1) `npx spec-init my-project` did not scaffold (required explicit `init`); (2) confusion about the `.spec-init/base/` folder; (3) the selected persona was nowhere visible in `spec.config.js`. Brainstormed → spec → plan → subagent-driven execution.
+
+**What was done:**
+- **Create-app shorthand** (both CLIs): first bare non-command token now implies `init <name>`; a leading `-`/flag still errors.
+- **Conflict-free upgrade** (both CLIs): `.spec-init/base/` stays RAW on disk (needed by `customize`'s marker re-derive), but `upgrade` now reads `.spec-init/meta.json` and transforms `base` and `theirs` through the recorded persona/integration settings before the three-way merge, and skips `_integrations/`. This removes false conflicts on persona/integration-gated files (root cause: the old code merged a raw base against a stripped working tree).
+- **Persona surfaced in `spec.config.js`**: a CLI-managed `// active-persona: <value>   // managed by spec-init - change via ` + "`spec-init customize --persona`" + ` line, added to the template payload and written/updated by `init`/`reinit`/`customize --persona` via a shared `stampPersona`/`stamp_persona` helper. `upgrade` normalizes that line to `<none>` on all three merge sides then re-stamps from meta, so it can never conflict.
+
+**Files touched:**
+- `templates/spec.config.js` - update - added the managed `active-persona` line (single source of truth; `packages/cli-python/_payload/` is generated from it by `_build.py` and stays gitignored).
+- `packages/cli-node/src/args.ts` - update - implied-init parsing; removed orphaned `takeCommand`.
+- `packages/cli-node/src/persona.ts` - update - `stampPersona`.
+- `packages/cli-node/src/commands/{init,reinit,customize,upgrade}.ts` - update - stamp wiring + transform-on-read upgrade.
+- `packages/cli-python/src/spec_init/args.py` - update - implied-init parsing.
+- `packages/cli-python/src/spec_init/persona.py` - update - `stamp_persona`.
+- `packages/cli-python/src/spec_init/commands/{init,reinit,customize,upgrade}.py` - update - mirror of the Node changes.
+- `packages/cli-node/tests/{args,persona}.test.ts`, `packages/cli-python/tests/{test_args,test_init,test_upgrade}.py` - update/create - regression tests.
+- `CHANGELOG.md` - update - Unreleased Added/Fixed entries.
+
+**Decisions made:**
+- Base snapshot stays raw; upgrade transforms on read rather than storing a stripped base - a stripped base would break `customize`'s marker re-derive. (Also logged conceptually in the design doc `docs/superpowers/specs/2026-07-26-spec-init-cli-fixes-design.md`.)
+- Persona visibility via a merge-normalized managed comment line rather than a parsed config field, so `spec.config.js` remains "the CLI never parses it" while still showing the active persona.
+
+**Open questions / follow-ups:**
+- Pre-existing (out of scope, flag to maintainer): 3 Python tests fail on the untouched repo too - `test_init.py::test_integrations_flip`, `test_customize.py::test_add_graphify_flips_checkbox`, `test_customize.py::test_remove_obsidian_restores_checkbox` (integration-checkbox assertion vs current `templates/CLAUDE.md` §8). Not caused by this work.
+- Node CLI still has no built-payload e2e harness; the upgrade fix is covered by line-by-line review, a manual divergence repro, and the identical-logic Python regression test.
+
+---
+
 ## Key Decisions
 
 - **2026-07-26** - Docs interactivity is a data-model extension, not new page infra: a `cards` `DocBlock` variant + optional callout `label` + variant icons (rendered by `DocIcon.tsx`, a zero-dep inline-SVG set). Callout bodies flow through the existing `InlineMarkdown` tokenizer, whose bold alternative greedily swallows a bold-wrapped link (`**[x](y)**`) - so callout links stay bare `[x](y)`. Landing mirrors the skills pattern: `slice(0, 4)` preview + a centered "Check all integrations" CTA to `/docs/integrations/`. Search modal now surfaces an explicit "index built at build time" notice when Pagefind can't load (dev/no-index) instead of a silent "No results."
