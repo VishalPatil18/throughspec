@@ -27,10 +27,17 @@ def test_version_short_circuit() -> None:
     assert opts.version is True
 
 
-def test_unknown_command_raises() -> None:
-    """Unknown command → UsageError with hint."""
-    with pytest.raises(UsageError, match="unknown command"):
-        parse_args(["gremlin"])
+def test_implied_init() -> None:
+    """A bare non-command token → implied init with that token as the name."""
+    opts = parse_args(["my-project"])
+    assert opts.command == "init"
+    assert opts.positional == ("my-project",)
+
+
+def test_leading_flag_raises() -> None:
+    """A leading unknown flag is still an error, not an implied init."""
+    with pytest.raises(UsageError):
+        parse_args(["--nope"])
 
 
 def test_init_with_persona() -> None:
