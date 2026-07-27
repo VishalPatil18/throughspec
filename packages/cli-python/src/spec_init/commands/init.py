@@ -14,7 +14,7 @@ from ..args import INTEGRATIONS, CliOptions, Integration, Persona, UsageError
 from ..checklist import post_init_checklist
 from ..integrations import strip_integrations
 from ..payload import resolve_payload_dir
-from ..persona import strip_personas
+from ..persona import stamp_persona, strip_personas
 
 # Payload prefix (forward-slash) that holds per-integration file trees.
 INTEGRATIONS_PREFIX = "_integrations/"
@@ -67,6 +67,8 @@ def run_init(opts: CliOptions) -> InitResult:
         dest = out_dir / rel
         dest.parent.mkdir(parents=True, exist_ok=True)
         content = _maybe_transform(rel, src.read_text(encoding="utf-8"), opts.persona, integrations)
+        if rel == "spec.config.js" and opts.persona:
+            content = stamp_persona(content, opts.persona)
         dest.write_text(content, encoding="utf-8", newline="")
         written += 1
     written += apply_integrations(payload_dir, out_dir, integrations)

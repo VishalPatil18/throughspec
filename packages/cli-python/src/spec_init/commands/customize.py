@@ -8,7 +8,7 @@ from pathlib import Path
 
 from ..args import CliOptions, Integration, Persona, UsageError
 from ..integrations import strip_integrations
-from ..persona import strip_personas
+from ..persona import stamp_persona, strip_personas
 from .init import INTEGRATIONS_PREFIX, apply_integrations
 
 
@@ -88,6 +88,14 @@ def run_customize(opts: CliOptions) -> None:
         + "\n",
         encoding="utf-8",
     )
+    if mode == "persona" and next_persona:
+        cfg = project_root / "spec.config.js"
+        if cfg.exists():
+            cfg.write_text(
+                stamp_persona(cfg.read_text(encoding="utf-8"), next_persona),
+                encoding="utf-8",
+                newline="",
+            )
     sys.stdout.write(
         f"[OK] customize: {rederived} file(s) re-derived, "
         f"{integration_touched} integration file(s) updated\n"
