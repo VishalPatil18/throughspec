@@ -19,4 +19,8 @@ describe('parseArgs shorthand', () => {
     const opts = parseArgs([]);
     expect(opts.command).toBeNull();
   });
+
+  it('rejects a single-dash leading token instead of implying init', () => {
+    expect(() => parseArgs(['-persona', 'student'])).toThrow();
+  });
 });

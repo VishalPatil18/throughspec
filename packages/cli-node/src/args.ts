@@ -69,6 +69,8 @@ export function parseArgs(argv: readonly string[]): CliOptions {
     } else if (opts.command === null) {
       if ((COMMANDS as readonly string[]).includes(token)) {
         opts.command = token as Command;
+      } else if (token.startsWith('-')) {
+        throw new UsageError(`unknown command: ${token} (try one of: ${COMMANDS.join(', ')})`);
       } else {
         // Implied init: `spec-init my-project` == `spec-init init my-project`.
         opts.command = 'init';
