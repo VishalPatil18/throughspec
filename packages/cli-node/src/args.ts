@@ -67,7 +67,13 @@ export function parseArgs(argv: readonly string[]): CliOptions {
     } else if (token.startsWith('--')) {
       throw new UsageError(`unknown flag: ${token}`);
     } else if (opts.command === null) {
-      opts.command = takeCommand(token);
+      if ((COMMANDS as readonly string[]).includes(token)) {
+        opts.command = token as Command;
+      } else {
+        // Implied init: `spec-init my-project` == `spec-init init my-project`.
+        opts.command = 'init';
+        opts.positional.push(token);
+      }
     } else {
       opts.positional.push(token);
     }
@@ -81,11 +87,6 @@ export class UsageError extends Error {
     super(message);
     this.name = 'UsageError';
   }
-}
-
-function takeCommand(token: string): Command {
-  if ((COMMANDS as readonly string[]).includes(token)) return token as Command;
-  throw new UsageError(`unknown command: ${token} (try one of: ${COMMANDS.join(', ')})`);
 }
 
 function takePersona(value: string | undefined, flag: string): Persona {
