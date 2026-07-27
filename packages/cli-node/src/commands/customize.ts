@@ -11,7 +11,7 @@ import {
 import { dirname, join, relative, resolve } from 'node:path';
 import { UsageError } from '../args.js';
 import type { CliOptions, Integration, Persona } from '../args.js';
-import { stripPersonas } from '../persona.js';
+import { stripPersonas, stampPersona } from '../persona.js';
 import { stripIntegrations } from '../integrations.js';
 import { INTEGRATIONS_PREFIX, applyIntegrations } from './init.js';
 
@@ -76,6 +76,10 @@ export function runCustomize(opts: CliOptions): void {
     join(projectRoot, '.spec-init', 'meta.json'),
     JSON.stringify(nextMeta, null, 2) + '\n',
   );
+  if (mode === 'persona' && nextMeta.persona) {
+    const cfg = join(projectRoot, 'spec.config.js');
+    if (existsSync(cfg)) writeFileSync(cfg, stampPersona(readFileSync(cfg, 'utf8'), nextMeta.persona));
+  }
   process.stdout.write(
     `[OK] customize: ${rederived} file(s) re-derived, ${integrationFilesTouched} integration file(s) updated\n`,
   );

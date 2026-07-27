@@ -5,6 +5,7 @@ import { dirname, join, relative, resolve } from 'node:path';
 import { UsageError } from '../args.js';
 import type { CliOptions } from '../args.js';
 import { resolvePayloadDir } from '../payload.js';
+import { stampPersona } from '../persona.js';
 import { postInitChecklist } from '../checklist.js';
 import {
   INTEGRATIONS_PREFIX,
@@ -66,12 +67,13 @@ export function runReinit(opts: CliOptions, quiet = false): ReinitResult {
       continue;
     }
     mkdirSync(dirname(dest), { recursive: true });
-    const content = maybeTransform(
+    let content = maybeTransform(
       rel,
       readFileSync(join(payloadDir, rel), 'utf8'),
       opts.persona,
       integrations,
     );
+    if (rel === 'spec.config.js' && opts.persona) content = stampPersona(content, opts.persona);
     writeFileSync(dest, content);
     written += 1;
   }

@@ -14,7 +14,7 @@ import { dirname, join, relative, resolve } from 'node:path';
 import { INTEGRATIONS, UsageError } from '../args.js';
 import type { CliOptions, Integration, Persona } from '../args.js';
 import { resolvePayloadDir } from '../payload.js';
-import { stripPersonas } from '../persona.js';
+import { stripPersonas, stampPersona } from '../persona.js';
 import { stripIntegrations } from '../integrations.js';
 import { postInitChecklist } from '../checklist.js';
 
@@ -66,7 +66,8 @@ export function runInit(opts: CliOptions, quiet = false): InitResult {
     const src = join(payloadDir, rel);
     const dest = join(outDir, rel);
     mkdirSync(dirname(dest), { recursive: true });
-    const content = maybeTransform(rel, readFileSync(src, 'utf8'), opts.persona, integrations);
+    let content = maybeTransform(rel, readFileSync(src, 'utf8'), opts.persona, integrations);
+    if (rel === 'spec.config.js' && opts.persona) content = stampPersona(content, opts.persona);
     writeFileSync(dest, content);
     written += 1;
   }
