@@ -1,8 +1,9 @@
 # spec-init
 
-[![PyPI version](https://img.shields.io/pypi/v/spec-init.svg)](https://pypi.org/project/spec-init/)
-[![Python versions](https://img.shields.io/pypi/pyversions/spec-init.svg)](https://pypi.org/project/spec-init/)
-[![license](https://img.shields.io/pypi/l/spec-init.svg)](./LICENSE)
+<a href="https://pypi.org/project/spec-init/"><img src="https://img.shields.io/pypi/v/spec-init.svg" alt="PyPI version"></a>
+<a href="https://pypi.org/project/spec-init/"><img src="https://img.shields.io/pypi/pyversions/spec-init.svg" alt="Python versions"></a>
+<a href="./LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue" alt="MIT License"></a>
+
 
 **Throughspec** - spec-driven, drift-proof, token-lean scaffolding for [Claude Code](https://docs.claude.com/en/docs/claude-code). `spec-init` bootstraps a project around a deterministic, spec-first SDLC: you make the decisions, Claude does the heavy lifting, and a fixed structure keeps the work from drifting.
 

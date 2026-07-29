@@ -5,6 +5,7 @@ import { GROUPS, PAGES, type DocPage } from '@/lib/docs-content';
 import BrandMark from '@/components/BrandMark';
 import Search from '@/components/Search';
 import DocBlocks from './DocBlocks';
+import { SITE_VERSION } from '@/lib/version';
 
 const ORDER: string[] = GROUPS.flatMap((g) => g.slugs);
 
@@ -29,6 +30,13 @@ export default function DocLayout({ page }: { page: DocPage }) {
     <div className="mx-auto grid min-h-screen max-w-[1320px] grid-cols-1 md:grid-cols-[262px_minmax(0,1fr)] xl:grid-cols-[262px_minmax(0,1fr)_224px]">
       <aside className="sticky top-[var(--nav-h)] h-[calc(100vh-var(--nav-h))] self-start overflow-y-auto overscroll-contain border-r border-black/10 px-6 pb-20 pt-7">
         <Search />
+        <Link
+          href="/changelog/"
+          className="mb-6 mt-3 inline-flex items-center gap-1.5 rounded-pill border border-black/15 px-2.5 py-1 text-[11px] tracking-[0.01em] text-muted no-underline hover:text-ink"
+        >
+          <span className="inline-block h-1.5 w-1.5 rounded-pill bg-ink" />
+          v{SITE_VERSION}
+        </Link>
         {GROUPS.map((g) => (
           <div key={g.title} className="mb-[26px]">
             <div className="mb-3 text-[11px] font-medium uppercase tracking-[0.06em] text-ink">{g.title}</div>
