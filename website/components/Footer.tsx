@@ -4,13 +4,14 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import BrandMark from './BrandMark';
 import CopyableCommand from './CopyableCommand';
+import { SITE_VERSION } from '@/lib/version';
 
 // Bottom strip shared by the full footer and the docs-only minimal footer.
 function FooterMeta() {
   return (
     <div className="flex flex-wrap items-center justify-between gap-4">
       <div className="text-xs tracking-[-0.01em] text-dim">
-        © 2026 Throughspec v1.0.0 · MIT licensed
+        © 2026 Throughspec v{SITE_VERSION} · MIT licensed
       </div>
       <div className="flex gap-2 items-center">
         <Link href="/hire-the-developer/" className="text-xs text-dim underline">
@@ -40,8 +41,8 @@ const COLUMNS: { title: string; items: { label: string; href: string }[] }[] = [
       { label: 'Workflows', href: '/docs/workflows/' },
       { label: 'Design Prompts', href: '/docs/design-prompt-library/' },
       { label: 'Learning Map', href: '/docs/learning-map/' },
-      { label: 'npm', href: '/docs/install/#npm' },
-      { label: 'PyPI', href: '/docs/install/#pypi' },
+      { label: 'npm', href: 'https://www.npmjs.com/package/spec-init' },
+      { label: 'PyPI', href: 'https://pypi.org/project/spec-init/' },
     ],
   },
   {

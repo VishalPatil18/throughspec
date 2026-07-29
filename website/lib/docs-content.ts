@@ -26,7 +26,7 @@ export interface DocGroup {
 
 // Sidebar order + grouping. Every slug here must map to a page in PAGES below.
 export const GROUPS: DocGroup[] = [
-  { title: 'Get Started', slugs: ['', 'install', 'quickstart'] },
+  { title: 'Get Started', slugs: ['', 'install', 'setup', 'quickstart'] },
   { title: 'Concepts', slugs: ['spec-driven-development', 'memory-layer', 'workflows'] },
   { title: 'Skills', slugs: ['supporting-skills'] },
   { title: 'Integrations', slugs: ['integrations'] },
@@ -98,12 +98,39 @@ export const PAGES: Record<string, DocPage> = {
     intro:
       'Throughspec ships on two channels from a single source-of-truth template tree, so the trees never drift byte-for-byte.',
     blocks: [
+      {
+        t: 'callout',
+        variant: 'tip',
+        label: 'New in 1.1.0',
+        text: 'spec-init my-app now scaffolds directly - the create-app shorthand means you no longer need to type the init subcommand. See the full 1.1.0 notes on the Changelog.',
+      },
+      { t: 'p', text: 'Pick either channel - the Node and Python CLIs expose an identical command surface and ship the same template payload, verified byte-for-byte on every release. Use whichever runtime you already have.' },
+
       { t: 'h2', id: 'npm', text: 'npm (Node.js ≥ 18)' },
-      { t: 'p', text: 'Distributed as ESM. One-off run via npx or install globally.' },
-      { t: 'code', text: '# one-off scaffold\nnpx spec-init my-app\n\n# or install globally\nnpm i -g spec-init' },
+      { t: 'p', text: 'Distributed as ESM. The fastest path is npx, which downloads and runs the latest published version without a global install:' },
+      { t: 'code', text: '# one-off scaffold - no install, always the latest version\nnpx spec-init my-app' },
+      { t: 'p', text: 'Prefer a persistent command on your PATH? Install it globally instead:' },
+      { t: 'code', text: '# install globally, then call spec-init anywhere\nnpm install -g spec-init\nspec-init my-app' },
+
       { t: 'h2', id: 'pypi', text: 'PyPI (Python ≥ 3.10)' },
-      { t: 'p', text: 'Distributed as a pure-Python wheel. pipx keeps it isolated from your other Python tools.' },
-      { t: 'code', text: 'pipx install spec-init\n# or\npip install spec-init' },
+      { t: 'p', text: 'Distributed as a pure-Python wheel. pipx is recommended - it installs the CLI into its own isolated virtualenv so it never collides with your project dependencies:' },
+      { t: 'code', text: '# recommended: isolated install via pipx\npipx install spec-init\nspec-init my-app' },
+      { t: 'p', text: 'If you do not use pipx, a plain pip install into the active environment works too:' },
+      { t: 'code', text: '# alternative: install into the current environment\npip install spec-init\nspec-init my-app' },
+
+      { t: 'h2', id: 'compare', text: 'npm and pip side by side' },
+      { t: 'p', text: 'Every command maps one-to-one across the two channels. If a snippet elsewhere in these docs shows only the npx form, the pip equivalent is exactly the same after the runner prefix.' },
+      {
+        t: 'defs',
+        items: [
+          { term: 'Run without installing', desc: 'npm: npx spec-init my-app  ·  pip: (install first, pipx/pip have no npx-style runner)' },
+          { term: 'Global install', desc: 'npm: npm install -g spec-init  ·  pip: pipx install spec-init' },
+          { term: 'Scaffold a project', desc: 'Both: spec-init my-app  (create-app shorthand, new in 1.1.0)' },
+          { term: 'Check the version', desc: 'Both: spec-init --version  →  spec-init 1.1.0' },
+          { term: 'Update the CLI', desc: 'npm: npm update -g spec-init  ·  pip: pipx upgrade spec-init' },
+        ],
+      },
+
       { t: 'h2', id: 'flags', text: 'Flags' },
       {
         t: 'defs',
@@ -112,16 +139,120 @@ export const PAGES: Record<string, DocPage> = {
           { term: '--integrations <csv>', desc: 'graphify,obsidian - activates the relevant integration blocks and drops in their config files.' },
           { term: '--force', desc: 'Required to overwrite an existing project. init refuses otherwise.' },
           { term: '--dry-run', desc: 'Prints the file plan without writing anything.' },
+          { term: '--version', desc: 'Prints the installed CLI version (spec-init 1.1.0) and exits.' },
         ],
       },
-      { t: 'h2', id: 'verify', text: 'Verify' },
-      { t: 'p', text: 'Once installed, spec-init doctor validates that a scaffolded project has all the required files, that CLAUDE.md carries a template-version, and that the .spec-init/base/ snapshot exists.' },
-      { t: 'code', text: 'cd my-app\nspec-init doctor' },
+
+      { t: 'h2', id: 'verify', text: 'Verify the install' },
+      { t: 'p', text: 'Confirm the CLI is on your PATH and reports 1.1.0, then let doctor validate a scaffolded project has all required files, a template-version in CLAUDE.md, and an intact .spec-init/base/ snapshot:' },
+      { t: 'code', text: 'spec-init --version   # → spec-init 1.1.0\n\ncd my-app\nspec-init doctor      # ✓ files, template-version, and base snapshot present' },
+
+      { t: 'h2', id: 'update', text: 'Update the CLI' },
+      { t: 'p', text: 'npx always fetches the latest release, so there is nothing to update on that path. For a global install, upgrade in place:' },
+      { t: 'code', text: '# npm global install\nnpm update -g spec-init\n\n# pipx\npipx upgrade spec-init' },
+      {
+        t: 'callout',
+        variant: 'note',
+        label: 'CLI version vs template version',
+        text: 'spec-init --version reports the installed CLI (1.1.0). That is separate from the template version stamped into a scaffolded CLAUDE.md, which spec-init upgrade advances via a three-way merge. Upgrading the CLI does not touch existing projects; run spec-init upgrade inside a project to pull a newer template.',
+      },
+
+      { t: 'h2', id: 'uninstall', text: 'Uninstall' },
+      { t: 'code', text: '# npm global install\nnpm uninstall -g spec-init\n\n# pipx\npipx uninstall spec-init\n\n# plain pip\npip uninstall spec-init' },
+
       {
         t: 'callout',
         variant: 'note',
         label: 'No native binaries',
         text: 'Nothing compiled is required at install time. The Node CLI is pure JS; the Python CLI is pure Python. macOS, Linux, and Windows (PowerShell + WSL) are all supported.',
+      },
+      {
+        t: 'cards',
+        items: [
+          { icon: 'compass', title: 'Setup & Channels', desc: 'npx vs global vs pipx vs pip, per-channel troubleshooting, and version pinning.', href: '/docs/setup/' },
+          { icon: 'rocket', title: 'Quickstart', desc: 'Empty folder to first shipped feature, end to end.', href: '/docs/quickstart/' },
+        ],
+      },
+    ],
+  },
+
+  setup: {
+    slug: 'setup',
+    group: 'Get Started',
+    label: 'Setup & Channels',
+    title: 'Setup & Channels',
+    intro:
+      'A deeper look at how to install and run spec-init on each channel - npx vs a global install on npm, pipx vs pip on Python - plus version pinning, updates, and per-channel troubleshooting.',
+    blocks: [
+      {
+        t: 'callout',
+        variant: 'tip',
+        label: 'New in 1.1.0',
+        text: 'Every scaffold command on this page uses the create-app shorthand: spec-init my-app now implies init. Read the full 1.1.0 notes on the Changelog.',
+      },
+      { t: 'p', text: 'The two channels are interchangeable. They expose the same commands and flags and ship one source-of-truth template payload, verified byte-for-byte on every release, so a project scaffolded from npm is identical to one scaffolded from PyPI. Choose by the runtime you already have.' },
+
+      { t: 'h2', id: 'which', text: 'Which channel should I use?' },
+      {
+        t: 'defs',
+        items: [
+          { term: 'You have Node.js ≥ 18', desc: 'Use npm. The npx form needs zero install and always runs the latest release - the simplest possible path.' },
+          { term: 'You have Python ≥ 3.10', desc: 'Use PyPI. pipx gives you an isolated, always-available spec-init command.' },
+          { term: 'You have both', desc: 'Pick either - they are functionally identical. Node users tend to prefer npx for its zero-install ergonomics.' },
+        ],
+      },
+
+      { t: 'h2', id: 'npm-modes', text: 'npm: npx vs global install' },
+      { t: 'p', text: 'npx downloads and runs the newest published version on demand, leaving nothing behind. It is ideal for one-off scaffolds and CI:' },
+      { t: 'code', text: '# always the latest release, nothing installed\nnpx spec-init my-app\n\n# pin an exact version for a reproducible scaffold\nnpx spec-init@1.1.0 my-app' },
+      { t: 'p', text: 'A global install puts a persistent spec-init on your PATH - better if you scaffold often or work offline:' },
+      { t: 'code', text: 'npm install -g spec-init      # latest\nnpm install -g spec-init@1.1.0  # exact version\n\nspec-init --version           # → spec-init 1.1.0' },
+
+      { t: 'h2', id: 'python-modes', text: 'Python: pipx vs pip' },
+      { t: 'p', text: 'pipx installs the CLI into a dedicated virtualenv, so it never conflicts with a project environment. This is the recommended path:' },
+      { t: 'code', text: 'pipx install spec-init          # latest\npipx install spec-init==1.1.0   # exact version\n\nspec-init --version             # → spec-init 1.1.0' },
+      { t: 'p', text: 'Plain pip works when you want the CLI inside a specific environment (for example a project venv):' },
+      { t: 'code', text: 'python -m venv .venv && source .venv/bin/activate\npip install spec-init==1.1.0\nspec-init --version' },
+      {
+        t: 'callout',
+        variant: 'warn',
+        label: 'Avoid a bare global pip install',
+        text: 'Installing into your system Python with sudo pip can clash with OS-managed packages. Prefer pipx, or a virtualenv, so spec-init stays isolated.',
+      },
+
+      { t: 'h2', id: 'verify', text: 'Verify and pin' },
+      { t: 'p', text: 'After installing, confirm the version, then let doctor validate a scaffold. Pinning an exact version (shown above) keeps CI reproducible:' },
+      { t: 'code', text: 'spec-init --version   # → spec-init 1.1.0\n\nspec-init my-app\ncd my-app\nspec-init doctor      # ✓ required files, template-version, .spec-init/base/ snapshot' },
+
+      { t: 'h2', id: 'update', text: 'Keep the CLI updated' },
+      { t: 'code', text: '# npm global install\nnpm update -g spec-init\n\n# pipx\npipx upgrade spec-init\n\n# pip (in the target environment)\npip install --upgrade spec-init' },
+      {
+        t: 'callout',
+        variant: 'note',
+        label: 'Updating the CLI is not the same as upgrading a project',
+        text: 'These commands update the spec-init tool. To pull a newer template into an existing scaffold, run spec-init upgrade inside that project - it three-way-merges the new payload and advances the template version, never silently overwriting your edits.',
+      },
+
+      { t: 'h2', id: 'troubleshooting', text: 'Per-channel troubleshooting' },
+      {
+        t: 'defs',
+        items: [
+          { term: 'command not found: spec-init', desc: 'For a global npm install, ensure npm’s global bin is on PATH (npm bin -g). For pipx, run pipx ensurepath and reopen the shell.' },
+          { term: 'npx keeps running an old version', desc: 'npx caches. Force the latest with npx spec-init@latest, or clear it with npm cache clean --force.' },
+          { term: 'pip install works but spec-init is missing', desc: 'The environment’s Scripts/bin directory is not on PATH, or you installed into a different interpreter. Prefer pipx, or activate the venv you installed into.' },
+          { term: 'Windows PowerShell', desc: 'Both channels work. If a global bin is not found, restart the terminal so PATH changes take effect; WSL behaves like Linux.' },
+        ],
+      },
+
+      { t: 'h2', id: 'uninstall', text: 'Uninstall' },
+      { t: 'code', text: 'npm uninstall -g spec-init   # npm global\npipx uninstall spec-init     # pipx\npip uninstall spec-init      # pip' },
+
+      {
+        t: 'cards',
+        items: [
+          { icon: 'rocket', title: 'Quickstart', desc: 'Empty folder to first shipped feature, end to end.', href: '/docs/quickstart/' },
+          { icon: 'terminal', title: 'CLI Reference', desc: 'Every command and flag, identical on both channels.', href: '/docs/cli-reference/' },
+        ],
       },
     ],
   },
@@ -134,9 +265,15 @@ export const PAGES: Record<string, DocPage> = {
     intro:
       'From an empty folder to your first shipped feature in under 90 minutes. Here is the whole initiation cycle end-to-end.',
     blocks: [
+      {
+        t: 'callout',
+        variant: 'tip',
+        label: 'New in 1.1.0',
+        text: 'spec-init my-app is the create-app shorthand - it implies init, so the examples below no longer need the init subcommand. Full notes on the Changelog.',
+      },
       { t: 'h2', id: 'scaffold', text: 'Scaffold a project' },
-      { t: 'p', text: 'Run the initializer with your project name. It creates the canonical directory tree with safe, lint-clean defaults in under five seconds.' },
-      { t: 'code', text: 'npx spec-init my-app\ncd my-app' },
+      { t: 'p', text: 'Run the initializer with your project name. It creates the canonical directory tree with safe, lint-clean defaults in under five seconds. The command is identical on both channels:' },
+      { t: 'code', text: '# npm / npx (no install needed)\nnpx spec-init my-app\n\n# Python, after: pipx install spec-init\nspec-init my-app\n\ncd my-app' },
       {
         t: 'callout',
         variant: 'tip',
@@ -151,7 +288,7 @@ export const PAGES: Record<string, DocPage> = {
       },
       { t: 'h2', id: 'existing-project', text: 'Already have a project?' },
       { t: 'p', text: 'Adopt Throughspec in an existing repo with reinit. It writes only the missing spec and memory files, keeps everything you already have, and never touches your source code. It also lays down the .spec-init/base/ snapshot so upgrade works from then on.' },
-      { t: 'code', text: 'cd my-existing-project\nnpx spec-init reinit          # keeps existing files\nnpx spec-init reinit --force  # replace existing spec files with fresh templates' },
+      { t: 'code', text: 'cd my-existing-project\n\n# npm / npx\nnpx spec-init reinit          # keeps existing files\nnpx spec-init reinit --force  # replace spec files with fresh templates\n\n# Python (pipx/pip): same commands without the npx prefix\nspec-init reinit' },
       {
         t: 'callout',
         variant: 'note',

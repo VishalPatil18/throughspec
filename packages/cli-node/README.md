@@ -1,8 +1,8 @@
 # spec-init
 
-[![npm version](https://img.shields.io/npm/v/spec-init.svg)](https://www.npmjs.com/package/spec-init)
-[![node](https://img.shields.io/node/v/spec-init.svg)](https://www.npmjs.com/package/spec-init)
-[![license](https://img.shields.io/npm/l/spec-init.svg)](./LICENSE)
+<a href="https://www.npmjs.com/package/spec-init"><img src="https://img.shields.io/npm/v/spec-init.svg" alt="npm version"></a>
+<a href="https://www.npmjs.com/package/spec-init"><img src="https://img.shields.io/node/v/spec-init.svg" alt="node version"></a>
+<a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT License"></a>
 
 **Throughspec** - spec-driven, drift-proof, token-lean scaffolding for [Claude Code](https://docs.claude.com/en/docs/claude-code). `spec-init` bootstraps a project around a deterministic, spec-first SDLC: you make the decisions, Claude does the heavy lifting, and a fixed structure keeps the work from drifting.
 

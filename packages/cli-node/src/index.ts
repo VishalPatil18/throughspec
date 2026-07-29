@@ -10,7 +10,7 @@ import { runAddSkill } from './commands/add-skill.js';
 import { runUpgrade } from './commands/upgrade.js';
 import { runDoctor } from './commands/doctor.js';
 
-const VERSION = '1.0.0';
+const VERSION = '1.1.0';
 
 /** Dispatch a parsed command to its runner. Exported for direct testing. */
 export function dispatch(opts: CliOptions): number {

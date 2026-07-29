@@ -32,8 +32,13 @@ describe('spec-init CLI', () => {
     expect(stdout).toContain('USAGE');
   });
 
-  it('unknown command exits 2 with a hint', () => {
-    const { status, stderr } = run(['gremlin']);
+  it('bare non-command token is an implied init, not an error', () => {
+    // Create-app shorthand: `spec-init <name>` == `spec-init init <name>`.
+    expect(parseArgs(['gremlin'])).toMatchObject({ command: 'init', positional: ['gremlin'] });
+  });
+
+  it('a dash-prefixed unknown token exits 2 with a hint', () => {
+    const { status, stderr } = run(['-gremlin']);
     expect(status).toBe(2);
     expect(stderr).toMatch(/unknown command/);
   });

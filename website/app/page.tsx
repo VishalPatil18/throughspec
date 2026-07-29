@@ -4,6 +4,7 @@ import PhaseCycler from '@/components/landing/PhaseCycler';
 import FadeIn from '@/components/motion/FadeIn';
 import CopyableCommand from '@/components/CopyableCommand';
 import s from '@/components/landing/landing.module.css';
+import { SITE_VERSION } from '@/lib/version';
 
 const PERSONAS = ['Vibe-coders', 'Students', 'Solo engineers', 'Team leads'];
 
@@ -181,6 +182,18 @@ export default function Landing() {
           <CopyableCommand text="npx spec-init my-app">
             <span>npx spec-init my-app</span>
           </CopyableCommand>
+        </FadeIn>
+        <FadeIn delay={0.3} className="mt-4">
+          <Link
+            href="/changelog/"
+            className="inline-flex items-center gap-2 rounded-pill border border-ink/15 px-3 py-1.5 text-xs tracking-[0.01em] text-muted no-underline hover:text-ink"
+          >
+            <span className="rounded-pill bg-ink px-1.5 py-0.5 text-[10px] font-medium text-warm">
+              New
+            </span>
+            v{SITE_VERSION} — create-app shorthand &amp; conflict-free upgrades
+            <span aria-hidden>&rsaquo;</span>
+          </Link>
         </FadeIn>
       </section>
 
