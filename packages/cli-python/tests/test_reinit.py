@@ -35,8 +35,8 @@ def test_keeps_existing_and_leaves_source_untouched(tmp_path: Path) -> None:
     assert (project / "CLAUDE.md").read_text(encoding="utf-8") == "MY OWN CONTRACT\n"
     assert (project / "app.py").read_text(encoding="utf-8") == "print(1)\n"
     assert (project / "claude" / "srs.md").exists()
-    assert (project / ".spec-init" / "base" / "CLAUDE.md").exists()
-    assert (project / ".spec-init" / "meta.json").exists()
+    assert (project / "spec.config.js").exists()
+    assert not (project / ".spec-init").exists()
     assert "1 kept" in r.stdout
 
 
@@ -65,7 +65,7 @@ def test_refuses_when_already_managed(tmp_path: Path) -> None:
     _run_cli(project, "reinit", "--persona", "engineer")
     again = _run_cli(project, "reinit")
     assert again.returncode == 2
-    assert "already has a .spec-init/base snapshot" in again.stderr
+    assert "already has spec.config.js" in again.stderr
 
 
 def test_dry_run_writes_nothing(tmp_path: Path) -> None:

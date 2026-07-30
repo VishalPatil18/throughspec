@@ -142,19 +142,16 @@ describe('Stage 8 - integration toggle roundtrip', () => {
   });
 
   it('README external links resolve to known integration hosts', () => {
-    const project = scaffold();
-    for (const name of [
-      'graphify',
-      'obsidian',
-      'caveman',
-      'agentmemory',
-      'openwiki',
-      'ponytail',
-      'opencodereview',
-    ]) {
-      spawnSync('node', [CLI, 'customize', '--add', name], { cwd: project, encoding: 'utf8' });
-    }
-    const readme = readFileSync(join(project, 'README.md'), 'utf8');
+    // Scaffold with every integration active so README keeps all their blocks.
+    const dir = mkdtempSync(join(tmpdir(), 'throughspec-integ-readme-'));
+    const all = 'graphify,obsidian,caveman,agentmemory,openwiki,ponytail,opencodereview';
+    const r = spawnSync(
+      'node',
+      [CLI, 'init', 'p', '--persona', 'engineer', '--integrations', all, '--no-install'],
+      { cwd: dir, encoding: 'utf8' },
+    );
+    expect(r.status, r.stderr).toBe(0);
+    const readme = readFileSync(join(dir, 'p', 'README.md'), 'utf8');
     expect(readme).toContain('https://graphify.net/');
     expect(readme).toContain('https://obsidian.md/');
     expect(readme).toContain('https://github.com/JuliusBrussee/caveman');

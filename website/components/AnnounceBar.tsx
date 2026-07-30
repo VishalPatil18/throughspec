@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
+import { SITE_VERSION } from '@/lib/version';
 
 export default function AnnounceBar() {
   const [open, setOpen] = useState(true);
@@ -10,7 +11,7 @@ export default function AnnounceBar() {
     <div className="relative flex items-center justify-center gap-3.5 bg-ink px-6 py-2 text-[13px] tracking-tighter2 text-warm">
       <span className="inline-block h-1.5 w-1.5 rounded-pill bg-mint" />
       <span className="opacity-90">
-        Throughspec v1.1.0 - spec-driven development for Claude Code, now on npm + PyPI
+        Throughspec v{SITE_VERSION} - spec-driven development for Claude Code, now on npm + PyPI
       </span>
       <Link
         href="/docs/"

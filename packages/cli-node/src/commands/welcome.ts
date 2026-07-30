@@ -1,7 +1,6 @@
 // spec-init bare on a TTY: interactive @clack welcome that delegates to runInit/runReinit.
 
-import { existsSync } from 'node:fs';
-import { join, resolve } from 'node:path';
+import { resolve } from 'node:path';
 import {
   cancel,
   confirm,
@@ -19,6 +18,8 @@ import type { CliOptions, Integration, Persona } from '../args.js';
 import { runInit } from './init.js';
 import { runReinit } from './reinit.js';
 import { postInitChecklist } from '../checklist.js';
+import { isManaged } from '../config.js';
+import { installIntegrations } from '../integrations.js';
 
 type Mode = 'new' | 'current';
 
@@ -38,6 +39,7 @@ export function buildWelcomeOptions(
     removeIntegration: null,
     force: false,
     dryRun: false,
+    noInstall: false,
     help: false,
     version: false,
   };
@@ -48,7 +50,7 @@ export async function runWelcome(): Promise<number> {
   intro('Throughspec - Spec-driven. Drift-proof. Token-lean.');
 
   const cwd = resolve(process.cwd());
-  if (existsSync(join(cwd, '.spec-init', 'base'))) {
+  if (isManaged(cwd)) {
     note(
       'This directory is already a Throughspec project.\n' +
         'Use `spec-init upgrade` to pull a newer template, or `spec-init customize` to change options.',
@@ -132,7 +134,13 @@ export async function runWelcome(): Promise<number> {
   const verb = mode === 'new' ? 'Scaffolded' : 'Initialized';
   spin.stop(`${verb} ${relDir} - ${fileCount} files written`);
 
-  note(postInitChecklist(relDir, opts.persona, opts.integrations, verb).trim(), 'Next steps');
+  const installResults = opts.integrations.length
+    ? installIntegrations(opts.integrations, { isTty: true, noInstall: false })
+    : [];
+  note(
+    postInitChecklist(relDir, opts.persona, opts.integrations, installResults, verb).trim(),
+    'Next steps',
+  );
   outro('Throughspec is ready. Open the project in Claude Code and run /spec-requirements.');
   return 0;
 }

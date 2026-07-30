@@ -1,11 +1,8 @@
-// upgrade: three-way merge behaviors.
-//
-// We drive it directly (not via a released "old" payload) by mutating the
-// project's .spec-init/base/ snapshot to simulate a prior template version,
-// then invoking upgrade against the shipped payload.
+// upgrade: managed-region model. CLI-owned files are replaced, user data is
+// preserved, and CLAUDE.md has only its managed regions refreshed.
 
 import { spawnSync } from 'node:child_process';
-import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
@@ -14,50 +11,65 @@ const CLI = resolve(__dirname, '..', 'packages/cli-node/dist/index.js');
 
 function scaffold(): string {
   const dir = mkdtempSync(join(tmpdir(), 'throughspec-upgrade-'));
-  spawnSync('node', [CLI, 'init', 'p', '--persona', 'engineer'], { cwd: dir, encoding: 'utf8' });
+  spawnSync('node', [CLI, 'init', 'p', '--persona', 'engineer', '--no-install'], {
+    cwd: dir,
+    encoding: 'utf8',
+  });
   return join(dir, 'p');
 }
 
-/** Rewrite base+ours to simulate a prior template version and a user edit. */
-function fakeHistory(project: string, rel: string, base: string, ours: string): void {
-  writeFileSync(join(project, '.spec-init', 'base', rel), base);
-  writeFileSync(join(project, rel), ours);
-}
-
 describe('spec-init upgrade', () => {
-  it('reports clean merge when user did not edit a changed file', () => {
+  it('preserves user data files (never overwrites them)', () => {
     const project = scaffold();
-    // Shipped template is "T"; base was "T-old"; user hasn't edited (ours == base).
-    fakeHistory(project, 'CHANGELOG.md', 'old\n', 'old\n');
-    const r = spawnSync('node', [CLI, 'upgrade', '--dry-run'], { cwd: project, encoding: 'utf8' });
-    expect(r.status).toBe(0);
-    expect(r.stdout).toMatch(/taken from new template/);
-    expect(r.stdout).toMatch(/0 conflicts/);
-  });
-
-  it('produces conflict markers when user edited the same lines the template did', () => {
-    const project = scaffold();
-    // Simulate: base had "line1\nline2\n", user changed line2, template changed
-    // line2 differently. Merge cannot pick one automatically.
-    fakeHistory(project, 'README.md', 'line1\nline2\n', 'line1\nuser-edit\n');
-    // Overwrite the shipped payload copy inside .spec-init just for the theirs
-    // side isn't possible - instead, we point the upgrade at the real template's
-    // README.md, which has evolved from "line1\nline2\n". Guarantee a conflict
-    // by making the user's edit diverge from every possible theirs.
+    writeFileSync(join(project, 'claude', 'context.md'), 'MY DATA\n');
     const r = spawnSync('node', [CLI, 'upgrade'], { cwd: project, encoding: 'utf8' });
-    // Status 1 iff any conflicts; either way, no crash.
-    expect([0, 1]).toContain(r.status);
-    if (r.status === 1) {
-      const readme = readFileSync(join(project, 'README.md'), 'utf8');
-      expect(readme).toMatch(/<<<<<<< ours/);
-      expect(readme).toMatch(/>>>>>>> theirs/);
-    }
+    expect(r.status).toBe(0);
+    expect(readFileSync(join(project, 'claude', 'context.md'), 'utf8')).toBe('MY DATA\n');
+    expect(r.stdout).toMatch(/preserved/);
   });
 
-  it('refuses to run without a .spec-init/base snapshot', () => {
+  it('refreshes a tampered managed region of CLAUDE.md', () => {
+    const project = scaffold();
+    const claude = join(project, 'CLAUDE.md');
+    const tampered = readFileSync(claude, 'utf8').replace(
+      'This project follows the **Spec-Driven Development** SDLC.',
+      'TAMPERED',
+    );
+    writeFileSync(claude, tampered);
+    const r = spawnSync('node', [CLI, 'upgrade'], { cwd: project, encoding: 'utf8' });
+    expect(r.status).toBe(0);
+    const out = readFileSync(claude, 'utf8');
+    expect(out).not.toContain('TAMPERED');
+    expect(out).toContain('Spec-Driven Development');
+  });
+
+  it('preserves edits outside the managed markers', () => {
+    const project = scaffold();
+    const claude = join(project, 'CLAUDE.md');
+    writeFileSync(
+      claude,
+      readFileSync(claude, 'utf8').replace('<one-line product name and pitch>', 'MY PITCH'),
+    );
+    spawnSync('node', [CLI, 'upgrade'], { cwd: project, encoding: 'utf8' });
+    expect(readFileSync(claude, 'utf8')).toContain('MY PITCH');
+  });
+
+  it('migrates a leftover pre-1.2 .spec-init/ away', () => {
+    const project = scaffold();
+    mkdirSync(join(project, '.spec-init'), { recursive: true });
+    writeFileSync(
+      join(project, '.spec-init', 'meta.json'),
+      '{"persona":"engineer","integrations":[]}',
+    );
+    const r = spawnSync('node', [CLI, 'upgrade'], { cwd: project, encoding: 'utf8' });
+    expect(r.status).toBe(0);
+    expect(existsSync(join(project, '.spec-init'))).toBe(false);
+  });
+
+  it('refuses to run outside a Throughspec project (no spec.config.js)', () => {
     const dir = mkdtempSync(join(tmpdir(), 'throughspec-upgrade-bare-'));
     const r = spawnSync('node', [CLI, 'upgrade'], { cwd: dir, encoding: 'utf8' });
     expect(r.status).toBe(2);
-    expect(r.stderr).toMatch(/\.spec-init\/base/);
+    expect(r.stderr).toMatch(/spec\.config\.js/);
   });
 });

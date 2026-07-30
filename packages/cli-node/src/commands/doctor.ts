@@ -47,9 +47,11 @@ export function runDoctor(cwd: string = process.cwd()): DoctorReport {
     }
   }
 
-  const baseSnapshot = join(root, '.spec-init', 'base');
-  if (!existsSync(baseSnapshot)) {
-    issues.push('missing .spec-init/base/ snapshot (upgrade will not work)');
+  const config = join(root, 'spec.config.js');
+  if (!existsSync(config)) {
+    issues.push('missing spec.config.js (project config)');
+  } else if (!/persona:\s*['"]/.test(readFileSync(config, 'utf8'))) {
+    issues.push('spec.config.js is missing the managed persona field');
   }
 
   const report: DoctorReport = { ok: issues.length === 0, issues };

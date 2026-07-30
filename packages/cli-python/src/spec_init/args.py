@@ -54,6 +54,7 @@ class CliOptions:
     remove_integration: Integration | None = None
     force: bool = False
     dry_run: bool = False
+    no_install: bool = False
     help: bool = False
     version: bool = False
 
@@ -78,6 +79,7 @@ FLAGS
   --remove <name>               used with customize
   --force                       overwrite existing files during init
   --dry-run                     print the plan; write nothing
+  --no-install                  skip auto-installing selected integrations
   -h, --help                    show this text
   -v, --version                 print CLI version and exit
 
@@ -135,6 +137,7 @@ def parse_args(argv: list[str]) -> CliOptions:
     parser.add_argument("--remove", choices=list(INTEGRATIONS))
     parser.add_argument("--force", action="store_true")
     parser.add_argument("--dry-run", action="store_true", dest="dry_run")
+    parser.add_argument("--no-install", action="store_true", dest="no_install")
     parser.add_argument("--help", "-h", action="store_true", dest="help")
     parser.add_argument("--version", "-v", action="store_true", dest="version")
     parser.add_argument("positional", nargs="*")
@@ -156,6 +159,7 @@ def parse_args(argv: list[str]) -> CliOptions:
         add_integration=ns.add,
         remove_integration=ns.remove,
         force=ns.force,
+        no_install=ns.no_install,
         dry_run=ns.dry_run,
         help=ns.help,
         version=ns.version,

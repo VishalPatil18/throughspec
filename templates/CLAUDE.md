@@ -1,9 +1,15 @@
 # CLAUDE.md - Project Behavior Contract
 
-> **Template version:** 1.0.0
+<!-- throughspec:managed:start -->
+
+> **Template version:** 1.2.0
 > **Read this file before every prompt.** It is the contract between you (Claude) and this project.
 
+<!-- throughspec:managed:end -->
+
 ---
+
+<!-- Sections wrapped in `throughspec:managed` markers are refreshed by `spec-init upgrade`; everything outside them (your product summary, environment, custom instructions) is never touched. -->
 
 ## 1. What this project is
 
@@ -18,6 +24,8 @@ For the current build plan, read [`claude/plan.md`](./claude/plan.md).
 For the compressed current state, read [`claude/context.md`](./claude/context.md).
 
 ---
+
+<!-- throughspec:managed:start -->
 
 ## 2. How you work in this project
 
@@ -82,6 +90,8 @@ When invoked via `/spec-docs`:
 3. Apply only on approval. **Never modify source code in this workflow.**
 4. Flag any documented feature that no longer exists.
 
+<!-- throughspec:managed:end -->
+
 ---
 
 ## 6. Environment
@@ -105,6 +115,8 @@ When invoked via `/spec-docs`:
 - _<e.g., "Prefer Drizzle over Prisma.">_
 
 ---
+
+<!-- throughspec:managed:start -->
 
 ## 8. Integrations active in this project
 
@@ -209,3 +221,5 @@ After every phase, ask Claude: **"Why this step?"** and append the answer to [`c
 - Rotate `/spec-sync` ownership so the log does not drift under one person.
 
 <!-- /persona:team -->
+
+<!-- throughspec:managed:end -->

@@ -31,10 +31,10 @@ describe('spec-init reinit', () => {
     expect(readFileSync(join(dir, 'CLAUDE.md'), 'utf8')).toBe('MY OWN CONTRACT\n');
     // source untouched
     expect(readFileSync(join(dir, 'app.js'), 'utf8')).toBe('console.log(1)\n');
-    // missing spec files written + snapshot established
+    // missing spec files written; spec.config.js is the management marker (no .spec-init)
     expect(existsSync(join(dir, 'claude/srs.md'))).toBe(true);
-    expect(existsSync(join(dir, '.spec-init/base/CLAUDE.md'))).toBe(true);
-    expect(existsSync(join(dir, '.spec-init/meta.json'))).toBe(true);
+    expect(existsSync(join(dir, 'spec.config.js'))).toBe(true);
+    expect(existsSync(join(dir, '.spec-init'))).toBe(false);
     expect(r.stdout).toMatch(/1 kept/);
   });
 
@@ -57,10 +57,10 @@ describe('spec-init reinit', () => {
 
   it('refuses when the project is already Throughspec-managed', () => {
     const dir = existingProject();
-    run(dir, ['--persona', 'engineer']); // first reinit establishes .spec-init/base
+    run(dir, ['--persona', 'engineer']); // first reinit writes spec.config.js
     const again = run(dir, []);
     expect(again.status).toBe(2);
-    expect(again.stderr).toMatch(/already has a \.spec-init\/base snapshot/);
+    expect(again.stderr).toMatch(/already has spec\.config\.js/);
     expect(again.stderr).toMatch(/spec-init upgrade/);
   });
 
@@ -84,6 +84,7 @@ describe('resolveReinitMode gating', () => {
     removeIntegration: null,
     force: false,
     dryRun: false,
+    noInstall: false,
     help: false,
     version: false,
   };

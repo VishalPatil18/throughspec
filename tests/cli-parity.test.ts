@@ -14,12 +14,13 @@ import { describe, expect, it } from 'vitest';
 const REPO_ROOT = resolve(__dirname, '..');
 const NODE_CLI = resolve(REPO_ROOT, 'packages/cli-node/dist/index.js');
 const PY_PROJECT = resolve(REPO_ROOT, 'packages/cli-python');
+// Invoke the venv interpreter directly (created by `uv sync`) rather than
+// `uv run`, whose per-call sync races with parallel test files.
+const PY_BIN =
+  process.platform === 'win32'
+    ? resolve(PY_PROJECT, '.venv/Scripts/python.exe')
+    : resolve(PY_PROJECT, '.venv/bin/python');
 const PERSONAS = ['vibe', 'student', 'engineer', 'team'] as const;
-
-function hasUv(): boolean {
-  const r = spawnSync('uv', ['--version'], { encoding: 'utf8' });
-  return r.status === 0;
-}
 
 function walk(root: string): string[] {
   const out: string[] = [];
@@ -48,18 +49,21 @@ function scaffoldNode(dir: string, name: string, extra: string[]): void {
 }
 
 function scaffoldPython(dir: string, name: string, extra: string[]): void {
-  const r = spawnSync(
-    'uv',
-    ['--project', PY_PROJECT, 'run', 'python', '-m', 'spec_init', 'init', name, ...extra],
-    { cwd: dir, encoding: 'utf8' },
-  );
+  // Import from src (PYTHONPATH) so resolve_payload_dir deterministically picks
+  // the live packages/cli-python/_payload - the same source templates/ that the
+  // Node CLI ships - instead of a possibly-stale venv-installed copy.
+  const r = spawnSync(PY_BIN, ['-m', 'spec_init', 'init', name, ...extra], {
+    cwd: dir,
+    encoding: 'utf8',
+    env: { ...process.env, PYTHONPATH: resolve(PY_PROJECT, 'src') },
+  });
   if (r.status !== 0) throw new Error(`python init failed: ${r.stderr}`);
 }
 
 describe('cross-language init parity', () => {
-  const skip = !hasUv() || !existsSync(NODE_CLI);
+  const skip = !existsSync(PY_BIN) || !existsSync(NODE_CLI);
   if (skip) {
-    it.skip('uv and Node CLI must be built; skipping', () => {});
+    it.skip('Python venv and Node CLI must be built; skipping', () => {});
     return;
   }
 

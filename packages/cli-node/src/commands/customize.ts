@@ -1,168 +1,113 @@
-// spec-init customize --add/--remove/--persona: re-derive marker-gated files from the snapshot.
+// spec-init customize --add/--remove/--persona: update spec.config.js (ground
+// truth), re-derive CLAUDE.md's managed region, and add/remove integration files.
 
-import {
-  existsSync,
-  mkdirSync,
-  readFileSync,
-  readdirSync,
-  rmSync,
-  writeFileSync,
-} from 'node:fs';
-import { dirname, join, relative, resolve } from 'node:path';
+import { existsSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import { dirname, join, resolve } from 'node:path';
 import { UsageError } from '../args.js';
-import type { CliOptions, Integration, Persona } from '../args.js';
-import { stripPersonas, stampPersona } from '../persona.js';
-import { stripIntegrations } from '../integrations.js';
-import { INTEGRATIONS_PREFIX, applyIntegrations } from './init.js';
-
-interface MetaFile {
-  persona: Persona | null;
-  integrations: Integration[];
-}
+import type { CliOptions, Integration } from '../args.js';
+import { resolvePayloadDir } from '../payload.js';
+import { isManaged, readConfig, writeConfig } from '../config.js';
+import { swapManagedRegions } from '../managed-region.js';
+import { installIntegrations } from '../integrations.js';
+import { applyIntegrations, maybeTransform, walkPayload } from './init.js';
 
 /** Run `customize`. Requires exactly one of --add / --remove / --persona. */
 export function runCustomize(opts: CliOptions): void {
   const projectRoot = resolve(process.cwd());
-  const claudeMd = join(projectRoot, 'CLAUDE.md');
-  if (!existsSync(claudeMd)) {
-    throw new UsageError('customize must be run inside a scaffolded project (CLAUDE.md not found)');
+  if (!isManaged(projectRoot)) {
+    throw new UsageError('customize must be run inside a scaffolded project (spec.config.js not found)');
   }
 
   const actions = [opts.addIntegration, opts.removeIntegration, opts.persona].filter(Boolean).length;
   if (actions === 0) throw new UsageError('customize requires --add, --remove, or --persona');
-  if (actions > 1) throw new UsageError('customize accepts one of --add / --remove / --persona per invocation');
-
-  const snapshotDir = join(projectRoot, '.spec-init', 'base');
-  if (!existsSync(snapshotDir)) {
-    throw new UsageError(
-      'customize requires the .spec-init/base/ snapshot from init; missing here.',
-    );
+  if (actions > 1) {
+    throw new UsageError('customize accepts one of --add / --remove / --persona per invocation');
   }
 
-  const meta = readMeta(projectRoot);
-  const nextMeta: MetaFile = { persona: meta.persona, integrations: [...meta.integrations] };
+  const cfg = readConfig(projectRoot);
+  const next = { persona: cfg.persona, integrations: [...cfg.integrations] };
   let target: Integration | null = null;
   let mode: 'add' | 'remove' | 'persona' = 'persona';
 
   if (opts.addIntegration) {
     mode = 'add';
     target = opts.addIntegration;
-    if (!nextMeta.integrations.includes(target)) nextMeta.integrations.push(target);
+    if (!next.integrations.includes(target)) next.integrations.push(target);
   } else if (opts.removeIntegration) {
     mode = 'remove';
     target = opts.removeIntegration;
-    nextMeta.integrations = nextMeta.integrations.filter((n) => n !== target);
+    next.integrations = next.integrations.filter((n) => n !== target);
   } else if (opts.persona) {
-    nextMeta.persona = opts.persona;
+    next.persona = opts.persona;
   }
 
-  const rederived = rederive(snapshotDir, projectRoot, mode, target, nextMeta, opts.dryRun);
-  const integrationFilesTouched = applyIntegrationFiles(
-    snapshotDir,
-    projectRoot,
-    mode,
-    target,
-    opts.dryRun,
-  );
+  const payloadDir = resolvePayloadDir();
 
   if (opts.dryRun) {
     process.stdout.write(
-      `[dry-run] would re-derive ${rederived} file(s) and touch ${integrationFilesTouched} integration file(s)\n`,
+      `[dry-run] would set persona=${next.persona ?? 'engineer'}, integrations=[${next.integrations.join(', ')}]\n`,
     );
     return;
   }
 
-  writeFileSync(
-    join(projectRoot, '.spec-init', 'meta.json'),
-    JSON.stringify(nextMeta, null, 2) + '\n',
-  );
-  if (mode === 'persona' && nextMeta.persona) {
-    const cfg = join(projectRoot, 'spec.config.js');
-    if (existsSync(cfg)) writeFileSync(cfg, stampPersona(readFileSync(cfg, 'utf8'), nextMeta.persona));
+  // 1. Persist config (ground truth).
+  writeConfig(projectRoot, next);
+
+  // 2. Re-derive CLAUDE.md's managed region for the new persona/integrations.
+  const claudeOurs = join(projectRoot, 'CLAUDE.md');
+  if (existsSync(claudeOurs)) {
+    const theirs = maybeTransform(
+      'CLAUDE.md',
+      readFileSync(join(payloadDir, 'CLAUDE.md'), 'utf8'),
+      next.persona,
+      next.integrations,
+    );
+    const swapped = swapManagedRegions(readFileSync(claudeOurs, 'utf8'), theirs);
+    if (swapped) writeFileSync(claudeOurs, swapped);
   }
+
+  // 3. Integration files: add copies them in, remove deletes them.
+  let touched = 0;
+  if (mode === 'add' && target) {
+    touched = applyIntegrations(payloadDir, projectRoot, [target]);
+  } else if (mode === 'remove' && target) {
+    touched = removeIntegrationFiles(payloadDir, projectRoot, target);
+  }
+
+  // 4. Auto-install a newly added integration (respects --no-install / non-TTY).
+  if (mode === 'add' && target) {
+    installIntegrations([target], { isTty: Boolean(process.stdin.isTTY), noInstall: opts.noInstall });
+  }
+
   process.stdout.write(
-    `[OK] customize: ${rederived} file(s) re-derived, ${integrationFilesTouched} integration file(s) updated\n`,
+    `[OK] customize: persona=${next.persona ?? 'engineer'}, integrations=[${next.integrations.join(', ')}] ` +
+      `(${touched} integration file(s) changed)\n`,
   );
 }
 
-function readMeta(projectRoot: string): MetaFile {
-  const metaPath = join(projectRoot, '.spec-init', 'meta.json');
-  if (!existsSync(metaPath)) return { persona: null, integrations: [] };
-  const raw = JSON.parse(readFileSync(metaPath, 'utf8')) as Partial<MetaFile>;
-  return {
-    persona: (raw.persona as Persona | null) ?? null,
-    integrations: Array.isArray(raw.integrations) ? (raw.integrations as Integration[]) : [],
-  };
-}
-
-/** Re-derive snapshot files carrying the marker for the current action. */
-function rederive(
-  snapshotDir: string,
-  outDir: string,
-  mode: 'add' | 'remove' | 'persona',
-  target: Integration | null,
-  next: MetaFile,
-  dryRun: boolean,
-): number {
-  const marker =
-    mode === 'persona' ? '<!-- persona:' : `<!-- integration:${target} -->`;
-  const files = walk(snapshotDir).filter((rel) => !rel.startsWith(INTEGRATIONS_PREFIX));
+/** Delete an integration's files from the project and prune emptied dirs. */
+function removeIntegrationFiles(payloadDir: string, projectRoot: string, target: Integration): number {
+  const root = join(payloadDir, '_integrations', target);
+  if (!existsSync(root)) return 0;
   let count = 0;
-  for (const rel of files) {
-    if (!rel.endsWith('.md')) continue;
-    const snapPath = join(snapshotDir, rel);
-    const snapContent = readFileSync(snapPath, 'utf8');
-    if (!snapContent.includes(marker)) continue;
-    let out = snapContent;
-    if (rel === 'CLAUDE.md' && next.persona) out = stripPersonas(out, next.persona);
-    out = stripIntegrations(out, next.integrations);
-    if (!dryRun) {
-      const dest = join(outDir, rel);
-      mkdirSync(dirname(dest), { recursive: true });
-      writeFileSync(dest, out);
-    }
-    count += 1;
-  }
-  return count;
-}
-
-/** Copy (--add) or delete (--remove) files under _integrations/<target>/. */
-function applyIntegrationFiles(
-  snapshotDir: string,
-  outDir: string,
-  mode: 'add' | 'remove' | 'persona',
-  target: Integration | null,
-  dryRun: boolean,
-): number {
-  if (mode === 'persona' || !target) return 0;
-  const integrationRoot = join(snapshotDir, '_integrations', target);
-  if (!existsSync(integrationRoot)) return 0;
-  const files = walk(integrationRoot);
-  if (mode === 'add') {
-    if (dryRun) return files.length;
-    return applyIntegrations(snapshotDir, outDir, [target]);
-  }
-  // remove: delete files and prune emptied directories.
-  let count = 0;
-  const dirsToPrune = new Set<string>();
-  for (const rel of files) {
-    const dest = join(outDir, rel);
+  const dirs = new Set<string>();
+  for (const rel of walkPayload(root)) {
+    const dest = join(projectRoot, rel);
     if (existsSync(dest)) {
-      if (!dryRun) rmSync(dest);
+      rmSync(dest);
       count += 1;
+      dirs.add(dirname(rel));
     }
-    dirsToPrune.add(dirname(rel));
   }
-  if (!dryRun) pruneEmpty(outDir, dirsToPrune);
+  pruneEmpty(projectRoot, dirs);
   return count;
 }
 
-/** Delete now-empty directories that hosted an integration's files. */
+/** Remove now-empty directories that hosted an integration's files. */
 function pruneEmpty(outDir: string, dirs: Set<string>): void {
-  // Sort deepest first so children get pruned before their parents.
   const ordered = [...dirs].sort((a, b) => b.length - a.length);
-  for (const rel of ordered) {
-    let cur = rel;
+  for (const relDir of ordered) {
+    let cur = relDir;
     while (cur && cur !== '.') {
       const abs = join(outDir, cur);
       if (!existsSync(abs)) break;
@@ -171,18 +116,4 @@ function pruneEmpty(outDir: string, dirs: Set<string>): void {
       cur = dirname(cur);
     }
   }
-}
-
-function walk(root: string): string[] {
-  const out: string[] = [];
-  const stack: string[] = [root];
-  while (stack.length > 0) {
-    const dir = stack.pop() as string;
-    for (const entry of readdirSync(dir, { withFileTypes: true })) {
-      const full = join(dir, entry.name);
-      if (entry.isDirectory()) stack.push(full);
-      else if (entry.isFile()) out.push(relative(root, full).split(/[\\/]/).join('/'));
-    }
-  }
-  return out.sort();
 }

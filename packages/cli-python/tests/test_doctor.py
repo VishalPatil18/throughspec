@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import shutil
 from pathlib import Path
 from typing import Callable
 
@@ -26,12 +25,12 @@ def test_fails_on_empty_required_file(
     assert "claude/srs.md" in result.stderr
 
 
-def test_fails_on_missing_snapshot(
+def test_fails_on_missing_config(
     scaffold: Callable, run_cli: Callable, tmp_path: Path
 ) -> None:
-    """Removing .spec-init/base trips the snapshot check."""
+    """Removing spec.config.js trips the config check."""
     project = scaffold("p", "engineer")
-    shutil.rmtree(project / ".spec-init")
+    (project / "spec.config.js").unlink()
     result = run_cli("doctor", cwd=project)
     assert result.returncode == 1
-    assert ".spec-init" in result.stderr
+    assert "spec.config.js" in result.stderr

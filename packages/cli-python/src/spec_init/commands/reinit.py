@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import json
-import shutil
 import sys
 from collections.abc import Callable
 from dataclasses import dataclass
@@ -12,6 +10,8 @@ from typing import Literal
 
 from ..args import CliOptions, UsageError
 from ..checklist import post_init_checklist
+from ..config import DEFAULT_PERSONA, ProjectConfig, apply_config, is_managed
+from ..integrations import InstallResult, install_integrations
 from ..payload import resolve_payload_dir
 from .init import (
     INTEGRATIONS_PREFIX,
@@ -19,8 +19,8 @@ from .init import (
     _walk_payload,
     integration_files_for,
     prompt_integrations,
+    prompt_persona,
 )
-from ..persona import stamp_persona
 
 ReinitMode = Literal["keep", "replace"]
 
@@ -35,30 +35,28 @@ class ReinitResult:
     dry_run: bool
 
 
-def run_reinit(opts: CliOptions) -> ReinitResult:
+def run_reinit(opts: CliOptions, quiet: bool = False) -> ReinitResult:
     """Adopt Throughspec into an existing project in place. Raises UsageError."""
     dir_arg = opts.positional[0] if opts.positional else "."
     directory = (Path.cwd() / dir_arg).resolve()
     payload_dir = resolve_payload_dir()
 
-    if (directory / ".spec-init" / "base").exists():
+    if is_managed(directory):
         raise UsageError(
-            "this project already has a .spec-init/base snapshot - it looks "
-            "Throughspec-managed.\n"
+            "this project already has spec.config.js - it looks Throughspec-managed.\n"
             "       Run `spec-init upgrade` to merge a newer template, or "
             "`spec-init customize` to change options."
         )
 
-    integrations = prompt_integrations(opts)
+    persona = (opts.persona or DEFAULT_PERSONA) if quiet else prompt_persona(opts)
+    integrations = tuple(opts.integrations) if quiet else prompt_integrations(opts)
 
     base_files = [
         rel for rel in _walk_payload(payload_dir) if not rel.startswith(INTEGRATIONS_PREFIX)
     ]
     integration_rel = integration_files_for(payload_dir, integrations)
-    existing = {
-        rel for rel in (*base_files, *integration_rel) if (directory / rel).exists()
-    }
-    mode = resolve_reinit_mode(opts, len(existing))
+    existing = {rel for rel in (*base_files, *integration_rel) if (directory / rel).exists()}
+    mode = resolve_reinit_mode(opts, len(existing), isatty=(lambda: False) if quiet else None)
 
     if opts.dry_run:
         _print_plan(directory, base_files, integration_rel, existing, mode)
@@ -74,14 +72,13 @@ def run_reinit(opts: CliOptions) -> ReinitResult:
             continue
         dest.parent.mkdir(parents=True, exist_ok=True)
         content = _maybe_transform(
-            rel, (payload_dir / rel).read_text(encoding="utf-8"), opts.persona, integrations
+            rel, (payload_dir / rel).read_text(encoding="utf-8"), persona, integrations
         )
-        if rel == "spec.config.js" and opts.persona:
-            content = stamp_persona(content, opts.persona)
+        if rel == "spec.config.js":
+            content = apply_config(content, ProjectConfig(persona=persona, integrations=integrations))
         dest.write_text(content, encoding="utf-8", newline="")
         written += 1
 
-    # Integration payload files are copied raw, honoring the same keep/replace policy.
     for name in integrations:
         root = payload_dir / "_integrations" / name
         if not root.exists():
@@ -95,20 +92,21 @@ def run_reinit(opts: CliOptions) -> ReinitResult:
             dest.write_bytes((root / rel).read_bytes())
             written += 1
 
-    base_dir = directory / ".spec-init" / "base"
-    shutil.copytree(payload_dir, base_dir, dirs_exist_ok=True)
-    (directory / ".spec-init" / "meta.json").write_text(
-        json.dumps({"persona": opts.persona, "integrations": list(integrations)}, indent=2)
-        + "\n",
-        encoding="utf-8",
+    install_results: list[InstallResult] = (
+        []
+        if quiet
+        else install_integrations(integrations, is_tty=sys.stdin.isatty(), no_install=opts.no_install)
     )
 
     try:
         rel_dir = str(directory.relative_to(Path.cwd())) or "."
     except ValueError:
         rel_dir = str(directory)
-    sys.stdout.write(f"\nAdopted Throughspec in {rel_dir}: {written} written, {kept} kept.\n")
-    sys.stdout.write(post_init_checklist(rel_dir, opts.persona, integrations, "Initialized"))
+    if not quiet:
+        sys.stdout.write(f"\nAdopted Throughspec in {rel_dir}: {written} written, {kept} kept.\n")
+        sys.stdout.write(
+            post_init_checklist(rel_dir, persona, integrations, install_results, "Initialized")
+        )
     return ReinitResult(directory=directory, written=written, kept=kept, dry_run=False)
 
 
@@ -126,13 +124,17 @@ def resolve_reinit_mode(
     if opts.force:
         return "replace"
     if existing_count == 0:
-        return "replace"  # nothing to keep; write every missing file
+        return "replace"
     if opts.dry_run or not isatty():
-        return "keep"  # safe non-interactive default
-    answer = ask(
-        f"Found {existing_count} existing spec file(s). Keep them, or replace "
-        "with fresh templates? [keep/replace] "
-    ).strip().lower()
+        return "keep"
+    answer = (
+        ask(
+            f"Found {existing_count} existing spec file(s). Keep them, or replace "
+            "with fresh templates? [keep/replace] "
+        )
+        .strip()
+        .lower()
+    )
     return "replace" if answer in ("replace", "r") else "keep"
 
 

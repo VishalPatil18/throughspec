@@ -1,6 +1,6 @@
 {
   "name": "spec-init",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Throughspec - Spec-driven. Drift-proof. Token-lean. Scaffolds a Claude Code project around a deterministic SDLC.",
   "license": "MIT",
   "author": "Vishal Patil <vishalpatil.imp@gmail.com>",

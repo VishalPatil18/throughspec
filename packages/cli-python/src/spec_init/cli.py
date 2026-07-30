@@ -35,8 +35,8 @@ def dispatch(opts: CliOptions) -> int:
         run_add_skill(opts)
         return 0
     if opts.command == "upgrade":
-        report = run_upgrade(opts)
-        return 1 if report.conflicted else 0
+        run_upgrade(opts)
+        return 0
     if opts.command == "doctor":
         report = run_doctor()
         return 0 if report.ok else 1

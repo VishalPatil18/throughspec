@@ -26,6 +26,7 @@ export interface CliOptions {
   removeIntegration: Integration | null;
   force: boolean;
   dryRun: boolean;
+  noInstall: boolean;
   help: boolean;
   version: boolean;
 }
@@ -39,6 +40,7 @@ const EMPTY: CliOptions = {
   removeIntegration: null,
   force: false,
   dryRun: false,
+  noInstall: false,
   help: false,
   version: false,
 };
@@ -56,6 +58,8 @@ export function parseArgs(argv: readonly string[]): CliOptions {
       opts.force = true;
     } else if (token === '--dry-run') {
       opts.dryRun = true;
+    } else if (token === '--no-install') {
+      opts.noInstall = true;
     } else if (token === '--persona') {
       opts.persona = takePersona(argv[++i], '--persona');
     } else if (token === '--integrations') {
@@ -138,6 +142,7 @@ FLAGS
   --remove <name>               used with customize
   --force                       overwrite existing files during init
   --dry-run                     print the plan; write nothing
+  --no-install                  skip auto-installing selected integrations
   -h, --help                    show this text
   -v, --version                 print CLI version and exit
 

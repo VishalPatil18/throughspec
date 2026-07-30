@@ -1,18 +1,25 @@
 // spec.config.js - Throughspec project configuration.
 //
-// Claude reads this file at the start of every session (see CLAUDE.md section 2)
-// and honors it. It is the single, friendly place to customize how Throughspec
-// behaves in THIS project. Edit it freely - there is no build step, and the CLI
-// never parses it, so it can never break a scaffold.
+// This is the single ground-truth config for your project. Claude reads it at
+// the start of every session (see CLAUDE.md section 2) and honors it, and the
+// CLI reads the managed block below to know your persona and active
+// integrations. It is preserved verbatim across `spec-init upgrade` - your
+// settings are never overwritten.
 //
-// What lives elsewhere (do not duplicate it here):
-//   - persona and active integrations are managed by the CLI. Change them with
-//     `spec-init customize --persona <p>` / `--add|--remove <integration>`.
-//     They are recorded in .spec-init/meta.json and CLAUDE.md section 8.
-
-// active-persona: <none>   // managed by spec-init - change via `spec-init customize --persona`
+// Edit it freely. The CLI only rewrites the fields inside the
+// `spec-init:managed` markers; everything else is yours.
 
 module.exports = {
+  // --- Managed by spec-init ------------------------------------------------
+  // Persona + active integrations. Change them with the CLI:
+  //   spec-init customize --persona <p>          (vibe | student | engineer | team)
+  //   spec-init customize --add|--remove <name>  (an integration)
+  // You may also edit the two fields directly - the CLI reads this block.
+  // <spec-init:managed>
+  persona: 'engineer',
+  integrations: [],
+  // </spec-init:managed>
+
   // --- Skills -------------------------------------------------------------
   // Every shipped skill is available by default. List the names of any skills
   // Claude should NOT use in this project (Claude will avoid invoking them).

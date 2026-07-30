@@ -4,7 +4,6 @@ toggle-roundtrip that mirrors tests/integrations.test.ts."""
 from __future__ import annotations
 
 import hashlib
-import json
 import shutil
 import subprocess
 import sys
@@ -106,7 +105,7 @@ def _run_cli(cwd: Path, *args: str) -> subprocess.CompletedProcess[str]:
 
 
 def _assert_roundtrip_empty(before: dict[str, str], after: dict[str, str]) -> None:
-    skip = {".spec-init/meta.json"}
+    skip: set[str] = set()
     missing = sorted(k for k in before if k not in after and k not in skip)
     extra = sorted(k for k in after if k not in before and k not in skip)
     changed = sorted(
@@ -133,23 +132,25 @@ def test_toggle_roundtrip_leaves_zero_residual(tmp_path: Path, name: str) -> Non
     project = tmp_path / "p"
     before = _fingerprint(project)
 
-    add = _run_cli(project, "customize", "--add", name)
+    add = _run_cli(project, "customize", "--add", name, "--no-install")
     assert add.returncode == 0, add.stderr
     assert (project / INTEGRATION_MARKER_FILE[name]).exists()
 
-    rm = _run_cli(project, "customize", "--remove", name)
+    rm = _run_cli(project, "customize", "--remove", name, "--no-install")
     assert rm.returncode == 0, rm.stderr
     _assert_roundtrip_empty(before, _fingerprint(project))
 
 
-def test_meta_reflects_active_set(tmp_path: Path) -> None:
-    r = _run_cli(tmp_path, "init", "p", "--persona", "engineer", "--integrations", "graphify")
+def test_config_reflects_active_set(tmp_path: Path) -> None:
+    r = _run_cli(
+        tmp_path, "init", "p", "--persona", "engineer", "--integrations", "graphify", "--no-install"
+    )
     assert r.returncode == 0, r.stderr
     project = tmp_path / "p"
-    meta = json.loads((project / ".spec-init" / "meta.json").read_text(encoding="utf-8"))
-    assert meta["integrations"] == ["graphify"]
+    cfg = (project / "spec.config.js").read_text(encoding="utf-8")
+    assert "graphify" in cfg
 
-    add = _run_cli(project, "customize", "--add", "obsidian")
+    add = _run_cli(project, "customize", "--add", "obsidian", "--no-install")
     assert add.returncode == 0, add.stderr
-    meta = json.loads((project / ".spec-init" / "meta.json").read_text(encoding="utf-8"))
-    assert sorted(meta["integrations"]) == ["graphify", "obsidian"]
+    cfg = (project / "spec.config.js").read_text(encoding="utf-8")
+    assert "graphify" in cfg and "obsidian" in cfg
