@@ -2,7 +2,7 @@ import type { MetadataRoute } from 'next';
 
 export const dynamic = 'force-static';
 
-const BASE = 'https://throughspec.dev';
+const BASE = 'https://throughspec.v-ai.org';
 
 const ROUTES = [
   '/',

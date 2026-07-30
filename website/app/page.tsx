@@ -186,12 +186,12 @@ export default function Landing() {
         <FadeIn delay={0.3} className="mt-4">
           <Link
             href="/changelog/"
-            className="inline-flex items-center gap-2 rounded-pill border border-ink/15 px-3 py-1.5 text-xs tracking-[0.01em] text-muted no-underline hover:text-ink"
+            className="inline-flex items-center gap-2 rounded-pill border border-ink/15 px-2 py-1.5 text-xs tracking-[0.01em] text-muted no-underline hover:text-ink"
           >
             <span className="rounded-pill bg-ink px-1.5 py-0.5 text-[10px] font-medium text-warm">
               New
             </span>
-            v{SITE_VERSION} — create-app shorthand &amp; conflict-free upgrades
+            v{SITE_VERSION} - create-app shorthand &amp; conflict-free upgrades
             <span aria-hidden>&rsaquo;</span>
           </Link>
         </FadeIn>

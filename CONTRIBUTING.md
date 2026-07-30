@@ -39,6 +39,49 @@ Stage 1 ships only the skeleton, so the test surface is small. As stages land, t
 
 ---
 
+## Publishing the packages
+
+### Node - npm (packages/cli-node)
+
+```bash
+cd /Users/vishalpatil/Study/Projects/throughspec
+
+npm login                    # once per machine (or set NODE_AUTH_TOKEN)
+npm install                  # ensure deps (build runs automatically on publish)
+
+# Preview exactly what ships (no upload):
+npm publish -w packages/cli-node --dry-run
+
+# Publish (prepublishOnly builds cli-node first):
+npm publish -w packages/cli-node --access public
+
+# Verify the newly published version
+npm view spec-init version
+```
+
+### Python - PyPI (packages/cli-python)
+
+```bash
+cd /Users/vishalpatil/Study/Projects/throughspec
+
+# 1. Refresh the generated payload
+rm -rf packages/cli-python/_payload
+cp -R templates packages/cli-python/_payload
+
+# 2. Build wheel + sdist
+cd packages/cli-python
+rm -rf dist
+uv build
+
+# 3. Publish with your PyPI API token
+uv publish --token pypi-XXXXXXXX
+
+# 4. Verify the newly published version
+pip index versions spec-init
+```
+
+---
+
 ## Commit Style
 
 - Use conventional commits: `feat:`, `fix:`, `refactor:`, `docs:`, `test:`, `chore:`.

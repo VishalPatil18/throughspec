@@ -80,7 +80,7 @@ Run four more `/spec-feature` cycles (any project, real work). Record the token 
 
 ## 6. Website
 
-- [ ] `throughspec.dev` returns 200 on: `/`, `/why/`, `/features/`, `/about/`, `/hire-the-developer/`, `/privacy/`, `/terms/`, `/changelog/`, `/docs/`, `/docs/install/`, `/docs/quickstart/`, `/docs/workflows/`, `/docs/design-prompt-library/`, `/docs/learning-map/`, `/docs/customization-recipes/`.
+- [ ] `throughspec.v-ai.org` returns 200 on: `/`, `/why/`, `/features/`, `/about/`, `/hire-the-developer/`, `/privacy/`, `/terms/`, `/changelog/`, `/docs/`, `/docs/install/`, `/docs/quickstart/`, `/docs/workflows/`, `/docs/design-prompt-library/`, `/docs/learning-map/`, `/docs/customization-recipes/`.
 - [ ] Lighthouse: Performance **≥ 90**, Accessibility **≥ 95** on the landing page and on `/docs/quickstart/`.
 - [ ] Pagefind search returns at least one result for `spec-init`.
 - [ ] Copy-to-clipboard works on the hero, footer, and a docs code block.

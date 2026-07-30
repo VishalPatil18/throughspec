@@ -74,7 +74,7 @@ First beta release. Throughspec ships as a publishable scaffolding tool on npm a
 - **Docs reconciler**: `/spec-docs` compares the memory layer against reality, proposes a diff for approval, refuses to modify source, and flags features no longer in the codebase.
 - **Three-way upgrade merge**: `spec-init upgrade` uses the snapshot captured at init to produce a git-style conflict view - never silent overwrites.
 - **Graphify + Obsidian integrations**: opt-in via `--integrations` at init or `spec-init customize --add/--remove` post-scaffold. Toggle-roundtrip leaves zero residual files - Obsidian toggles `claude/*.md` YAML front-matter, Graphify drops a `.graphify/config.yml` and prefer-graphify note.
-- **Companion website** at [throughspec.dev](https://throughspec.dev): Next.js 15 static export with Install / Quickstart / Workflows / Design Prompt Library / Learning Map / Customization Recipes / Changelog. Pagefind-backed client-side search, self-hosted `@fontsource` typography, Playwright smoke + link tests.
+- **Companion website** at [throughspec.v-ai.org](https://throughspec.v-ai.org): Next.js 15 static export with Install / Quickstart / Workflows / Design Prompt Library / Learning Map / Customization Recipes / Changelog. Pagefind-backed client-side search, self-hosted `@fontsource` typography, Playwright smoke + link tests.
 - **Single source-of-truth template tree**: both channels' payloads are byte-verified by `tools/check-payload-parity.mjs` (SHA-256 manifest). One template edit ships to both registries.
 
 ### Changed
@@ -92,7 +92,7 @@ First beta release. Throughspec ships as a publishable scaffolding tool on npm a
 
 - **npm**: `spec-init` (Node ≥ 18, ESM).
 - **PyPI**: `spec-init` (Python ≥ 3.10, pure Python wheel).
-- **Website**: [throughspec.dev](https://throughspec.dev), deployed to Vercel free tier as a static export.
+- **Website**: [throughspec.v-ai.org](https://throughspec.v-ai.org), deployed to Vercel free tier as a static export.
 - **License**: MIT.
 
 ### Verification

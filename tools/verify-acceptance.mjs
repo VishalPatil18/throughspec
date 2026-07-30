@@ -28,8 +28,25 @@ const CHECKS = [
     id: 'SRS §9.3',
     name: 'All 9 skills + 7 agents present in the template payload',
     run: () => {
-      const skills = ['spec-requirements', 'spec-design', 'spec-plan', 'spec-feature', 'spec-refactor', 'spec-bug', 'spec-docs', 'spec-sync'];
-      const agents = ['spec-interrogator', 'spec-architect', 'spec-planner', 'spec-coder', 'spec-refactorer', 'spec-doc-writer', 'spec-bug-hunter'];
+      const skills = [
+        'spec-requirements',
+        'spec-design',
+        'spec-plan',
+        'spec-feature',
+        'spec-refactor',
+        'spec-bug',
+        'spec-docs',
+        'spec-sync',
+      ];
+      const agents = [
+        'spec-interrogator',
+        'spec-architect',
+        'spec-planner',
+        'spec-coder',
+        'spec-refactorer',
+        'spec-doc-writer',
+        'spec-bug-hunter',
+      ];
       for (const s of skills) {
         const p = resolve(REPO, `templates/.claude/skills/${s}/SKILL.md`);
         if (!existsSync(p)) throw new Error(`missing skill ${s}`);
@@ -65,7 +82,7 @@ const CHECKS = [
 const HUMAN_ONLY = [
   'SRS §9.4 - 90-minute new-user walkthrough (LLM required; see tests/acceptance/runbook.md)',
   'SRS §9.5 - Cycle-5 token budget ≤ 120% of cycle 1 (5 real feature cycles required; see runbook)',
-  'SRS §9.7 - Website live at throughspec.dev with Lighthouse ≥ 90 / ≥ 95 (Vercel post-deploy check)',
+  'SRS §9.7 - Website live at throughspec.v-ai.org with Lighthouse ≥ 90 / ≥ 95 (Vercel post-deploy check)',
 ];
 
 const pass = [];

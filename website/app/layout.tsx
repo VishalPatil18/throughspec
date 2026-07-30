@@ -5,7 +5,7 @@ import './fonts';
 import './globals.css';
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://throughspec.dev'),
+  metadataBase: new URL('https://throughspec.v-ai.org'),
   title: {
     default: 'Throughspec - Spec-driven SDLC for Claude Code',
     template: '%s - Throughspec',
