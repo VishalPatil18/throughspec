@@ -16,12 +16,12 @@ from .commands.upgrade import run_upgrade
 
 def dispatch(opts: CliOptions) -> int:
     """Route a parsed CliOptions to the right runner and return an exit code."""
-    if opts.help or opts.command is None:
-        sys.stdout.write(HELP_TEXT)
-        return 2 if opts.command is None and not opts.help else 0
     if opts.version:
         sys.stdout.write(f"spec-init {__version__}\n")
         return 0
+    if opts.help or opts.command is None:
+        sys.stdout.write(HELP_TEXT)
+        return 2 if opts.command is None and not opts.help else 0
     if opts.command == "init":
         run_init(opts)
         return 0
@@ -35,8 +35,8 @@ def dispatch(opts: CliOptions) -> int:
         run_add_skill(opts)
         return 0
     if opts.command == "upgrade":
-        report = run_upgrade(opts)
-        return 1 if report.conflicted else 0
+        run_upgrade(opts)
+        return 0
     if opts.command == "doctor":
         report = run_doctor()
         return 0 if report.ok else 1

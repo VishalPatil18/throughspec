@@ -1,5 +1,7 @@
 // Docs content model + data; sidebar, breadcrumbs, prev/next, and TOC derive from it.
 
+import { SITE_VERSION as V } from './version';
+
 export type DocBlock =
   | { t: 'p'; text: string }
   | { t: 'h2'; id: string; text: string }
@@ -26,8 +28,8 @@ export interface DocGroup {
 
 // Sidebar order + grouping. Every slug here must map to a page in PAGES below.
 export const GROUPS: DocGroup[] = [
-  { title: 'Get Started', slugs: ['', 'install', 'quickstart'] },
-  { title: 'Concepts', slugs: ['spec-driven-development', 'memory-layer', 'workflows'] },
+  { title: 'Get Started', slugs: ['', 'install', 'setup', 'quickstart'] },
+  { title: 'Concepts', slugs: ['spec-driven-development', 'persona', 'memory-layer', 'workflows'] },
   { title: 'Skills', slugs: ['supporting-skills'] },
   { title: 'Integrations', slugs: ['integrations'] },
   { title: 'Reference', slugs: ['cli-reference', 'glossary'] },
@@ -98,12 +100,39 @@ export const PAGES: Record<string, DocPage> = {
     intro:
       'Throughspec ships on two channels from a single source-of-truth template tree, so the trees never drift byte-for-byte.',
     blocks: [
+      {
+        t: 'callout',
+        variant: 'tip',
+        label: 'New in ' + V + '',
+        text: 'spec-init my-app now scaffolds directly - the create-app shorthand means you no longer need to type the init subcommand. See the full ' + V + ' notes on the Changelog.',
+      },
+      { t: 'p', text: 'Pick either channel - the Node and Python CLIs expose an identical command surface and ship the same template payload, verified byte-for-byte on every release. Use whichever runtime you already have.' },
+
       { t: 'h2', id: 'npm', text: 'npm (Node.js ≥ 18)' },
-      { t: 'p', text: 'Distributed as ESM. One-off run via npx or install globally.' },
-      { t: 'code', text: '# one-off scaffold\nnpx spec-init my-app\n\n# or install globally\nnpm i -g spec-init' },
+      { t: 'p', text: 'Distributed as ESM. The fastest path is npx, which downloads and runs the latest published version without a global install:' },
+      { t: 'code', text: '# one-off scaffold - no install, always the latest version\nnpx spec-init my-app' },
+      { t: 'p', text: 'Prefer a persistent command on your PATH? Install it globally instead:' },
+      { t: 'code', text: '# install globally, then call spec-init anywhere\nnpm install -g spec-init\nspec-init my-app' },
+
       { t: 'h2', id: 'pypi', text: 'PyPI (Python ≥ 3.10)' },
-      { t: 'p', text: 'Distributed as a pure-Python wheel. pipx keeps it isolated from your other Python tools.' },
-      { t: 'code', text: 'pipx install spec-init\n# or\npip install spec-init' },
+      { t: 'p', text: 'Distributed as a pure-Python wheel. pipx is recommended - it installs the CLI into its own isolated virtualenv so it never collides with your project dependencies:' },
+      { t: 'code', text: '# recommended: isolated install via pipx\npipx install spec-init\nspec-init my-app' },
+      { t: 'p', text: 'If you do not use pipx, a plain pip install into the active environment works too:' },
+      { t: 'code', text: '# alternative: install into the current environment\npip install spec-init\nspec-init my-app' },
+
+      { t: 'h2', id: 'compare', text: 'npm and pip side by side' },
+      { t: 'p', text: 'Every command maps one-to-one across the two channels. If a snippet elsewhere in these docs shows only the npx form, the pip equivalent is exactly the same after the runner prefix.' },
+      {
+        t: 'defs',
+        items: [
+          { term: 'Run without installing', desc: 'npm: npx spec-init my-app  ·  pip: (install first, pipx/pip have no npx-style runner)' },
+          { term: 'Global install', desc: 'npm: npm install -g spec-init  ·  pip: pipx install spec-init' },
+          { term: 'Scaffold a project', desc: 'Both: spec-init my-app  (create-app shorthand, new in ' + V + ')' },
+          { term: 'Check the version', desc: 'Both: spec-init --version  →  spec-init ' + V + '' },
+          { term: 'Update the CLI', desc: 'npm: npm update -g spec-init  ·  pip: pipx upgrade spec-init' },
+        ],
+      },
+
       { t: 'h2', id: 'flags', text: 'Flags' },
       {
         t: 'defs',
@@ -112,16 +141,120 @@ export const PAGES: Record<string, DocPage> = {
           { term: '--integrations <csv>', desc: 'graphify,obsidian - activates the relevant integration blocks and drops in their config files.' },
           { term: '--force', desc: 'Required to overwrite an existing project. init refuses otherwise.' },
           { term: '--dry-run', desc: 'Prints the file plan without writing anything.' },
+          { term: '--version', desc: 'Prints the installed CLI version (spec-init ' + V + ') and exits.' },
         ],
       },
-      { t: 'h2', id: 'verify', text: 'Verify' },
-      { t: 'p', text: 'Once installed, spec-init doctor validates that a scaffolded project has all the required files, that CLAUDE.md carries a template-version, and that the .spec-init/base/ snapshot exists.' },
-      { t: 'code', text: 'cd my-app\nspec-init doctor' },
+
+      { t: 'h2', id: 'verify', text: 'Verify the install' },
+      { t: 'p', text: 'Confirm the CLI is on your PATH and reports ' + V + ', then let doctor validate a scaffolded project has all required files, a template-version in CLAUDE.md, and a valid spec.config.js:' },
+      { t: 'code', text: 'spec-init --version   # → spec-init ' + V + '\n\ncd my-app\nspec-init doctor      # ✓ files, template-version, and spec.config.js present' },
+
+      { t: 'h2', id: 'update', text: 'Update the CLI' },
+      { t: 'p', text: 'npx always fetches the latest release, so there is nothing to update on that path. For a global install, upgrade in place:' },
+      { t: 'code', text: '# npm global install\nnpm update -g spec-init\n\n# pipx\npipx upgrade spec-init' },
+      {
+        t: 'callout',
+        variant: 'note',
+        label: 'CLI version vs template version',
+        text: 'spec-init --version reports the installed CLI (' + V + '). That is separate from the template version stamped into a scaffolded CLAUDE.md, which spec-init upgrade advances. Upgrading the CLI does not touch existing projects; run spec-init upgrade inside a project to pull a newer template.',
+      },
+
+      { t: 'h2', id: 'uninstall', text: 'Uninstall' },
+      { t: 'code', text: '# npm global install\nnpm uninstall -g spec-init\n\n# pipx\npipx uninstall spec-init\n\n# plain pip\npip uninstall spec-init' },
+
       {
         t: 'callout',
         variant: 'note',
         label: 'No native binaries',
         text: 'Nothing compiled is required at install time. The Node CLI is pure JS; the Python CLI is pure Python. macOS, Linux, and Windows (PowerShell + WSL) are all supported.',
+      },
+      {
+        t: 'cards',
+        items: [
+          { icon: 'compass', title: 'Setup & Channels', desc: 'npx vs global vs pipx vs pip, per-channel troubleshooting, and version pinning.', href: '/docs/setup/' },
+          { icon: 'rocket', title: 'Quickstart', desc: 'Empty folder to first shipped feature, end to end.', href: '/docs/quickstart/' },
+        ],
+      },
+    ],
+  },
+
+  setup: {
+    slug: 'setup',
+    group: 'Get Started',
+    label: 'Setup & Channels',
+    title: 'Setup & Channels',
+    intro:
+      'A deeper look at how to install and run spec-init on each channel - npx vs a global install on npm, pipx vs pip on Python - plus version pinning, updates, and per-channel troubleshooting.',
+    blocks: [
+      {
+        t: 'callout',
+        variant: 'tip',
+        label: 'New in ' + V + '',
+        text: 'Every scaffold command on this page uses the create-app shorthand: spec-init my-app now implies init. Read the full ' + V + ' notes on the Changelog.',
+      },
+      { t: 'p', text: 'The two channels are interchangeable. They expose the same commands and flags and ship one source-of-truth template payload, verified byte-for-byte on every release, so a project scaffolded from npm is identical to one scaffolded from PyPI. Choose by the runtime you already have.' },
+
+      { t: 'h2', id: 'which', text: 'Which channel should I use?' },
+      {
+        t: 'defs',
+        items: [
+          { term: 'You have Node.js ≥ 18', desc: 'Use npm. The npx form needs zero install and always runs the latest release - the simplest possible path.' },
+          { term: 'You have Python ≥ 3.10', desc: 'Use PyPI. pipx gives you an isolated, always-available spec-init command.' },
+          { term: 'You have both', desc: 'Pick either - they are functionally identical. Node users tend to prefer npx for its zero-install ergonomics.' },
+        ],
+      },
+
+      { t: 'h2', id: 'npm-modes', text: 'npm: npx vs global install' },
+      { t: 'p', text: 'npx downloads and runs the newest published version on demand, leaving nothing behind. It is ideal for one-off scaffolds and CI:' },
+      { t: 'code', text: '# always the latest release, nothing installed\nnpx spec-init my-app\n\n# pin an exact version for a reproducible scaffold\nnpx spec-init@' + V + ' my-app' },
+      { t: 'p', text: 'A global install puts a persistent spec-init on your PATH - better if you scaffold often or work offline:' },
+      { t: 'code', text: 'npm install -g spec-init      # latest\nnpm install -g spec-init@' + V + '  # exact version\n\nspec-init --version           # → spec-init ' + V + '' },
+
+      { t: 'h2', id: 'python-modes', text: 'Python: pipx vs pip' },
+      { t: 'p', text: 'pipx installs the CLI into a dedicated virtualenv, so it never conflicts with a project environment. This is the recommended path:' },
+      { t: 'code', text: 'pipx install spec-init          # latest\npipx install spec-init==' + V + '   # exact version\n\nspec-init --version             # → spec-init ' + V + '' },
+      { t: 'p', text: 'Plain pip works when you want the CLI inside a specific environment (for example a project venv):' },
+      { t: 'code', text: 'python -m venv .venv && source .venv/bin/activate\npip install spec-init==' + V + '\nspec-init --version' },
+      {
+        t: 'callout',
+        variant: 'warn',
+        label: 'Avoid a bare global pip install',
+        text: 'Installing into your system Python with sudo pip can clash with OS-managed packages. Prefer pipx, or a virtualenv, so spec-init stays isolated.',
+      },
+
+      { t: 'h2', id: 'verify', text: 'Verify and pin' },
+      { t: 'p', text: 'After installing, confirm the version, then let doctor validate a scaffold. Pinning an exact version (shown above) keeps CI reproducible:' },
+      { t: 'code', text: 'spec-init --version   # → spec-init ' + V + '\n\nspec-init my-app\ncd my-app\nspec-init doctor      # ✓ required files, template-version, spec.config.js' },
+
+      { t: 'h2', id: 'update', text: 'Keep the CLI updated' },
+      { t: 'code', text: '# npm global install\nnpm update -g spec-init\n\n# pipx\npipx upgrade spec-init\n\n# pip (in the target environment)\npip install --upgrade spec-init' },
+      {
+        t: 'callout',
+        variant: 'note',
+        label: 'Updating the CLI is not the same as upgrading a project',
+        text: 'These commands update the spec-init tool. To pull a newer template into an existing scaffold, run spec-init upgrade inside that project - it three-way-merges the new payload and advances the template version, never silently overwriting your edits.',
+      },
+
+      { t: 'h2', id: 'troubleshooting', text: 'Per-channel troubleshooting' },
+      {
+        t: 'defs',
+        items: [
+          { term: 'command not found: spec-init', desc: 'For a global npm install, ensure npm’s global bin is on PATH (npm bin -g). For pipx, run pipx ensurepath and reopen the shell.' },
+          { term: 'npx keeps running an old version', desc: 'npx caches. Force the latest with npx spec-init@latest, or clear it with npm cache clean --force.' },
+          { term: 'pip install works but spec-init is missing', desc: 'The environment’s Scripts/bin directory is not on PATH, or you installed into a different interpreter. Prefer pipx, or activate the venv you installed into.' },
+          { term: 'Windows PowerShell', desc: 'Both channels work. If a global bin is not found, restart the terminal so PATH changes take effect; WSL behaves like Linux.' },
+        ],
+      },
+
+      { t: 'h2', id: 'uninstall', text: 'Uninstall' },
+      { t: 'code', text: 'npm uninstall -g spec-init   # npm global\npipx uninstall spec-init     # pipx\npip uninstall spec-init      # pip' },
+
+      {
+        t: 'cards',
+        items: [
+          { icon: 'rocket', title: 'Quickstart', desc: 'Empty folder to first shipped feature, end to end.', href: '/docs/quickstart/' },
+          { icon: 'terminal', title: 'CLI Reference', desc: 'Every command and flag, identical on both channels.', href: '/docs/cli-reference/' },
+        ],
       },
     ],
   },
@@ -134,9 +267,15 @@ export const PAGES: Record<string, DocPage> = {
     intro:
       'From an empty folder to your first shipped feature in under 90 minutes. Here is the whole initiation cycle end-to-end.',
     blocks: [
+      {
+        t: 'callout',
+        variant: 'tip',
+        label: 'New in ' + V + '',
+        text: 'spec-init my-app is the create-app shorthand - it implies init, so the examples below no longer need the init subcommand. Full notes on the Changelog.',
+      },
       { t: 'h2', id: 'scaffold', text: 'Scaffold a project' },
-      { t: 'p', text: 'Run the initializer with your project name. It creates the canonical directory tree with safe, lint-clean defaults in under five seconds.' },
-      { t: 'code', text: 'npx spec-init my-app\ncd my-app' },
+      { t: 'p', text: 'Run the initializer with your project name. It creates the canonical directory tree with safe, lint-clean defaults in under five seconds. The command is identical on both channels:' },
+      { t: 'code', text: '# npm / npx (no install needed)\nnpx spec-init my-app\n\n# Python, after: pipx install spec-init\nspec-init my-app\n\ncd my-app' },
       {
         t: 'callout',
         variant: 'tip',
@@ -150,8 +289,8 @@ export const PAGES: Record<string, DocPage> = {
         text: 'Prefer the Python channel? pipx install spec-init, then spec-init my-app. Both channels ship the same template payload, verified byte-for-byte on every release.',
       },
       { t: 'h2', id: 'existing-project', text: 'Already have a project?' },
-      { t: 'p', text: 'Adopt Throughspec in an existing repo with reinit. It writes only the missing spec and memory files, keeps everything you already have, and never touches your source code. It also lays down the .spec-init/base/ snapshot so upgrade works from then on.' },
-      { t: 'code', text: 'cd my-existing-project\nnpx spec-init reinit          # keeps existing files\nnpx spec-init reinit --force  # replace existing spec files with fresh templates' },
+      { t: 'p', text: 'Adopt Throughspec in an existing repo with reinit. It writes only the missing spec and memory files, keeps everything you already have, and never touches your source code. It also writes spec.config.js, which marks the project as Throughspec-managed so upgrade works from then on.' },
+      { t: 'code', text: 'cd my-existing-project\n\n# npm / npx\nnpx spec-init reinit          # keeps existing files\nnpx spec-init reinit --force  # replace spec files with fresh templates\n\n# Python (pipx/pip): same commands without the npx prefix\nspec-init reinit' },
       {
         t: 'callout',
         variant: 'note',
@@ -177,7 +316,7 @@ export const PAGES: Record<string, DocPage> = {
       },
       { t: 'h2', id: 'result', text: 'What you end up with' },
       { t: 'p', text: 'A scaffolded project whose memory layer keeps Claude oriented across every future prompt - without re-scanning the repo. CLAUDE.md plus claude/context.md stay under 8,000 tokens on a mature project (NFR-PERF-02).' },
-      { t: 'code', text: 'my-app/\n├─ CLAUDE.md\n├─ claude/\n│  ├─ srs.md\n│  ├─ plan.md\n│  ├─ context.md\n│  ├─ features.md\n│  ├─ learnings.md\n│  └─ design-decisions.md\n├─ design/\n│  ├─ design.md\n│  └─ preview/\n├─ .claude/\n│  ├─ skills/\n│  └─ agents/\n├─ CHANGELOG.md\n├─ README.md\n└─ .spec-init/base/    (snapshot for upgrade)' },
+      { t: 'code', text: 'my-app/\n├─ CLAUDE.md\n├─ claude/\n│  ├─ srs.md\n│  ├─ plan.md\n│  ├─ context.md\n│  ├─ features.md\n│  ├─ learnings.md\n│  └─ design-decisions.md\n├─ design/\n│  ├─ design.md\n│  └─ preview/\n├─ .claude/\n│  ├─ skills/\n│  └─ agents/\n├─ CHANGELOG.md\n├─ README.md\n└─ spec.config.js       (ground-truth config)' },
       { t: 'h2', id: 'next', text: 'What’s next' },
       {
         t: 'cards',
@@ -447,7 +586,7 @@ export const PAGES: Record<string, DocPage> = {
         text: 'spec.config.js holds advisory preferences Claude honors. Persona and integrations are machine-managed state - change those with spec-init customize, not in the config file.',
       },
       { t: 'h2', id: 'swap-persona', text: 'Swap the persona' },
-      { t: 'p', text: 'Persona drives CLAUDE.md verbosity and the "Why this step?" annotations. Swap safely - customize re-derives CLAUDE.md from the pristine .spec-init/base/ snapshot.' },
+      { t: 'p', text: 'Persona drives CLAUDE.md verbosity and the "Why this step?" annotations. Swap safely - customize re-derives CLAUDE.md’s managed region from the shipped template and updates spec.config.js.' },
       { t: 'code', text: '# switch from engineer to student\nspec-init customize --persona student' },
       {
         t: 'callout',
@@ -468,11 +607,11 @@ export const PAGES: Record<string, DocPage> = {
       { t: 'p', text: 'Copy a skill definition from the payload catalog into your project’s .claude/skills/ directory. Custom same-named files override defaults.' },
       { t: 'code', text: 'spec-init add-skill spec-requirements\n# then edit .claude/skills/spec-requirements/SKILL.md' },
       { t: 'h2', id: 'upgrade', text: 'Upgrade safely' },
-      { t: 'p', text: 'A newer template payload merges through a three-way merge against the pristine snapshot. Conflicts surface as git-style fences for manual resolution - never silent overwrites.' },
+      { t: 'p', text: 'A newer template is applied by file class: CLI-owned files are replaced, your data files are preserved untouched, and CLAUDE.md has only its throughspec:managed regions refreshed - never a silent overwrite of your work.' },
       { t: 'code', text: 'spec-init upgrade\n# review conflicts, then\ngit add . && git commit -m "chore: template upgrade"' },
       { t: 'h2', id: 'diagnose', text: 'Diagnose drift' },
-      { t: 'p', text: 'doctor cross-checks the SRS §6 required-file list, the template-version field, and the .spec-init/base/ snapshot. Run it after any manual edit to CLAUDE.md.' },
-      { t: 'code', text: 'spec-init doctor\n# ✓ CLAUDE.md present\n# ✓ template-version 1.0.0\n# ✓ .spec-init/base/ snapshot intact' },
+      { t: 'p', text: 'doctor cross-checks the SRS §6 required-file list, the template-version field, and spec.config.js. Run it after any manual edit to CLAUDE.md.' },
+      { t: 'code', text: 'spec-init doctor\n# ✓ CLAUDE.md present\n# ✓ template-version ' + V + '\n# ✓ spec.config.js valid' },
     ],
   },
 
@@ -556,6 +695,39 @@ export const PAGES: Record<string, DocPage> = {
     ],
   },
 
+  persona: {
+    slug: 'persona',
+    group: 'Concepts',
+    label: 'Persona',
+    title: 'Persona',
+    intro:
+      'Your persona tunes how Throughspec talks to you - the verbosity of CLAUDE.md, the guidance it prints, and the "Why this step?" annotations. It is chosen at scaffold time and stored in spec.config.js.',
+    blocks: [
+      { t: 'h2', id: 'choosing', text: 'Choosing a persona' },
+      { t: 'p', text: 'Every scaffold resolves a persona. Pass --persona, pick one in the interactive prompt, or accept the default (engineer) in a non-interactive run. It is written to the managed block of spec.config.js and drives which guidance block survives in CLAUDE.md.' },
+      { t: 'code', text: 'spec-init my-app --persona student   # or run without --persona to be prompted' },
+      { t: 'h2', id: 'the-four', text: 'The four personas' },
+      {
+        t: 'defs',
+        items: [
+          { term: 'vibe', desc: 'Ship first. Claude explains heavy steps in one line and skips prose you do not need - without skipping a required cross-question.' },
+          { term: 'student', desc: 'Learning by building. After each phase Claude answers "Why this step?" and appends it to claude/learnings.md.' },
+          { term: 'engineer', desc: 'Solo velocity. Reads claude/context.md before Grep, logs non-trivial decisions to claude/design-decisions.md. The default.' },
+          { term: 'team', desc: 'Shared contract. Every PR runs the pull_request_template.md checklist; memory-file conflicts are treated as blocking.' },
+        ],
+      },
+      { t: 'h2', id: 'changing', text: 'Changing it later' },
+      { t: 'p', text: 'Swap persona any time - customize updates spec.config.js and re-derives CLAUDE.md’s managed persona region. Your product notes and edits are untouched.' },
+      { t: 'code', text: 'spec-init customize --persona engineer' },
+      {
+        t: 'callout',
+        variant: 'note',
+        label: 'Where it lives',
+        text: 'The persona is the ground truth in spec.config.js. You can read or edit it there directly; the CLI keeps CLAUDE.md in sync.',
+      },
+    ],
+  },
+
   integrations: {
     slug: 'integrations',
     group: 'Integrations',
@@ -583,7 +755,9 @@ export const PAGES: Record<string, DocPage> = {
         ],
       },
       { t: 'h2', id: 'how', text: 'How integrations work' },
-      { t: 'p', text: 'Each integration is a per-integration file tree plus marked-up blocks in CLAUDE.md and README. Turning one on copies its files and keeps its blocks; turning it off removes both, leaving zero residual files. Persona and integrations are recorded in .spec-init/meta.json so upgrades and customize runs re-derive them correctly.' },
+      { t: 'p', text: 'Each integration is a per-integration file tree plus marked-up blocks in CLAUDE.md and README. Turning one on copies its files and keeps its blocks; turning it off removes both, leaving zero residual files. Your active integrations are recorded in spec.config.js (the ground-truth config), so upgrade and customize always know what is on.' },
+      { t: 'h2', id: 'install', text: 'Local install + docs' },
+      { t: 'p', text: 'When you enable an integration that ships a one-line installer (e.g. Caveman), the CLI runs it for you and prints each integration’s official docs link in the terminal. Pass --no-install to skip the auto-install and just get the commands + links. Follow the docs link above for setup and usage of each tool.' },
       {
         t: 'callout',
         variant: 'tip',
@@ -609,8 +783,8 @@ export const PAGES: Record<string, DocPage> = {
           { term: 'reinit [dir]', desc: 'Adopt Throughspec in an existing project in place, keeping your files unless --force.' },
           { term: 'customize', desc: 'Toggle an integration (--add / --remove) or swap the persona (--persona) for a scaffolded project.' },
           { term: 'add-skill <name>', desc: 'Copy one skill from the payload catalog into .claude/skills/.' },
-          { term: 'upgrade', desc: 'Three-way merge a newer template into your project; conflicts surface as git-style fences.' },
-          { term: 'doctor', desc: 'Verify a scaffolded project has the required files, template-version, and snapshot.' },
+          { term: 'upgrade', desc: 'Pull a newer template in without losing data: CLI-owned files are replaced, your data files are preserved, and CLAUDE.md has only its managed regions refreshed.' },
+          { term: 'doctor', desc: 'Verify a scaffolded project has the required files, template-version, and a valid spec.config.js.' },
         ],
       },
       { t: 'h2', id: 'flags', text: 'Flags' },
@@ -622,6 +796,7 @@ export const PAGES: Record<string, DocPage> = {
           { term: '--add / --remove <name>', desc: 'Used with customize to toggle a single integration.' },
           { term: '--force', desc: 'Overwrite existing files (init) or replace existing spec files (reinit).' },
           { term: '--dry-run', desc: 'Print the plan and write nothing.' },
+          { term: '--no-install', desc: 'Skip auto-installing selected integrations (just print their commands + docs links).' },
           { term: '-h, --help / -v, --version', desc: 'Show help text or the CLI version.' },
         ],
       },
@@ -648,7 +823,7 @@ export const PAGES: Record<string, DocPage> = {
           { term: 'Integration', desc: 'An optional, opt-in tool layered in via --integrations (Graphify, Caveman, and others).' },
           { term: 'Skill', desc: 'A slash command like /spec-feature that runs a defined workflow inside Claude Code.' },
           { term: 'Payload', desc: 'The template tree both CLIs copy when scaffolding, verified byte-identical across npm and PyPI.' },
-          { term: 'Snapshot', desc: 'The pristine copy in .spec-init/base/ used as the merge base for upgrade and customize.' },
+          { term: 'Managed region', desc: 'A `throughspec:managed` marked block in CLAUDE.md that upgrade refreshes from the template; everything outside it is your data and is never touched.' },
           { term: 'Three-way merge', desc: 'Merging new template + your edits against the snapshot, surfacing conflicts instead of overwriting.' },
         ],
       },
@@ -671,7 +846,7 @@ export const PAGES: Record<string, DocPage> = {
       { t: 'h2', id: 'existing-project', text: 'Can I add it to an existing project?' },
       { t: 'p', text: 'Yes. Run spec-init reinit in the project - it writes only the missing files, keeps everything you have, and never touches source code.' },
       { t: 'h2', id: 'upgrades', text: 'What happens to my edits when I upgrade?' },
-      { t: 'p', text: 'upgrade never overwrites your content - it does a three-way merge and surfaces conflicts as git-style fences for you to resolve.' },
+      { t: 'p', text: 'upgrade never overwrites your content - your data files are preserved and CLAUDE.md keeps everything outside its throughspec:managed regions.' },
       { t: 'h2', id: 'cost', text: 'Does it cost anything?' },
       { t: 'p', text: 'The kit is free and open source (MIT). Integrations are free/open-source too, and most reuse your existing coding-agent model.' },
       {
@@ -700,7 +875,7 @@ export const PAGES: Record<string, DocPage> = {
       {
         t: 'callout',
         variant: 'tip',
-        text: 'Run `spec-init doctor` any time a scaffolded project looks off - it checks the required files, the template-version line, and the .spec-init/base/ snapshot.',
+        text: 'Run `spec-init doctor` any time a scaffolded project looks off - it checks the required files, the template-version line, and spec.config.js.',
       },
     ],
   },

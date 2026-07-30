@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // spec-init (Node CLI) entry: parse argv, dispatch, and centralize error printing.
 
+import { readFileSync } from 'node:fs';
 import { HELP_TEXT, parseArgs, UsageError } from './args.js';
 import type { CliOptions } from './args.js';
 import { runInit } from './commands/init.js';
@@ -10,7 +11,12 @@ import { runAddSkill } from './commands/add-skill.js';
 import { runUpgrade } from './commands/upgrade.js';
 import { runDoctor } from './commands/doctor.js';
 
-const VERSION = '1.0.0';
+// Single source of truth: the package manifest that ships beside dist/.
+const VERSION = (
+  JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8')) as {
+    version: string;
+  }
+).version;
 
 /** Dispatch a parsed command to its runner. Exported for direct testing. */
 export function dispatch(opts: CliOptions): number {
@@ -36,8 +42,8 @@ export function dispatch(opts: CliOptions): number {
       runAddSkill(opts);
       return 0;
     case 'upgrade': {
-      const r = runUpgrade(opts);
-      return r.conflicted.length > 0 ? 1 : 0;
+      runUpgrade(opts);
+      return 0;
     }
     case 'doctor': {
       const r = runDoctor();

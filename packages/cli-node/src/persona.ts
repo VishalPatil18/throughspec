@@ -23,3 +23,12 @@ export function stripPersonas(source: string, persona: Persona): string {
   // Collapse 3+ newlines left by removed blocks; end with one trailing newline.
   return stripped.replace(/\n{3,}/g, '\n\n').replace(/\n+$/, '\n');
 }
+
+const ACTIVE_PERSONA_RE = /^\/\/ active-persona:.*$/m;
+const MANAGED_SUFFIX = '   // managed by spec-init - change via `spec-init customize --persona`';
+
+/** Replace the CLI-managed `// active-persona:` line with `persona` (or `<none>`). No-op if absent. */
+export function stampPersona(text: string, persona: Persona | null): string {
+  const line = `// active-persona: ${persona ?? '<none>'}${MANAGED_SUFFIX}`;
+  return ACTIVE_PERSONA_RE.test(text) ? text.replace(ACTIVE_PERSONA_RE, line) : text;
+}

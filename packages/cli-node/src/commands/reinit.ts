@@ -1,16 +1,20 @@
 // spec-init reinit [dir]: adopt Throughspec in place, keeping existing files unless --force.
 
-import { cpSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';
 import { UsageError } from '../args.js';
 import type { CliOptions } from '../args.js';
 import { resolvePayloadDir } from '../payload.js';
+import { applyConfig, DEFAULT_PERSONA, isManaged } from '../config.js';
+import { installIntegrations } from '../integrations.js';
+import type { InstallResult } from '../integrations.js';
 import { postInitChecklist } from '../checklist.js';
 import {
   INTEGRATIONS_PREFIX,
   integrationFilesFor,
   maybeTransform,
   promptIntegrations,
+  promptPersona,
   readLineSync,
   walkPayload,
 } from './init.js';
@@ -31,14 +35,14 @@ export function runReinit(opts: CliOptions, quiet = false): ReinitResult {
   const dir = resolve(process.cwd(), dirArg ?? '.');
   const payloadDir = resolvePayloadDir();
 
-  if (existsSync(join(dir, '.spec-init', 'base'))) {
+  if (isManaged(dir)) {
     throw new UsageError(
-      'this project already has a .spec-init/base snapshot - it looks Throughspec-managed.\n' +
+      'this project already has spec.config.js - it looks Throughspec-managed.\n' +
         '       Run `spec-init upgrade` to merge a newer template, or `spec-init customize` to change options.',
     );
   }
 
-  // Interactive picker (same rules as init); quiet callers pass integrations in.
+  const persona = quiet ? opts.persona ?? DEFAULT_PERSONA : promptPersona(opts);
   const integrations = quiet ? [...opts.integrations] : promptIntegrations(opts);
 
   const baseFiles = walkPayload(payloadDir).filter((rel) => !rel.startsWith(INTEGRATIONS_PREFIX));
@@ -46,7 +50,6 @@ export function runReinit(opts: CliOptions, quiet = false): ReinitResult {
   const existing = new Set(
     [...baseFiles, ...integrationRel].filter((rel) => existsSync(join(dir, rel))),
   );
-  // Quiet mode never prompts for keep/replace: honor --force, else keep (safe).
   const mode = quiet
     ? resolveReinitMode(opts, existing.size, { isTty: false, ask: () => '' })
     : resolveReinitMode(opts, existing.size);
@@ -66,12 +69,8 @@ export function runReinit(opts: CliOptions, quiet = false): ReinitResult {
       continue;
     }
     mkdirSync(dirname(dest), { recursive: true });
-    const content = maybeTransform(
-      rel,
-      readFileSync(join(payloadDir, rel), 'utf8'),
-      opts.persona,
-      integrations,
-    );
+    let content = maybeTransform(rel, readFileSync(join(payloadDir, rel), 'utf8'), persona, integrations);
+    if (rel === 'spec.config.js') content = applyConfig(content, { persona, integrations });
     writeFileSync(dest, content);
     written += 1;
   }
@@ -92,18 +91,17 @@ export function runReinit(opts: CliOptions, quiet = false): ReinitResult {
     }
   }
 
-  // Snapshot the pristine payload so future `upgrade`/`customize` can re-derive.
-  const baseDir = join(dir, '.spec-init', 'base');
-  cpSync(payloadDir, baseDir, { recursive: true });
-  writeFileSync(
-    join(dir, '.spec-init', 'meta.json'),
-    JSON.stringify({ persona: opts.persona, integrations }, null, 2) + '\n',
-  );
+  const installResults: InstallResult[] = quiet
+    ? []
+    : installIntegrations(integrations, {
+        isTty: Boolean(process.stdin.isTTY),
+        noInstall: opts.noInstall,
+      });
 
   const relDir = relative(process.cwd(), dir) || '.';
   if (!quiet) {
     process.stdout.write(`\nAdopted Throughspec in ${relDir}: ${written} written, ${kept} kept.\n`);
-    process.stdout.write(postInitChecklist(relDir, opts.persona, integrations, 'Initialized'));
+    process.stdout.write(postInitChecklist(relDir, persona, integrations, installResults, 'Initialized'));
   }
   return { dir, written, kept, dryRun: false };
 }

@@ -26,6 +26,7 @@ export interface CliOptions {
   removeIntegration: Integration | null;
   force: boolean;
   dryRun: boolean;
+  noInstall: boolean;
   help: boolean;
   version: boolean;
 }
@@ -39,6 +40,7 @@ const EMPTY: CliOptions = {
   removeIntegration: null,
   force: false,
   dryRun: false,
+  noInstall: false,
   help: false,
   version: false,
 };
@@ -56,6 +58,8 @@ export function parseArgs(argv: readonly string[]): CliOptions {
       opts.force = true;
     } else if (token === '--dry-run') {
       opts.dryRun = true;
+    } else if (token === '--no-install') {
+      opts.noInstall = true;
     } else if (token === '--persona') {
       opts.persona = takePersona(argv[++i], '--persona');
     } else if (token === '--integrations') {
@@ -67,7 +71,15 @@ export function parseArgs(argv: readonly string[]): CliOptions {
     } else if (token.startsWith('--')) {
       throw new UsageError(`unknown flag: ${token}`);
     } else if (opts.command === null) {
-      opts.command = takeCommand(token);
+      if ((COMMANDS as readonly string[]).includes(token)) {
+        opts.command = token as Command;
+      } else if (token.startsWith('-')) {
+        throw new UsageError(`unknown command: ${token} (try one of: ${COMMANDS.join(', ')})`);
+      } else {
+        // Implied init: `spec-init my-project` == `spec-init init my-project`.
+        opts.command = 'init';
+        opts.positional.push(token);
+      }
     } else {
       opts.positional.push(token);
     }
@@ -81,11 +93,6 @@ export class UsageError extends Error {
     super(message);
     this.name = 'UsageError';
   }
-}
-
-function takeCommand(token: string): Command {
-  if ((COMMANDS as readonly string[]).includes(token)) return token as Command;
-  throw new UsageError(`unknown command: ${token} (try one of: ${COMMANDS.join(', ')})`);
 }
 
 function takePersona(value: string | undefined, flag: string): Persona {
@@ -135,6 +142,7 @@ FLAGS
   --remove <name>               used with customize
   --force                       overwrite existing files during init
   --dry-run                     print the plan; write nothing
+  --no-install                  skip auto-installing selected integrations
   -h, --help                    show this text
   -v, --version                 print CLI version and exit
 

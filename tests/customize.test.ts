@@ -30,8 +30,7 @@ describe('spec-init customize', () => {
     const claude = readFileSync(join(project, 'CLAUDE.md'), 'utf8');
     expect(claude).toContain('**Graphify**');
     expect(existsSync(join(project, '.graphify/config.yml'))).toBe(true);
-    const meta = JSON.parse(readFileSync(join(project, '.spec-init/meta.json'), 'utf8'));
-    expect(meta.integrations).toContain('graphify');
+    expect(readFileSync(join(project, 'spec.config.js'), 'utf8')).toContain('graphify');
   });
 
   it('--remove obsidian removes both the block and the .obsidian directory', () => {
@@ -45,8 +44,7 @@ describe('spec-init customize', () => {
     const claude = readFileSync(join(project, 'CLAUDE.md'), 'utf8');
     expect(claude).not.toContain('**Obsidian**');
     expect(existsSync(join(project, '.obsidian'))).toBe(false);
-    const meta = JSON.parse(readFileSync(join(project, '.spec-init/meta.json'), 'utf8'));
-    expect(meta.integrations).not.toContain('obsidian');
+    expect(readFileSync(join(project, 'spec.config.js'), 'utf8')).not.toContain('obsidian');
   });
 
   it('--persona swaps the surviving block without touching integrations', () => {
@@ -77,6 +75,6 @@ describe('spec-init customize', () => {
       encoding: 'utf8',
     });
     expect(r.status).toBe(2);
-    expect(r.stderr).toMatch(/CLAUDE\.md not found/);
+    expect(r.stderr).toMatch(/spec\.config\.js not found/);
   });
 });

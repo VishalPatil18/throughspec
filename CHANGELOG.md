@@ -4,13 +4,38 @@ All notable changes to Throughspec are documented here.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+
 ---
 
-## [Unreleased]
+## [1.2.0] - 2026-07-30
+
+### Changed
+
+- **spec.config.js is now the single ground-truth config.** Persona and active integrations live in a CLI-managed block inside it; `.spec-init/meta.json` is gone. The file is preserved verbatim across upgrades.
+- **`spec-init upgrade` is now non-destructive by construction.** Files are classified: CLI-owned files are replaced, your data files (`claude/*.md`, `design/design.md`, `CHANGELOG.md`, `README.md`) are never overwritten, and `CLAUDE.md` has only its `throughspec:managed` regions refreshed - your product notes, environment, and custom instructions are untouched.
+- **No more `.spec-init/` duplication.** The full base snapshot is gone; upgrade reads the shipped template directly, so scaffolds are ~half the files. Pre-1.2 projects auto-migrate on first `upgrade`.
 
 ### Added
 
-- Placeholder for the next release cycle.
+- **Persona is now first-class**: prompted during scaffold (default `engineer`), stored in `spec.config.js`, printed with its guidance after scaffolding, and pinned in `CLAUDE.md`.
+- **Integration auto-install + docs**: selecting an integration with a known installer (e.g. Caveman) runs it automatically; every integration prints its official docs link in the terminal and the docs site. `--no-install` skips auto-install.
+
+### Migration
+
+- Pre-1.2 projects: run `spec-init upgrade` once. It migrates `.spec-init/meta.json` into `spec.config.js` and removes the old `.spec-init/` snapshot. Your memory files and edits are preserved.
+
+---
+
+## [1.1.0] - 2026-07-27
+
+### Added
+
+- Create-app shorthand: `spec-init <name>` (and `npx spec-init my-project`) now implies `init`, so scaffolding no longer requires the explicit `init` subcommand. A leading flag or `-`-prefixed token is still rejected.
+- The active persona is now surfaced in `spec.config.js` through a CLI-managed `// active-persona:` line, written and kept current by `init`, `reinit`, and `customize --persona`.
+
+### Fixed
+
+- `spec-init upgrade` no longer produces false conflicts on persona- or integration-gated files. The `.spec-init/base/` snapshot stays raw (so `customize` can still re-derive from its markers), but `base` and `theirs` are transformed through the recorded `meta.json` persona/integration settings before the three-way merge. The managed persona line in `spec.config.js` is normalized out of the merge and re-stamped afterward, so it can never conflict.
 
 ---
 

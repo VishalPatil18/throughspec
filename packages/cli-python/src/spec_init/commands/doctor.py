@@ -50,9 +50,11 @@ def run_doctor(cwd: Path | None = None) -> DoctorReport:
         if not re.search(r"Template version", text, re.IGNORECASE):
             issues.append('CLAUDE.md is missing the "Template version" line')
 
-    base_snapshot = root / ".spec-init" / "base"
-    if not base_snapshot.exists():
-        issues.append("missing .spec-init/base/ snapshot (upgrade will not work)")
+    config = root / "spec.config.js"
+    if not config.exists():
+        issues.append("missing spec.config.js (project config)")
+    elif not re.search(r"persona:\s*['\"]", config.read_text(encoding="utf-8")):
+        issues.append("spec.config.js is missing the managed persona field")
 
     report = DoctorReport(ok=not issues, issues=issues)
     if report.ok:

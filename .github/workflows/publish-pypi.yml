@@ -35,9 +35,8 @@ jobs:
           fi
       - name: refresh payload from source-of-truth templates/
         run: |
-          rm -rf packages/cli-python/_payload packages/cli-python/src/spec_init/_payload
+          rm -rf packages/cli-python/_payload
           cp -R templates packages/cli-python/_payload
-          cp -R templates packages/cli-python/src/spec_init/_payload
       - name: build wheel + sdist
         working-directory: packages/cli-python
         run: uv build

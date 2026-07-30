@@ -1,18 +1,20 @@
-"""spec-init init <name> [--persona] [--integrations] [--force] [--dry-run]."""
+"""spec-init init <name>: scaffold the payload into <name>/.
+
+spec.config.js is the ground-truth config; there is no .spec-init snapshot.
+"""
 
 from __future__ import annotations
 
-import json
 import re
-import shutil
 import sys
 from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 
-from ..args import INTEGRATIONS, CliOptions, Integration, Persona, UsageError
+from ..args import INTEGRATIONS, PERSONAS, CliOptions, Integration, Persona, UsageError
 from ..checklist import post_init_checklist
-from ..integrations import strip_integrations
+from ..config import DEFAULT_PERSONA, ProjectConfig, apply_config
+from ..integrations import InstallResult, install_integrations, strip_integrations
 from ..payload import resolve_payload_dir
 from ..persona import strip_personas
 
@@ -29,7 +31,7 @@ class InitResult:
     dry_run: bool
 
 
-def run_init(opts: CliOptions) -> InitResult:
+def run_init(opts: CliOptions, quiet: bool = False) -> InitResult:
     """Scaffold a new project. Raises UsageError on user-facing errors."""
     if not opts.positional:
         raise UsageError("init requires a project name: spec-init init <name>")
@@ -45,11 +47,10 @@ def run_init(opts: CliOptions) -> InitResult:
                 "       Pass --force to proceed, or choose a different name."
             )
 
-    # Interactive picker on a TTY; else returns opts.integrations unchanged.
-    integrations = prompt_integrations(opts)
+    persona = (opts.persona or DEFAULT_PERSONA) if quiet else prompt_persona(opts)
+    integrations = tuple(opts.integrations) if quiet else prompt_integrations(opts)
 
     all_files = _walk_payload(payload_dir)
-    # _integrations/ files are copied conditionally by apply_integrations(), not as base.
     base_files = [rel for rel in all_files if not rel.startswith(INTEGRATIONS_PREFIX)]
 
     if opts.dry_run:
@@ -66,40 +67,31 @@ def run_init(opts: CliOptions) -> InitResult:
         src = payload_dir / rel
         dest = out_dir / rel
         dest.parent.mkdir(parents=True, exist_ok=True)
-        content = _maybe_transform(rel, src.read_text(encoding="utf-8"), opts.persona, integrations)
+        content = _maybe_transform(rel, src.read_text(encoding="utf-8"), persona, integrations)
+        if rel == "spec.config.js":
+            content = apply_config(content, ProjectConfig(persona=persona, integrations=integrations))
         dest.write_text(content, encoding="utf-8", newline="")
         written += 1
     written += apply_integrations(payload_dir, out_dir, integrations)
 
-    # Snapshot the pristine payload so upgrade/customize can re-derive later.
-    base_dir = out_dir / ".spec-init" / "base"
-    shutil.copytree(payload_dir, base_dir, dirs_exist_ok=True)
-    meta = out_dir / ".spec-init" / "meta.json"
-    meta.write_text(
-        json.dumps(
-            {"persona": opts.persona, "integrations": list(integrations)},
-            indent=2,
-        )
-        + "\n",
-        encoding="utf-8",
+    install_results: list[InstallResult] = (
+        []
+        if quiet
+        else install_integrations(integrations, is_tty=sys.stdin.isatty(), no_install=opts.no_install)
     )
 
-    try:
-        rel_out = out_dir.relative_to(Path.cwd())
-        rel_str = str(rel_out) or "."
-    except ValueError:
-        rel_str = str(out_dir)
-    sys.stdout.write(post_init_checklist(rel_str, opts.persona, integrations))
+    if not quiet:
+        try:
+            rel_str = str(out_dir.relative_to(Path.cwd())) or "."
+        except ValueError:
+            rel_str = str(out_dir)
+        sys.stdout.write(post_init_checklist(rel_str, persona, integrations, install_results))
     return InitResult(out_dir=out_dir, files_written=written, dry_run=False)
 
 
 def _walk_payload(root: Path) -> list[str]:
     """List every file under `root` as sorted forward-slash relative paths."""
-    out: list[str] = []
-    for path in root.rglob("*"):
-        if path.is_file():
-            out.append(path.relative_to(root).as_posix())
-    return sorted(out)
+    return sorted(p.relative_to(root).as_posix() for p in root.rglob("*") if p.is_file())
 
 
 def _maybe_transform(
@@ -118,10 +110,7 @@ def _maybe_transform(
     return out
 
 
-def integration_files_for(
-    payload_dir: Path,
-    active: tuple[Integration, ...],
-) -> list[str]:
+def integration_files_for(payload_dir: Path, active: tuple[Integration, ...]) -> list[str]:
     """List destination-relative paths that will be written for `active`."""
     out: list[str] = []
     for name in active:
@@ -132,11 +121,7 @@ def integration_files_for(
     return sorted(out)
 
 
-def apply_integrations(
-    payload_dir: Path,
-    out_dir: Path,
-    active: tuple[Integration, ...],
-) -> int:
+def apply_integrations(payload_dir: Path, out_dir: Path, active: tuple[Integration, ...]) -> int:
     """Copy every file under _integrations/<name>/ into `out_dir` for active names."""
     count = 0
     for name in active:
@@ -150,6 +135,31 @@ def apply_integrations(
             dest.write_bytes(src.read_bytes())
             count += 1
     return count
+
+
+def prompt_persona(
+    opts: CliOptions,
+    isatty: Callable[[], bool] | None = None,
+    ask: Callable[[str], str] | None = None,
+) -> Persona:
+    """Prompt for a persona on an eligible interactive run; else --persona or the default."""
+    if opts.persona:
+        return opts.persona
+    if isatty is None:
+        isatty = sys.stdin.isatty
+    if ask is None:
+        ask = input
+    if opts.dry_run or not isatty():
+        return DEFAULT_PERSONA
+    sys.stdout.write("Persona? (tunes CLAUDE.md and guidance)\n")
+    for i, p in enumerate(PERSONAS, start=1):
+        sys.stdout.write(f"  {i}) {p}\n")
+    choice = ask("> ").strip().lower()
+    if choice.isdigit() and 1 <= int(choice) <= len(PERSONAS):
+        return PERSONAS[int(choice) - 1]
+    if choice in PERSONAS:
+        return choice  # type: ignore[return-value]
+    return DEFAULT_PERSONA
 
 
 def prompt_integrations(
@@ -167,20 +177,16 @@ def prompt_integrations(
     if not eligible:
         return current
     choice = (
-        ask("Integrations to include?\n  1) all\n  2) let me select\n  3) none\n> ")
-        .strip()
-        .lower()
+        ask("Integrations to include?\n  1) all\n  2) let me select\n  3) none\n> ").strip().lower()
     )
     if choice in ("1", "all"):
         return INTEGRATIONS
     if choice in ("2", "let me select", "select"):
-        sys.stdout.write(
-            "Select integrations (space/comma-separated numbers, Enter to submit):\n"
-        )
+        sys.stdout.write("Select integrations (space/comma-separated numbers, Enter to submit):\n")
         for i, name in enumerate(INTEGRATIONS, start=1):
             sys.stdout.write(f"  {i}) {name}\n")
         return _parse_selection(ask("> "))
-    return ()  # "3" | "none" | empty | unknown -> none (safe default)
+    return ()
 
 
 def _parse_selection(line: str) -> tuple[Integration, ...]:

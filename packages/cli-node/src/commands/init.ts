@@ -1,21 +1,22 @@
-// spec-init init <name>: scaffold the payload into <name>/, then snapshot .spec-init/base/.
+// spec-init init <name>: scaffold the payload into <name>/.
+// spec.config.js is the ground-truth config; there is no .spec-init snapshot.
 
 import {
-  cpSync,
   existsSync,
   mkdirSync,
   readdirSync,
   readFileSync,
   readSync,
-  statSync,
   writeFileSync,
 } from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';
-import { INTEGRATIONS, UsageError } from '../args.js';
+import { INTEGRATIONS, PERSONAS, UsageError } from '../args.js';
 import type { CliOptions, Integration, Persona } from '../args.js';
 import { resolvePayloadDir } from '../payload.js';
 import { stripPersonas } from '../persona.js';
-import { stripIntegrations } from '../integrations.js';
+import { installIntegrations, stripIntegrations } from '../integrations.js';
+import type { InstallResult } from '../integrations.js';
+import { applyConfig, DEFAULT_PERSONA } from '../config.js';
 import { postInitChecklist } from '../checklist.js';
 
 /** Payload prefix (forward-slash) that holds per-integration file trees. */
@@ -44,7 +45,8 @@ export function runInit(opts: CliOptions, quiet = false): InitResult {
     }
   }
 
-  // Interactive picker on a TTY; quiet callers pass integrations in and own prompting.
+  // Interactive on a TTY; quiet callers pass values in and own prompting.
+  const persona = quiet ? opts.persona ?? DEFAULT_PERSONA : promptPersona(opts);
   const integrations = quiet ? [...opts.integrations] : promptIntegrations(opts);
 
   const allFiles = walkPayload(payloadDir);
@@ -66,23 +68,24 @@ export function runInit(opts: CliOptions, quiet = false): InitResult {
     const src = join(payloadDir, rel);
     const dest = join(outDir, rel);
     mkdirSync(dirname(dest), { recursive: true });
-    const content = maybeTransform(rel, readFileSync(src, 'utf8'), opts.persona, integrations);
+    let content = maybeTransform(rel, readFileSync(src, 'utf8'), persona, integrations);
+    if (rel === 'spec.config.js') content = applyConfig(content, { persona, integrations });
     writeFileSync(dest, content);
     written += 1;
   }
   written += applyIntegrations(payloadDir, outDir, integrations);
 
-  // Snapshot the pristine payload so upgrade/customize can re-derive later.
-  const baseDir = join(outDir, '.spec-init', 'base');
-  cpSync(payloadDir, baseDir, { recursive: true });
-  writeFileSync(
-    join(outDir, '.spec-init', 'meta.json'),
-    JSON.stringify({ persona: opts.persona, integrations }, null, 2) + '\n',
-  );
+  // Auto-install integrations that ship a known installer (never in quiet/CI).
+  const installResults: InstallResult[] = quiet
+    ? []
+    : installIntegrations(integrations, {
+        isTty: Boolean(process.stdin.isTTY),
+        noInstall: opts.noInstall,
+      });
 
   if (!quiet) {
     process.stdout.write(
-      postInitChecklist(relative(process.cwd(), outDir) || '.', opts.persona, integrations),
+      postInitChecklist(relative(process.cwd(), outDir) || '.', persona, integrations, installResults),
     );
   }
   return { outDir, filesWritten: written, dryRun: false };
@@ -152,7 +155,7 @@ export function applyIntegrations(
   return count;
 }
 
-/** Injectable I/O for promptIntegrations, so the gating logic stays testable. */
+/** Injectable I/O for the prompts, so the gating logic stays testable. */
 export interface PromptDeps {
   isTty: boolean;
   ask: () => string;
@@ -175,6 +178,23 @@ export function readLineSync(): string {
     if (ch !== '\r') out += ch;
   }
   return out;
+}
+
+/** Prompt for a persona on an eligible interactive run; else --persona or the default. */
+export function promptPersona(
+  opts: CliOptions,
+  deps: PromptDeps = { isTty: Boolean(process.stdin.isTTY), ask: readLineSync },
+): Persona {
+  if (opts.persona) return opts.persona;
+  if (opts.dryRun || !deps.isTty) return DEFAULT_PERSONA;
+  process.stdout.write('Persona? (tunes CLAUDE.md and guidance)\n');
+  PERSONAS.forEach((p, i) => process.stdout.write(`  ${i + 1}) ${p}\n`));
+  process.stdout.write(`> `);
+  const choice = deps.ask().trim().toLowerCase();
+  const n = Number.parseInt(choice, 10);
+  if (Number.isInteger(n) && n >= 1 && n <= PERSONAS.length) return PERSONAS[n - 1] as Persona;
+  if ((PERSONAS as readonly string[]).includes(choice)) return choice as Persona;
+  return DEFAULT_PERSONA; // empty / unknown -> safe default
 }
 
 /** Prompt for integrations on an eligible interactive run; else return opts.integrations. */
@@ -207,6 +227,3 @@ function parseSelection(line: string): Integration[] {
   );
   return INTEGRATIONS.filter((_, i) => picked.has(i + 1));
 }
-
-/** Suppresses unused-var lint for statSync import needed only in tests. */
-export const __internals = { statSync };

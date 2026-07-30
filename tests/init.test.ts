@@ -70,7 +70,8 @@ describe('spec-init init', () => {
     for (const rel of REQUIRED) {
       expect(existsSync(join(workspace, 'perf-project', rel)), rel).toBe(true);
     }
-    expect(existsSync(join(workspace, 'perf-project', '.spec-init/base/CLAUDE.md'))).toBe(true);
+    expect(existsSync(join(workspace, 'perf-project', 'spec.config.js'))).toBe(true);
+    expect(existsSync(join(workspace, 'perf-project', '.spec-init'))).toBe(false);
   });
 
   it('strips persona blocks (student keeps only its section)', () => {

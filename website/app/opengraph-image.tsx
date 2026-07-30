@@ -1,4 +1,5 @@
 import { ImageResponse } from 'next/og';
+import { SITE_VERSION } from '@/lib/version';
 
 export const alt = 'Throughspec - Spec-driven SDLC for Claude Code';
 export const size = { width: 1200, height: 630 };
@@ -27,6 +28,18 @@ export default function OG() {
             <rect x="11.5" y="4" width="11" height="11" fill="#000" />
           </svg>
           <div style={{ fontSize: 26, fontWeight: 500, letterSpacing: '-0.02em' }}>throughspec</div>
+          <div
+            style={{
+              fontFamily: 'monospace',
+              fontSize: 15,
+              color: '#4e4d4d',
+              border: '1px solid #000',
+              borderRadius: 999,
+              padding: '2px 10px',
+            }}
+          >
+            {`v${SITE_VERSION}`}
+          </div>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <div

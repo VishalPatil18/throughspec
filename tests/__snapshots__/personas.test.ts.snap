@@ -3,10 +3,16 @@
 exports[`persona stripping > retains only the engineer block 1`] = `
 "# CLAUDE.md - Project Behavior Contract
 
-> **Template version:** 1.0.0
+<!-- throughspec:managed:start -->
+
+> **Template version:** 1.2.0
 > **Read this file before every prompt.** It is the contract between you (Claude) and this project.
 
+<!-- throughspec:managed:end -->
+
 ---
+
+<!-- Sections wrapped in \`throughspec:managed\` markers are refreshed by \`spec-init upgrade\`; everything outside them (your product summary, environment, custom instructions) is never touched. -->
 
 ## 1. What this project is
 
@@ -21,6 +27,8 @@ For the current build plan, read [\`claude/plan.md\`](./claude/plan.md).
 For the compressed current state, read [\`claude/context.md\`](./claude/context.md).
 
 ---
+
+<!-- throughspec:managed:start -->
 
 ## 2. How you work in this project
 
@@ -85,6 +93,8 @@ When invoked via \`/spec-docs\`:
 3. Apply only on approval. **Never modify source code in this workflow.**
 4. Flag any documented feature that no longer exists.
 
+<!-- throughspec:managed:end -->
+
 ---
 
 ## 6. Environment
@@ -108,6 +118,8 @@ When invoked via \`/spec-docs\`:
 - _<e.g., "Prefer Drizzle over Prisma.">_
 
 ---
+
+<!-- throughspec:managed:start -->
 
 ## 8. Integrations active in this project
 
@@ -174,16 +186,24 @@ When invoked via \`/spec-docs\`:
 - Prefer diff-scoped \`/spec-refactor\` over full-repo cleanups.
 - Read \`claude/context.md\` before Grep - it is cheaper.
 - Log every non-trivial architecture decision to \`claude/design-decisions.md\`, even in solo work.
+
+<!-- throughspec:managed:end -->
 "
 `;
 
 exports[`persona stripping > retains only the student block 1`] = `
 "# CLAUDE.md - Project Behavior Contract
 
-> **Template version:** 1.0.0
+<!-- throughspec:managed:start -->
+
+> **Template version:** 1.2.0
 > **Read this file before every prompt.** It is the contract between you (Claude) and this project.
 
+<!-- throughspec:managed:end -->
+
 ---
+
+<!-- Sections wrapped in \`throughspec:managed\` markers are refreshed by \`spec-init upgrade\`; everything outside them (your product summary, environment, custom instructions) is never touched. -->
 
 ## 1. What this project is
 
@@ -198,6 +218,8 @@ For the current build plan, read [\`claude/plan.md\`](./claude/plan.md).
 For the compressed current state, read [\`claude/context.md\`](./claude/context.md).
 
 ---
+
+<!-- throughspec:managed:start -->
 
 ## 2. How you work in this project
 
@@ -262,6 +284,8 @@ When invoked via \`/spec-docs\`:
 3. Apply only on approval. **Never modify source code in this workflow.**
 4. Flag any documented feature that no longer exists.
 
+<!-- throughspec:managed:end -->
+
 ---
 
 ## 6. Environment
@@ -285,6 +309,8 @@ When invoked via \`/spec-docs\`:
 - _<e.g., "Prefer Drizzle over Prisma.">_
 
 ---
+
+<!-- throughspec:managed:start -->
 
 ## 8. Integrations active in this project
 
@@ -353,16 +379,24 @@ After every phase, ask Claude: **"Why this step?"** and append the answer to [\`
 - Follow the Teach-and-Explain contract on every prompt.
 - Use \`/spec-docs\` to re-read what you built when it stops making sense.
 - Do not delete past learnings; the log is append-only.
+
+<!-- throughspec:managed:end -->
 "
 `;
 
 exports[`persona stripping > retains only the team block 1`] = `
 "# CLAUDE.md - Project Behavior Contract
 
-> **Template version:** 1.0.0
+<!-- throughspec:managed:start -->
+
+> **Template version:** 1.2.0
 > **Read this file before every prompt.** It is the contract between you (Claude) and this project.
 
+<!-- throughspec:managed:end -->
+
 ---
+
+<!-- Sections wrapped in \`throughspec:managed\` markers are refreshed by \`spec-init upgrade\`; everything outside them (your product summary, environment, custom instructions) is never touched. -->
 
 ## 1. What this project is
 
@@ -377,6 +411,8 @@ For the current build plan, read [\`claude/plan.md\`](./claude/plan.md).
 For the compressed current state, read [\`claude/context.md\`](./claude/context.md).
 
 ---
+
+<!-- throughspec:managed:start -->
 
 ## 2. How you work in this project
 
@@ -441,6 +477,8 @@ When invoked via \`/spec-docs\`:
 3. Apply only on approval. **Never modify source code in this workflow.**
 4. Flag any documented feature that no longer exists.
 
+<!-- throughspec:managed:end -->
+
 ---
 
 ## 6. Environment
@@ -464,6 +502,8 @@ When invoked via \`/spec-docs\`:
 - _<e.g., "Prefer Drizzle over Prisma.">_
 
 ---
+
+<!-- throughspec:managed:start -->
 
 ## 8. Integrations active in this project
 
@@ -530,16 +570,24 @@ When invoked via \`/spec-docs\`:
 - Every PR must run through the checklist in [\`.github/pull_request_template.md\`](./.github/pull_request_template.md).
 - Memory files are shared context - treat unresolved conflicts in them as blocking.
 - Rotate \`/spec-sync\` ownership so the log does not drift under one person.
+
+<!-- throughspec:managed:end -->
 "
 `;
 
 exports[`persona stripping > retains only the vibe block 1`] = `
 "# CLAUDE.md - Project Behavior Contract
 
-> **Template version:** 1.0.0
+<!-- throughspec:managed:start -->
+
+> **Template version:** 1.2.0
 > **Read this file before every prompt.** It is the contract between you (Claude) and this project.
 
+<!-- throughspec:managed:end -->
+
 ---
+
+<!-- Sections wrapped in \`throughspec:managed\` markers are refreshed by \`spec-init upgrade\`; everything outside them (your product summary, environment, custom instructions) is never touched. -->
 
 ## 1. What this project is
 
@@ -554,6 +602,8 @@ For the current build plan, read [\`claude/plan.md\`](./claude/plan.md).
 For the compressed current state, read [\`claude/context.md\`](./claude/context.md).
 
 ---
+
+<!-- throughspec:managed:start -->
 
 ## 2. How you work in this project
 
@@ -618,6 +668,8 @@ When invoked via \`/spec-docs\`:
 3. Apply only on approval. **Never modify source code in this workflow.**
 4. Flag any documented feature that no longer exists.
 
+<!-- throughspec:managed:end -->
+
 ---
 
 ## 6. Environment
@@ -641,6 +693,8 @@ When invoked via \`/spec-docs\`:
 - _<e.g., "Prefer Drizzle over Prisma.">_
 
 ---
+
+<!-- throughspec:managed:start -->
 
 ## 8. Integrations active in this project
 
@@ -709,5 +763,7 @@ You are here to ship a working idea, not to debate architecture.
 - If a step feels heavy, ask Claude to explain it in one sentence before doing it.
 - Skip prose you do not understand - but do not skip a required cross-question.
 - Trust the workflow: it protects you from having to redo work later.
+
+<!-- throughspec:managed:end -->
 "
 `;

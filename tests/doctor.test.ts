@@ -30,11 +30,11 @@ describe('spec-init doctor', () => {
     expect(r.stderr).toMatch(/claude\/srs\.md/);
   });
 
-  it('exits 1 when the .spec-init/base snapshot is missing', () => {
+  it('exits 1 when spec.config.js is missing', () => {
     const project = scaffold();
-    rmSync(join(project, '.spec-init'), { recursive: true, force: true });
+    rmSync(join(project, 'spec.config.js'), { force: true });
     const r = spawnSync('node', [CLI, 'doctor'], { cwd: project, encoding: 'utf8' });
     expect(r.status).toBe(1);
-    expect(r.stderr).toMatch(/\.spec-init/);
+    expect(r.stderr).toMatch(/spec\.config\.js/);
   });
 });

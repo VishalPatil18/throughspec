@@ -54,6 +54,7 @@ class CliOptions:
     remove_integration: Integration | None = None
     force: bool = False
     dry_run: bool = False
+    no_install: bool = False
     help: bool = False
     version: bool = False
 
@@ -78,6 +79,7 @@ FLAGS
   --remove <name>               used with customize
   --force                       overwrite existing files during init
   --dry-run                     print the plan; write nothing
+  --no-install                  skip auto-installing selected integrations
   -h, --help                    show this text
   -v, --version                 print CLI version and exit
 
@@ -115,11 +117,18 @@ def parse_args(argv: list[str]) -> CliOptions:
     if argv[0] in ("--version", "-v"):
         return CliOptions(version=True)
 
-    command_token = argv[0]
-    if command_token not in COMMANDS:
+    first = argv[0]
+    if first in COMMANDS:
+        command_token = first
+        rest = argv[1:]
+    elif first.startswith("-"):
         raise UsageError(
-            f"unknown command: {command_token} (try one of: {', '.join(COMMANDS)})"
+            f"unknown command: {first} (try one of: {', '.join(COMMANDS)})"
         )
+    else:
+        # Implied init: `spec-init my-project` == `spec-init init my-project`.
+        command_token = "init"
+        rest = argv
 
     parser = argparse.ArgumentParser(prog=f"spec-init {command_token}", add_help=False)
     parser.add_argument("--persona", choices=list(PERSONAS))
@@ -128,12 +137,13 @@ def parse_args(argv: list[str]) -> CliOptions:
     parser.add_argument("--remove", choices=list(INTEGRATIONS))
     parser.add_argument("--force", action="store_true")
     parser.add_argument("--dry-run", action="store_true", dest="dry_run")
+    parser.add_argument("--no-install", action="store_true", dest="no_install")
     parser.add_argument("--help", "-h", action="store_true", dest="help")
     parser.add_argument("--version", "-v", action="store_true", dest="version")
     parser.add_argument("positional", nargs="*")
 
     try:
-        ns = parser.parse_args(argv[1:])
+        ns = parser.parse_args(rest)
     except SystemExit as e:  # argparse calls sys.exit on unknown flags
         raise UsageError("invalid flag or missing value") from e
 
@@ -149,6 +159,7 @@ def parse_args(argv: list[str]) -> CliOptions:
         add_integration=ns.add,
         remove_integration=ns.remove,
         force=ns.force,
+        no_install=ns.no_install,
         dry_run=ns.dry_run,
         help=ns.help,
         version=ns.version,

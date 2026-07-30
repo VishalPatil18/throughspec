@@ -40,7 +40,7 @@ def test_produces_srs_tree_under_5s(tmp_path: Path, run_cli: Callable) -> None:
     assert elapsed < 5.0, f"scaffold took {elapsed:.2f}s"
     for rel in REQUIRED:
         assert (tmp_path / "perf" / rel).exists(), rel
-    assert (tmp_path / "perf" / ".spec-init" / "base" / "CLAUDE.md").exists()
+    assert not (tmp_path / "perf" / ".spec-init").exists()
 
 
 def test_student_persona_strip(tmp_path: Path, run_cli: Callable) -> None:
@@ -54,7 +54,7 @@ def test_student_persona_strip(tmp_path: Path, run_cli: Callable) -> None:
 
 
 def test_integrations_flip(tmp_path: Path, run_cli: Callable) -> None:
-    """--integrations graphify,obsidian flips both checkboxes to [x]."""
+    """--integrations graphify,obsidian keeps both integration blocks in CLAUDE.md."""
     run_cli(
         "init",
         "p",
@@ -62,11 +62,13 @@ def test_integrations_flip(tmp_path: Path, run_cli: Callable) -> None:
         "vibe",
         "--integrations",
         "graphify,obsidian",
+        "--no-install",
         cwd=tmp_path,
     )
     claude = (tmp_path / "p" / "CLAUDE.md").read_text(encoding="utf-8")
-    assert "- [x] Graphify" in claude
-    assert "- [x] Obsidian" in claude
+    assert "Graphify" in claude
+    assert "Obsidian" in claude
+    assert "openwiki" not in claude  # an unselected integration is stripped
 
 
 def test_refuse_without_force(
@@ -127,3 +129,10 @@ def test_prompt_gated_off_when_ineligible() -> None:
     assert prompt_integrations(
         _opts(integrations=("graphify",)), isatty=lambda: True, ask=boom
     ) == ("graphify",)
+
+
+def test_init_writes_persona_to_config(scaffold) -> None:
+    """init --persona student writes persona into the spec.config.js managed block."""
+    project = scaffold("p", "student")
+    cfg = (project / "spec.config.js").read_text(encoding="utf-8")
+    assert "persona: 'student'" in cfg
